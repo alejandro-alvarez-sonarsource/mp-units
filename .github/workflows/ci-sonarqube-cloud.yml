@@ -27,6 +27,7 @@ on:
     branches:
       - master
       - main
+      - branch-*
     paths-ignore:
       - "docs/**"
 
