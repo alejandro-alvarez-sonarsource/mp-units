@@ -18,58 +18,43 @@
 
 # `mp-units` – The Quantities and Units Library for C++
 
-> 🚀 **ISO C++29 Standardization Candidate** – The future of dimensional analysis in C++!
-
-**The `mp-units` library is a candidate for ISO standardization for C++29.**
-More context can be found in the following ISO C++ proposals:
-
-- [P1935: A C++ Approach to Physical Units](https://wg21.link/p1935)
-- [P2980: A motivation, scope, and plan for a quantities and units library](https://wg21.link/p2980)
-- [P3045: Quantities and units library](https://wg21.link/p3045)
-
-> 🤝 **We are actively seeking organizations and individuals interested in**
-> **field‑trialing the library!**
-
-
-## 🌟 Share Your Success Story
-
-**Help shape the future of C++!**
-Your testimonials help **demonstrate real-world value** to the ISO C++ Committee and
-other potential library users!
-
-Whether you're using mp-units in **production**, **research**, or **education**:
-
-- **Organizations**: Share your production deployments and success stories
-- **Academics**: Report research applications and teaching experiences
-- **Developers**: Tell us about your innovative use cases and benefits
-
-[![Share Experience](https://img.shields.io/badge/Share_Your-Usage_Experience-blue?style=for-the-badge&labelColor=black&label=🌟%20Share%20Your)](https://github.com/mpusz/mp-units/issues/new?template=usage_experience.yml)
-
-
-## 📚 Documentation
-
-Extensive project documentation is available on the **[project site](https://mpusz.github.io/mp-units)**.
-It includes:
-
-- **Installation instructions** – Get up and running quickly
-- **Detailed user's guide** – Comprehensive usage documentation
-- **Design rationale** – Understanding the architectural decisions
-- **API reference** – Complete technical documentation
-- **Tutorials** – Step-by-step learning resources
-- **Workshops** – Hands-on practice exercises
-- **Examples** – Real-world usage demonstrations
-
 
 ## ⚡ TL;DR
 
-**`mp-units`** is a Modern C++ (C++20 and later) library providing compile‑time
-dimensional analysis and safe manipulation of units, quantities, and quantity points.
+**`mp-units`** is the only Modern C++ (C++20 and later) library providing the full
+spectrum of compile‑time safety for physical quantities and units — from dimensional
+analysis to quantity kind safety — built on the ISO 80000 International System of
+Quantities (ISQ).
+
+### What Sets mp-units Apart?
+
+Beyond standard dimensional analysis and automatic unit converions, **mp-units** provides
+safety levels available in no other C++ library:
+
+- 🥇 **The only C++ library with Quantity Kind Safety** — Distinguishes quantities that
+  share the same dimension but represent fundamentally different physical concepts:
+  _frequency_ (Hz) ≠ _radioactive activity_ (Bq), _absorbed dose_ (Gy) ≠ _dose equivalent_
+  (Sv), _plane angle_ (rad) ≠ _solid angle_ (sr). Dimensional analysis alone cannot catch
+  these errors — **mp-units** prevents them at compile time.
+
+- 🥇 **The only library implementing ISO 80000 (ISQ)** — Built on the International System
+  of Quantities, functions can require _specific_ quantities: `isq::height` (not just any
+  `isq::length`), `isq::kinetic_energy` (not just any `isq::energy`). The physics of your
+  domain becomes part of the type system.
+
+- 🥇 **Strongly-Typed Numerics for Any Domain** — The quantity framework extends beyond
+  physics: define semantically distinct types for item counts, financial values, identifiers,
+  or any numeric abstraction that should never be silently mixed at compile time.
 
 ### Key Features
 
 - **Type Safety** – Strongly typed quantities, units, dimensions, and quantity points
 - **Zero Runtime Cost** – Compile‑time dimensional analysis with no runtime overhead
 - **Unified Design** – Comprehensive model for units, dimensions, quantities, and point origins
+- **ISO 80000 / ISQ Hierarchy** – Implements the International System of Quantities (ISQ)
+  with physics‑correct quantity types and hierarchies
+- **Quantity Kind Safety** – Distinguishes physically distinct concepts sharing the same
+  dimension (e.g., Hz vs. Bq, Gy vs. Sv, rad vs. sr)
 - **Rich Text Formatting** – Text formatting support with extensive options &
   character sets
 - **Flexible Usage** – C++ modules support (when available) and header‑only usage
@@ -158,6 +143,50 @@ int main()
 ```
 
 [![Try it live on Compiler Explorer](https://img.shields.io/badge/Try_live_on-Compiler_Explorer-black?style=for-the-badge&logo=compilerexplorer&labelColor=black&color=67C52A)](https://godbolt.org/z/rYq7cfdxY)
+
+
+## 🚀 ISO C++29 Standardization Candidate
+
+> The future of dimensional analysis in C++!
+
+**The `mp-units` library is a candidate for ISO standardization for C++29.**
+More context can be found in the following ISO C++ proposals:
+
+- [P1935: A C++ Approach to Physical Units](https://wg21.link/p1935)
+- [P2980: A motivation, scope, and plan for a quantities and units library](https://wg21.link/p2980)
+- [P3045: Quantities and units library](https://wg21.link/p3045)
+
+> 🤝 **We are actively seeking organizations and individuals interested in**
+> **field‑trialing the library!**
+
+
+## 🌟 Share Your Success Story
+
+**Help shape the future of C++!**
+Your testimonials help **demonstrate real-world value** to the ISO C++ Committee and
+other potential library users!
+
+Whether you're using mp-units in **production**, **research**, or **education**:
+
+- **Organizations**: Share your production deployments and success stories
+- **Academics**: Report research applications and teaching experiences
+- **Developers**: Tell us about your innovative use cases and benefits
+
+[![Share Experience](https://img.shields.io/badge/Share_Your-Usage_Experience-blue?style=for-the-badge&labelColor=black&label=🌟%20Share%20Your)](https://github.com/mpusz/mp-units/issues/new?template=usage_experience.yml)
+
+
+## 📚 Documentation
+
+Extensive project documentation is available on the **[project site](https://mpusz.github.io/mp-units)**.
+It includes:
+
+- **Installation instructions** – Get up and running quickly
+- **Detailed user's guide** – Comprehensive usage documentation
+- **Design rationale** – Understanding the architectural decisions
+- **API reference** – Complete technical documentation
+- **Tutorials** – Step-by-step learning resources
+- **Workshops** – Hands-on practice exercises
+- **Examples** – Real-world usage demonstrations
 
 
 ## 🔍 Try It Out

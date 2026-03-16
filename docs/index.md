@@ -7,26 +7,13 @@ hide:
 <!-- markdownlint-disable-next-line MD026 -->
 # Welcome to **mp-units**!
 
-**mp-units** is a compile-time enabled feature-rich Modern C++ modular/header-only library
-that provides compile-time dimensional analysis and unit/quantity manipulation. Its key
-strengths include safety, performance, and developer experience.
+**mp-units** is the only Modern C++ (C++20) library providing the full spectrum of
+compile‑time safety for physical quantities and units — from dimensional analysis and
+unit conversions to **quantity kind safety** — built on the ISO 80000 International
+System of Quantities (ISQ).
 
-It is the first library on the market that, besides being **unit-safe** and **dimension-safe**,
-is also **quantity-safe**.
-
-The library source code is hosted on [GitHub](https://github.com/mpusz/mp-units) with a permissive
-[MIT license](https://github.com/mpusz/units/blob/master/LICENSE.md).
-
-??? info "Supported compilers"
-
-    This library tries to provide the best user experience possible with the C++ language.
-    To achieve that, it extensively uses the latest C++ language features.
-
-    Even though the library benefits from the latest C++ versions (if available), C++20 is enough
-    to compile and use all of the library's functionality.
-
-    Please refer to [C++ compiler support chapter](getting_started/cpp_compiler_support.md)
-    for more details.
+The library source code is hosted on [GitHub](https://github.com/mpusz/mp-units) with a
+permissive [MIT license](https://github.com/mpusz/units/blob/master/LICENSE.md).
 
 === "C++ modules"
 
@@ -91,10 +78,20 @@ Harvard Bridge length = 364.4 smoot (2034.6 ft, 620.14 m) ± 1 εar
 
     More on the smoot unit of length can be found at <https://en.wikipedia.org/wiki/Smoot>.
 
+??? info "Supported compilers"
 
-!!! important "Important: Help shape the future of C++!"
+    This library tries to provide the best user experience possible with the C++ language.
+    To achieve that, it extensively uses the latest C++ language features.
 
-    The **mp-units** library is a candidate for ISO standardization in C++29. To support this effort,
+    Even though the library benefits from the latest C++ versions (if available), C++20 is enough
+    to compile and use all of the library's functionality.
+
+    Please refer to [C++ compiler support chapter](getting_started/cpp_compiler_support.md)
+    for more details.
+
+!!! important "Help shape the future of C++!"
+
+    **mp-units** is a candidate for ISO standardization in C++29. To support this effort,
     we need your help in demonstrating its real-world value to the ISO C++ Committee.
 
     **We are seeking:**
