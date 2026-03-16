@@ -37,7 +37,7 @@ using namespace mp_units::si::unit_symbols;
 static_assert(1 * km / (1 * s) == 1000 * m / s);
 
 // Function signatures encode domain/physics, not just dimensions
-void calculate_trajectory(QuantityOf<isq::kinetic_energy> auto e);
+void calculate_trajectory(quantity<isq::kinetic_energy[J]> e);
 
 int main()
 {
@@ -50,7 +50,7 @@ int main()
 }
 ```
 
-[![Try it live on Compiler Explorer](https://img.shields.io/badge/Try_live_on-Compiler_Explorer-black?style=for-the-badge&logo=compilerexplorer&labelColor=black&color=67C52A)](https://godbolt.org/z/dccffde1v)
+[![Try it live on Compiler Explorer](https://img.shields.io/badge/Try_live_on-Compiler_Explorer-black?style=for-the-badge&logo=compilerexplorer&labelColor=black&color=67C52A)](https://godbolt.org/z/YWErT7ofs)
 
 ### What Sets mp-units Apart?
 
