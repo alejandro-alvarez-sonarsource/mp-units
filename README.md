@@ -22,9 +22,9 @@
 ## 🎯 Overview
 
 **`mp-units`** is the only Modern C++ (C++20 and later) library providing the full
-spectrum of compile‑time safety for physical quantities and units — from dimensional
-analysis to quantity kind safety — built on the ISO 80000 International System of
-Quantities (ISQ).
+spectrum of compile‑time safety for domain-specific quantities and units — from
+dimensional analysis to quantity kind safety — built on the ISO 80000 International
+System of Quantities (ISQ).
 
 ```cpp
 #include <mp-units/systems/isq.h>
@@ -36,7 +36,7 @@ using namespace mp_units::si::unit_symbols;
 // Compile-time dimensional analysis — zero runtime overhead
 static_assert(1 * km / (1 * s) == 1000 * m / s);
 
-// Function signatures encode physics, not just dimensions
+// Function signatures encode domain/physics, not just dimensions
 void calculate_trajectory(QuantityOf<isq::kinetic_energy> auto e);
 
 int main()
