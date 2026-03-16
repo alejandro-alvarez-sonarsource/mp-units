@@ -16,7 +16,7 @@
 [![Conan testing](https://img.shields.io/badge/mpusz.jfrog.io-2.5.0%3Atesting-blue)](https://mpusz.jfrog.io/ui/packages/conan:%2F%2Fmp-units/2.5.0)
 
 
-# `mp-units` – The Quantities and Units Library for C++
+# `mp-units` – The Domain-Correct Quantities and Units Library for C++
 
 
 ## 🎯 Overview
@@ -25,6 +25,32 @@
 spectrum of compile‑time safety for physical quantities and units — from dimensional
 analysis to quantity kind safety — built on the ISO 80000 International System of
 Quantities (ISQ).
+
+```cpp
+#include <mp-units/systems/isq.h>
+#include <mp-units/systems/si.h>
+
+using namespace mp_units;
+using namespace mp_units::si::unit_symbols;
+
+// Compile-time dimensional analysis — zero runtime overhead
+static_assert(1 * km / (1 * s) == 1000 * m / s);
+
+// Function signatures encode physics, not just dimensions
+void calculate_trajectory(QuantityOf<isq::kinetic_energy> auto e);
+
+int main()
+{
+  quantity<isq::potential_energy[J]> Ep = 42 * J;
+  quantity<isq::kinetic_energy[J]>   Ek = 123 * J;
+  calculate_trajectory(Ek);         // ✅ correct
+  // calculate_trajectory(Ep);      // ❌ potential energy ≠ kinetic energy (both in J)
+
+  // quantity<Gy> q = 42 * Sv;      // ❌ absorbed dose ≠ dose equivalent (both J/kg)
+}
+```
+
+[![Try it live on Compiler Explorer](https://img.shields.io/badge/Try_live_on-Compiler_Explorer-black?style=for-the-badge&logo=compilerexplorer&labelColor=black&color=67C52A)](https://godbolt.org/z/dccffde1v)
 
 ### What Sets mp-units Apart?
 
@@ -46,27 +72,13 @@ safety levels available in no other C++ library:
   physics: define semantically distinct types for item counts, financial values, identifiers,
   or any numeric abstraction that should never be silently mixed at compile time.
 
-### Key Features
-
-- **ISO 80000 / ISQ Hierarchy** – Implements the International System of Quantities (ISQ)
-  with physics‑correct quantity types and hierarchies
-- **Quantity Kind Safety** – Distinguishes physically distinct concepts sharing the same
-  dimension (e.g., Hz vs. Bq, Gy vs. Sv, rad vs. sr)
-- **Type Safety** – Strongly typed quantities, units, dimensions, and quantity points
-- **Zero Runtime Cost** – Compile‑time dimensional analysis with no runtime overhead
-- **Unified Design** – Comprehensive model for units, dimensions, quantities, and point origins
-- **Rich Text Formatting** – Text formatting support with extensive options &
-  character sets
-- **Flexible Usage** – C++ modules support (when available) and header‑only usage
-- **Configurable** – Contracts and freestanding mode
-- **Interoperable** – Seamless pathways for legacy and external libraries
 
 ## 💡 Examples
 
 **mp-units** provides an expressive, readable API that feels natural to write while
 catching entire classes of bugs at compile time.
 
-### Basic Usage
+### Unit Arithmetic
 
 Here's a taste of what **mp-units** can do:
 
@@ -93,10 +105,6 @@ static_assert(2 * m * (3 * m) == 6 * m2);
 static_assert(10 * km / (5 * km) == 2 * one);
 
 static_assert(1000 / (1 * s) == 1 * kHz);
-
-// quantity kind safety: same dimension, different physical meaning → compile-time error
-// static_assert(1 * Gy == 1 * Sv);              // ❌ absorbed dose ≠ dose equivalent (both J/kg)
-// static_assert(1 * rad + 1 * sr == 2 * bit);   // ❌ plane angle ≠ solid angle (both dimensionless)
 ```
 
 [![Try it live on Compiler Explorer](https://img.shields.io/badge/Try_live_on-Compiler_Explorer-black?style=for-the-badge&logo=compilerexplorer&labelColor=black&color=67C52A)](https://godbolt.org/z/fT1r4sohs)
@@ -150,6 +158,16 @@ int main()
 
 [![Try it live on Compiler Explorer](https://img.shields.io/badge/Try_live_on-Compiler_Explorer-black?style=for-the-badge&logo=compilerexplorer&labelColor=black&color=67C52A)](https://godbolt.org/z/rYq7cfdxY)
 
+## ✅ Key Features
+
+- **Type Safety** – Strongly typed quantities, units, dimensions, and quantity points
+- **Zero Runtime Cost** – Compile‑time dimensional analysis with no runtime overhead
+- **Unified Design** – Comprehensive model for units, dimensions, quantities, and point origins
+- **Rich Text Formatting** – Text formatting support with extensive options & character sets
+- **Flexible Usage** – C++ modules support (when available) and header‑only usage
+- **Configurable** – Contracts and freestanding mode
+- **Interoperable** – Seamless pathways for legacy and external libraries
+
 
 ## 📚 Documentation
 
@@ -167,8 +185,6 @@ It includes:
 
 ## 🔍 Try It Out
 
-### GitHub Codespaces
-
 For **advanced development** or **contributions**, we provide a fully configured cloud
 development environment with [GitHub Codespaces](https://docs.github.com/en/codespaces):
 
@@ -180,22 +196,11 @@ development environment with [GitHub Codespaces](https://docs.github.com/en/code
 
 For detailed environment documentation, see [`.devcontainer/README.md`](.devcontainer/README.md).
 
-### Install as a Dependency
 
-🥇 **Recommended:** We recommend using [**Conan**](https://conan.io/center/recipes/mp-units)
-to integrate **mp-units** with your project.
+## 🚀 Help Shape the Future of C++
 
-**Multiple options available!** Please refer to our comprehensive
-[**Installation and Usage Guide**](https://mpusz.github.io/mp-units/latest/getting_started/installation_and_usage)
-for all supported integration methods.
-
-
-## 🚀 ISO C++29 Standardization Candidate
-
-> The future of dimensional analysis in C++!
-
-**The `mp-units` library is a candidate for ISO standardization for C++29.**
-More context can be found in the following ISO C++ proposals:
+**`mp-units` is a candidate for ISO standardization for C++29** — the future of dimensional
+analysis in C++! The technical case is documented in:
 
 - [P1935: A C++ Approach to Physical Units](https://wg21.link/p1935)
 - [P2980: A motivation, scope, and plan for a quantities and units library](https://wg21.link/p2980)
@@ -204,14 +209,9 @@ More context can be found in the following ISO C++ proposals:
 > 🤝 **We are actively seeking organizations and individuals interested in**
 > **field‑trialing the library!**
 
-
-## 🌟 Share Your Success Story
-
-**Help shape the future of C++!**
-Your testimonials help **demonstrate real-world value** to the ISO C++ Committee and
-other potential library users!
-
-Whether you're using mp-units in **production**, **research**, or **education**:
+**Your experience matters.** Real-world testimonials demonstrate value to the ISO C++ Committee
+and help potential adopters decide. Whether you're using **mp-units** in **production**,
+**research**, or **education**:
 
 - **Organizations**: Share your production deployments and success stories
 - **Academics**: Report research applications and teaching experiences
@@ -241,8 +241,8 @@ We appreciate **every contribution**, from code to documentation to community su
 🌟 See our [**Contributors Page**](CONTRIBUTORS.md) for the complete list and recognition details.
 
 > **Ready to contribute?** Check out our
-[**Contributing Guide**](https://mpusz.github.io/mp-units/latest/getting_started/contributing/)
-to get started! 🚀
+> [**Contributing Guide**](https://mpusz.github.io/mp-units/latest/getting_started/contributing/)
+> to get started! 🚀
 
 
 ## 💝 Support the Project
@@ -253,6 +253,9 @@ Your support helps maintain development momentum and accelerate standardization 
 **Ways to support:**
 - ⭐ **Star the repository** – Show your appreciation and help others discover **mp-units**
 - 💰 **Become a sponsor** – Financial support enables continued development
+
+  [![Sponsor](https://img.shields.io/badge/Sponsor-GitHub_Sponsors-pink?style=for-the-badge&logo=githubsponsors&labelColor=black&color=EA4AAA)](https://github.com/sponsors/mpusz)
+
 - 📢 **Share your success story** – Help demonstrate real-world value for standardization
   and other potential users
 - 🤝 **Contribute** – Code, documentation, feedback, and community support
