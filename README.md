@@ -19,7 +19,7 @@
 # `mp-units` – The Quantities and Units Library for C++
 
 
-## ⚡ TL;DR
+## 🎯 Overview
 
 **`mp-units`** is the only Modern C++ (C++20 and later) library providing the full
 spectrum of compile‑time safety for physical quantities and units — from dimensional
@@ -28,7 +28,7 @@ Quantities (ISQ).
 
 ### What Sets mp-units Apart?
 
-Beyond standard dimensional analysis and automatic unit converions, **mp-units** provides
+Beyond standard dimensional analysis and automatic unit conversions, **mp-units** provides
 safety levels available in no other C++ library:
 
 - 🥇 **The only C++ library with Quantity Kind Safety** — Distinguishes quantities that
@@ -48,20 +48,25 @@ safety levels available in no other C++ library:
 
 ### Key Features
 
-- **Type Safety** – Strongly typed quantities, units, dimensions, and quantity points
-- **Zero Runtime Cost** – Compile‑time dimensional analysis with no runtime overhead
-- **Unified Design** – Comprehensive model for units, dimensions, quantities, and point origins
 - **ISO 80000 / ISQ Hierarchy** – Implements the International System of Quantities (ISQ)
   with physics‑correct quantity types and hierarchies
 - **Quantity Kind Safety** – Distinguishes physically distinct concepts sharing the same
   dimension (e.g., Hz vs. Bq, Gy vs. Sv, rad vs. sr)
+- **Type Safety** – Strongly typed quantities, units, dimensions, and quantity points
+- **Zero Runtime Cost** – Compile‑time dimensional analysis with no runtime overhead
+- **Unified Design** – Comprehensive model for units, dimensions, quantities, and point origins
 - **Rich Text Formatting** – Text formatting support with extensive options &
   character sets
 - **Flexible Usage** – C++ modules support (when available) and header‑only usage
 - **Configurable** – Contracts and freestanding mode
 - **Interoperable** – Seamless pathways for legacy and external libraries
 
-### Quick Example
+## 💡 Examples
+
+**mp-units** provides an expressive, readable API that feels natural to write while
+catching entire classes of bugs at compile time.
+
+### Basic Usage
 
 Here's a taste of what **mp-units** can do:
 
@@ -88,6 +93,10 @@ static_assert(2 * m * (3 * m) == 6 * m2);
 static_assert(10 * km / (5 * km) == 2 * one);
 
 static_assert(1000 / (1 * s) == 1 * kHz);
+
+// quantity kind safety: same dimension, different physical meaning → compile-time error
+// static_assert(1 * Gy == 1 * Sv);              // ❌ absorbed dose ≠ dose equivalent (both J/kg)
+// static_assert(1 * rad + 1 * sr == 2 * bit);   // ❌ plane angle ≠ solid angle (both dimensionless)
 ```
 
 [![Try it live on Compiler Explorer](https://img.shields.io/badge/Try_live_on-Compiler_Explorer-black?style=for-the-badge&logo=compilerexplorer&labelColor=black&color=67C52A)](https://godbolt.org/z/fT1r4sohs)
@@ -96,11 +105,8 @@ static_assert(1000 / (1 * s) == 1 * kHz);
 
 The library makes extensive use of **C++20 features** (concepts, class types as NTTPs, etc.).
 This enables powerful yet easy‑to‑use interfaces while performing all conversions and dimensional
-analysis at compile time—without sacrificing runtime performance or accuracy.
-
-### More Advanced Example
-
-Here's a broader preview showcasing **mp-units** capabilities:
+analysis at compile time — without sacrificing runtime performance or accuracy.
+The example below showcases ISQ quantity types, mixed unit systems, and rich text formatting:
 
 ```cpp
 #include <mp-units/systems/isq.h>
@@ -145,6 +151,45 @@ int main()
 [![Try it live on Compiler Explorer](https://img.shields.io/badge/Try_live_on-Compiler_Explorer-black?style=for-the-badge&logo=compilerexplorer&labelColor=black&color=67C52A)](https://godbolt.org/z/rYq7cfdxY)
 
 
+## 📚 Documentation
+
+Extensive project documentation is available on the **[project site](https://mpusz.github.io/mp-units)**.
+It includes:
+
+- **Installation instructions** – Get up and running quickly
+- **Detailed user's guide** – Comprehensive usage documentation
+- **Design rationale** – Understanding the architectural decisions
+- **API reference** – Complete technical documentation
+- **Tutorials** – Step-by-step learning resources
+- **Workshops** – Hands-on practice exercises
+- **Examples** – Real-world usage demonstrations
+
+
+## 🔍 Try It Out
+
+### GitHub Codespaces
+
+For **advanced development** or **contributions**, we provide a fully configured cloud
+development environment with [GitHub Codespaces](https://docs.github.com/en/codespaces):
+
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in-GitHub_Codespaces-blue?style=for-the-badge&logo=github&labelColor=black&color=2088FF)](https://codespaces.new/mpusz/mp-units)
+
+**Alternatives:**
+1. Navigate to the repository → **"Code"** → **"Codespaces"** → **"Create codespace on master"**
+2. Use the pre‑configured devcontainer and Docker image manually in your IDE
+
+For detailed environment documentation, see [`.devcontainer/README.md`](.devcontainer/README.md).
+
+### Install as a Dependency
+
+🥇 **Recommended:** We recommend using [**Conan**](https://conan.io/center/recipes/mp-units)
+to integrate **mp-units** with your project.
+
+**Multiple options available!** Please refer to our comprehensive
+[**Installation and Usage Guide**](https://mpusz.github.io/mp-units/latest/getting_started/installation_and_usage)
+for all supported integration methods.
+
+
 ## 🚀 ISO C++29 Standardization Candidate
 
 > The future of dimensional analysis in C++!
@@ -173,51 +218,6 @@ Whether you're using mp-units in **production**, **research**, or **education**:
 - **Developers**: Tell us about your innovative use cases and benefits
 
 [![Share Experience](https://img.shields.io/badge/Share_Your-Usage_Experience-blue?style=for-the-badge&labelColor=black&label=🌟%20Share%20Your)](https://github.com/mpusz/mp-units/issues/new?template=usage_experience.yml)
-
-
-## 📚 Documentation
-
-Extensive project documentation is available on the **[project site](https://mpusz.github.io/mp-units)**.
-It includes:
-
-- **Installation instructions** – Get up and running quickly
-- **Detailed user's guide** – Comprehensive usage documentation
-- **Design rationale** – Understanding the architectural decisions
-- **API reference** – Complete technical documentation
-- **Tutorials** – Step-by-step learning resources
-- **Workshops** – Hands-on practice exercises
-- **Examples** – Real-world usage demonstrations
-
-
-## 🔍 Try It Out
-
-### Compiler Explorer
-
-**mp-units** is available on Compiler Explorer for instant experimentation!
-Perfect for fast, zero‑setup trials and prototyping your ideas.
-
-
-### GitHub Codespaces
-
-For **advanced development** or **contributions**, we provide a fully configured cloud
-development environment with [GitHub Codespaces](https://docs.github.com/en/codespaces):
-
-[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_in-GitHub_Codespaces-blue?style=for-the-badge&logo=github&labelColor=black&color=2088FF)](https://codespaces.new/mpusz/mp-units)
-
-**Alternatives:**
-1. Navigate to the repository → **"Code"** → **"Codespaces"** → **"Create codespace on master"**
-2. Use the pre‑configured devcontainer and Docker image manually in your IDE
-
-For detailed environment documentation, see [`.devcontainer/README.md`](.devcontainer/README.md).
-
-### Install as a Dependency
-
-🥇 **Recommended:** We recommend using [**Conan**](https://conan.io/center/recipes/mp-units)
-to integrate **mp-units** with your project.
-
-**Multiple options available!** Please refer to our comprehensive
-[**Installation and Usage Guide**](https://mpusz.github.io/mp-units/latest/getting_started/installation_and_usage)
-for all supported integration methods.
 
 
 ## 🤝 Contributors
