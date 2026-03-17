@@ -24,7 +24,8 @@
 **`mp-units`** is the only Modern C++ (C++20 and later) library providing the full
 spectrum of compile‑time safety for domain-specific quantities and units — from
 dimensional analysis to quantity kind safety — built on the ISO 80000 International
-System of Quantities (ISQ).
+System of Quantities (ISQ). It is the leading candidate for C++29 standardization —
+your chance to shape the future of C++.
 
 ```cpp
 #include <mp-units/systems/isq.h>
@@ -158,21 +159,39 @@ int main()
 
 [![Try it live on Compiler Explorer](https://img.shields.io/badge/Try_live_on-Compiler_Explorer-black?style=for-the-badge&logo=compilerexplorer&labelColor=black&color=67C52A)](https://godbolt.org/z/rYq7cfdxY)
 
+
 ## ✅ Key Features
 
-- **Type Safety** – Strongly typed quantities, units, dimensions, and quantity points
-- **Zero Runtime Cost** – Compile‑time dimensional analysis with no runtime overhead
-- **Unified Design** – Comprehensive model for units, dimensions, quantities, and point origins
-- **Rich Text Formatting** – Text formatting support with extensive options & character sets
-- **Flexible Usage** – C++ modules support (when available) and header‑only usage
-- **Configurable** – Contracts and freestanding mode
-- **Interoperable** – Seamless pathways for legacy and external libraries
+**Safety**
+- Quantity kind safety: same dimension, different meaning → compile-time error
+- Affine space strong types (`quantity` and `quantity_point`)
+- Value-preserving conversions
+
+**Performance**
+- All dimensional analysis at compile time — zero runtime overhead
+- Performance on par with (sometimes even better than) fundamental types
+
+**User Experience**
+- Optimized for readable, actionable compilation errors
+- Expressive, composable unit expressions
+
+**Feature Rich**
+- Systems of Quantities *and* Units; scalar, vector, and tensor quantities
+- Affine space, natural units, strong angular system
+- Highly adjustable text output formatting
+
+**Easy to Extend**
+- Custom dimensions, quantities, and units in a single line of code
+
+**Low Adoption Cost**
+- No external dependencies · macro-free API · C++20 modules-ready · freestanding-capable
+
+→ [Full feature overview](https://mpusz.github.io/mp-units/latest/getting_started/about/)
 
 
 ## 📚 Documentation
 
-Extensive project documentation is available on the **[project site](https://mpusz.github.io/mp-units)**.
-It includes:
+Extensive project documentation covers everything from getting started to advanced usage:
 
 - **Installation instructions** – Get up and running quickly
 - **Detailed user's guide** – Comprehensive usage documentation
@@ -181,6 +200,8 @@ It includes:
 - **Tutorials** – Step-by-step learning resources
 - **Workshops** – Hands-on practice exercises
 - **Examples** – Real-world usage demonstrations
+
+→ [Explore the full documentation](https://mpusz.github.io/mp-units)
 
 
 ## 🔍 Try It Out
