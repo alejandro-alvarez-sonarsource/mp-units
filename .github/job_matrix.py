@@ -144,7 +144,7 @@ class Configuration(ConanOptions):
         cc = self.toolchain.compiler.cc
         cxx = self.toolchain.compiler.cxx
         if cc and cxx:
-            conf = f"-c 'tools.build:compiler_executables={{\"c\": \"{cc}\", \"cpp\": \"{cxx}\"}}'"
+            conf = f'-c \'tools.build:compiler_executables={{"c": "{cc}", "cpp": "{cxx}"}}\''
             ret["conan-args"] = f"{conf} {options}"
         else:
             ret["conan-args"] = options
