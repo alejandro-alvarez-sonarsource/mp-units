@@ -119,7 +119,7 @@ class Configuration(ConanOptions):
         # expose individual ConanOptions fields as top-level matrix properties
         # (needed for YAML conditions and cache keys)
         ret.update(features)
-        ret["conan-config"] = " ".join(f"-o '&:{k}={v}'" for k, v in features.items())
+        options = " ".join(f"-o '&:{k}={v}'" for k, v in features.items())
         ret["config-summary-str"] = self.infostr(adjusted=False)
         # Pre-build the -s flags so workflows and repro scripts can use them directly
         # without sed-patching the auto-detected Conan profile.
@@ -141,6 +141,13 @@ class Configuration(ConanOptions):
         ret["conan-build-folder"] = (
             f"{_COMPILER_TYPE_MAP[self.toolchain.compiler.type]}-{self.toolchain.compiler.version}-{self.std}"
         )
+        cc = self.toolchain.compiler.cc
+        cxx = self.toolchain.compiler.cxx
+        if cc and cxx:
+            conf = f'-c \'tools.build:compiler_executables={{"c": "{cc}", "cpp": "{cxx}"}}\''
+            ret["conan-args"] = f"{conf} {options}"
+        else:
+            ret["conan-args"] = options
         return ret
 
     def _formatters():
