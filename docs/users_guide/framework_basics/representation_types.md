@@ -32,26 +32,19 @@ vector operations like cross product are needed.
 
 The following table summarizes the requirements for different representation characters:
 
-| Requirement                                |          Real Scalar           |                        Complex Scalar                         |                             Vector                             |                          Tensor                          |
-|--------------------------------------------|:------------------------------:|:-------------------------------------------------------------:|:--------------------------------------------------------------:|:--------------------------------------------------------:|
-| Copyable                                   |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
-| Addition/subtraction (`+`, `-`, unary `-`) |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
-| `MagnitudeScalable` (unit-conversion)      |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
-| Self-scalable (`T * T`, `T / T`)           |               ✅                |                               ✅                               |                               -                                |                            -                             |
-| Equality comparable (`==`)                 |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
-| Totally ordered (`<`, `>`, `<=`, `>=`)     |               ✅                |                               -                               |                               -                                |                            -                             |
-| Not a quantity type itself                 |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
-| **Construction**                           |               -                |                        `T{real, imag}`                        |                               -                                |                            -                             |
-| **Required CPOs**                          |               -                | `mp_units::real()`, `mp_units::imag()`, `mp_units::modulus()` |                       `mp_units::norm()`                       |                    `mp_units::norm()`                    |
-| **Opt-out mechanism**                      |       `disable_real<T>`        |                               -                               |                               -                                |                            -                             |
-| **Examples**                               | `int`, `double`, `long double` |                    `std::complex<double>`                     | `Eigen::Vector3d`, `cartesian_vector<double>`, `int`, `double` | `Eigen::Matrix3d`, `int`, `double` (for scalar measures) |
-
-??? note "`MagnitudeScalable` — unit-conversion scalability"
-
-    Every representation type must be **unit-conversion scalable**, meaning the library can apply a
-    unit magnitude ratio to it via `mp_units::scale<T>(M, value)`. The
-    `MagnitudeScalable` concept checks this. Most standard types satisfy it automatically; see
-    [`scaling_traits`](#scaling_traits) for the full details on built-in and custom paths.
+| Requirement                                       |          Real Scalar           |                        Complex Scalar                         |                             Vector                             |                          Tensor                          |
+|---------------------------------------------------|:------------------------------:|:-------------------------------------------------------------:|:--------------------------------------------------------------:|:--------------------------------------------------------:|
+| Copyable                                          |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
+| Addition/subtraction (`+`, `-`, unary `-`)        |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
+| [`MagnitudeScalable`](#scaling) (unit-conversion) |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
+| Self-scalable (`T * T`, `T / T`)                  |               ✅                |                               ✅                               |                               -                                |                            -                             |
+| Equality comparable (`==`)                        |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
+| Totally ordered (`<`, `>`, `<=`, `>=`)            |               ✅                |                               -                               |                               -                                |                            -                             |
+| Not a quantity type itself                        |               ✅                |                               ✅                               |                               ✅                                |                            ✅                             |
+| **Construction**                                  |               -                |                        `T{real, imag}`                        |                               -                                |                            -                             |
+| **Required CPOs**                                 |               -                | `mp_units::real()`, `mp_units::imag()`, `mp_units::modulus()` |                       `mp_units::norm()`                       |                    `mp_units::norm()`                    |
+| **Opt-out mechanism**                             |       `disable_real<T>`        |                               -                               |                               -                                |                            -                             |
+| **Examples**                                      | `int`, `double`, `long double` |                    `std::complex<double>`                     | `Eigen::Vector3d`, `cartesian_vector<double>`, `int`, `double` | `Eigen::Matrix3d`, `int`, `double` (for scalar measures) |
 
 ??? note "Weakly Regular Types"
 
@@ -146,6 +139,125 @@ The following table summarizes the requirements for different representation cha
 
     This is why arithmetic types work for tensor quantities—they represent these scalar measures
     commonly used in finite element analysis, structural engineering, and materials science.
+
+
+## How Scaling Works?
+
+Every representation type must be **unit-conversion scalable** — the library must be able
+to apply a unit magnitude ratio to it internally. This is captured by the `MagnitudeScalable`
+concept, which directly names the three supported scaling paths:
+
+```cpp
+concept MagnitudeScalable =
+  WeaklyRegular<T> && (UsesFloatingPointScaling<T> || UsesFixedPointScaling<T> || UsesElementWiseScaling<T>);
+```
+
+The three sub-concepts and their requirements:
+
+```cpp
+// Floating-point type, or container whose element type is floating-point
+// (e.g. double, cartesian_vector<double>).
+concept UsesFloatingPointScaling =
+  (treat_as_floating_point<T> || treat_as_floating_point<value_type_t<T>>) &&
+  requires(T value, value_type_t<T> f) {
+    { value * f } -> WeaklyRegular;
+    { value / f } -> WeaklyRegular;
+  };
+
+// Fundamental integer type, or a wrapper that is implicitly convertible to/from it
+// (e.g. int, long, std::int64_t).  value_type_t<T> must be std::integral (not just
+// an integer-like type) because the implementation uses double_width_int_for_t<>.
+concept UsesFixedPointScaling =
+  std::integral<value_type_t<T>> &&
+  std::is_convertible_v<T, value_type_t<T>> &&
+  std::is_convertible_v<value_type_t<T>, T>;
+
+// Container whose element type is a fundamental integer and which is NOT freely
+// convertible to that type (e.g. cartesian_vector<int>).  Scaling is applied
+// element-wise via operator* / operator/.
+concept UsesElementWiseScaling =
+  std::integral<value_type_t<T>> &&
+  !std::convertible_to<T, value_type_t<T>> &&
+  requires(T value, value_type_t<T> f) {
+    { value * f } -> std::common_with<T>;
+    { value / f } -> std::common_with<T>;
+  };
+```
+
+Most standard types satisfy `MagnitudeScalable` automatically. See
+[Scaling operators](#scaling-operators) in the Customization Points section for how to
+provide `operator*` and `operator/` for your own types.
+
+### Built-in scaling algorithm
+
+When two quantities of convertible units are combined or converted, the library applies the
+unit magnitude `M` to the representation value via `detail::scale<To>(M, value)`. The
+built-in decision tree is:
+
+```mermaid
+flowchart TD
+    A["scale(M, value)"] --> B{"treat_as_floating_point&lt;T&gt;<br>or treat_as_floating_point&lt;value_type_t&lt;T&gt;&gt;<br>?"}
+    B -- True --> FP["<b>UsesFloatingPointScaling</b><br>ratio at common precision<br>of source/target value_type_t<br><br>e.g. double, cartesian_vector&lt;double&gt;"]
+    B -- False --> C{"value_type_t&lt;T&gt; is fundamental integer<br>AND T is convertible to/from it?"}
+    C -- "Yes (e.g. int, long)" --> FIXED["<b>UsesFixedPointScaling</b>"]
+    C -- "No (e.g. cartesian_vector&lt;int&gt;)" --> EWS["<b>UsesElementWiseScaling</b><br>same 3 paths applied element-wise<br>via T::operator* / T::operator/"]
+    FIXED --> G{"magnitude?"}
+    EWS --> G
+    G -- "integral (e.g. m→mm, ×1000)" --> I["exact integer multiplication"]
+    G -- "rational (e.g. ft→m, ×3048/10000)" --> R["double-width integer arithmetic<br>(avoids overflow &amp; FP rounding)"]
+    G -- "irrational (e.g. deg→rad, ×π/180)" --> IR["long double fixed-point approximation"]
+```
+
+The integer paths (`UsesFixedPointScaling` / `UsesElementWiseScaling`) never promote
+values to floating-point, even for the rational and irrational sub-paths. This is
+intentional: the user explicitly chose an integer representation type, opting out of
+floating-point arithmetic. Their platform may lack FP hardware (embedded systems, DSPs),
+rely on software-emulated FP (slow and unpredictable), or enforce a no-FP policy. The
+library respects that choice throughout unit conversion.
+
+??? question "Why fixed-point arithmetic for integer representations?"
+
+    1. **Lossless conversions must stay exact**
+
+        `42 * m` converted to `mm` must give exactly `42000 * mm`. Integer multiplication
+        achieves this; going via `double` would produce correct results for small values
+        but lose exactness near the precision limit (53-bit mantissa ≈ 9×10¹⁵).
+
+    2. **Rational factors remain exactly representable**
+
+        The library multiplies by the numerator, then divides by the denominator
+        using integer arithmetic. The result is exact whenever the integer is
+        divisible by the denominator. Requiring an explicit cast signals that
+        truncation might occur.
+
+    3. **Irrational factors are an unavoidable last resort**
+
+        π/180 (deg→rad), √2, etc. cannot be represented exactly in any integer arithmetic.
+        The library falls back to a `long double` approximation and rounds the result
+        to the target integer type ("fixed-point approximation").
+
+    The design preference order is therefore:
+    **exact integer > exact rational > approximate irrational**.
+
+??? question "Why double-width integers for the rational path?"
+
+    The library computes `value * numerator / denominator` entirely in integer
+    arithmetic. Without extra width, the intermediate product
+    `value * numerator` can overflow even when the final result fits — for example,
+    converting feet to metres multiplies by 3048 before dividing by 10000, which
+    overflows a 64-bit integer for values above ~3×10¹⁵.
+
+    Double-width integers (e.g. 128-bit for 64-bit values) absorb that intermediate
+    growth. Using `long double` instead would violate the no-FP principle above and
+    introduce rounding (`0.3048` is not exactly representable in binary floating-point),
+    and on ARM / Apple Silicon `long double == double` anyway, giving no extra range.
+
+If different internal fields need different scale factors, encode that logic in
+`operator*` and `operator/` — the library routes scaling through them via the
+appropriate built-in path. For an example of integrating a third-party floating-point
+type, see the
+[`MyFloat` example](../../how_to_guides/integration/using_custom_representation_types.md#scale)
+in the how-to guide.
 
 
 ## Customization Points
@@ -266,6 +378,21 @@ public:
 };
 ```
 
+**Third-party types:** If you cannot modify the source of a type (e.g., a third-party
+floating-point or fixed-point class), specialize `std::indirectly_readable_traits` to
+expose its element type:
+
+```cpp
+// Third-party type MyFloat wraps long double internally.
+template<>
+struct std::indirectly_readable_traits<MyFloat> {
+  using value_type = long double;
+};
+```
+
+This makes `value_type_t<MyFloat>` resolve to `long double`, giving the library the correct
+precision for scaling and ensuring the right `common_type` is used in mixed conversions.
+
 !!! warning "Don't provide both `value_type` and `element_type`"
 
     If your type provides both `value_type` and `element_type` that refer to **different types**,
@@ -306,6 +433,47 @@ on how this affects implicit conversions between quantities.
 
 ---
 
+#### Scaling operators { #scaling-operators }
+
+The library scales a representation value by calling `value * factor` and `value / factor`,
+where `factor` is of type `value_type_t<T>`. These operators must be provided so that the
+built-in scaling paths can apply the unit magnitude ratio during unit conversions.
+
+**For your own types**, provide these as hidden friends (defined inside the class
+body, found only via ADL):
+
+```cpp
+template<typename T>
+class my_wrapper {
+  T value_;
+public:
+  using value_type = T;
+
+  // Hidden friends — preferred over non-member overloads
+  friend constexpr my_wrapper operator*(my_wrapper v, T factor) { return my_wrapper{v.value_ * factor}; }
+  friend constexpr my_wrapper operator/(my_wrapper v, T factor) { return my_wrapper{v.value_ / factor}; }
+};
+```
+
+**For third-party types you cannot modify**, place non-member operators in the same namespace
+as the type so that ADL finds them:
+
+```cpp
+namespace third_party {
+
+// Non-member scaling operators for a type you do not own.
+// Must be in the same namespace as the type so ADL finds them.
+inline ThirdPartyVec operator*(ThirdPartyVec v, double f) { return v.scale(f); }
+inline ThirdPartyVec operator/(ThirdPartyVec v, double f) { return v.scale(1.0 / f); }
+
+}  // namespace third_party
+```
+
+See [How Scaling Works](#how-scaling-works) for the full built-in scaling algorithm, concept
+definitions, and design rationale.
+
+---
+
 #### `implicitly_scalable<FromUnit, FromRep, ToUnit, ToRep>` { #implicitly_scalable }
 
 A specializable variable template that controls whether a conversion from
@@ -325,6 +493,13 @@ in your own specializations to distinguish the integral-factor case (e.g. `m →
 from fractional ones (e.g. `mm → m` (÷1000), `ft → m`, `deg → rad`).
 
 Conversions with a fractional factor are always explicit for integer reps.
+
+!!! info
+
+    The customization points above (`value_type`, `treat_as_floating_point`, `operator*`,
+    `operator/`) all control **how** the library scales a value during unit conversion.
+    `implicitly_scalable` is a separate, orthogonal control that decides **whether** a
+    particular conversion is implicit or requires an explicit cast.
 
 **When to specialize:** If your custom type has different implicit-conversion semantics:
 
@@ -399,79 +574,7 @@ struct mp_units::representation_values<my_custom_type<T>> {
 - Mathematical operations like `floor()`, `ceil()`, `round()`
 - Division by zero checks
 
----
 
-#### `scaling_traits<From, To>` { #scaling_traits }
-
-A class template specialization that defines how a value of type `From` is scaled by a
-unit magnitude to produce a value of type `To`.
-
-**Built-in support** is provided automatically for types that satisfy either of:
-
-- **`UsesFloatingPointScaling`**: types where `treat_as_floating_point` is `true` and
-  `value * value_type_t<T>` is well-formed. The scaling factor is computed using the
-  common precision of the source and target `value_type_t`.
-- **`UsesFixedPointScaling`**: types whose `value_type_t` is an integer-like (non-floating-point)
-  type and that are convertible to/from their `value_type_t`. For these types, the built-in
-  implementation selects the most accurate path based on the magnitude:
-    - **Integral factor** (e.g. `m → mm`, ×1000): exact integer multiplication, no precision
-      loss.
-    - **Pure rational factor** (e.g. `ft → m`, ×3048/10000): exact double-width integer arithmetic
-      to avoid intermediate overflow and floating-point rounding — especially important on
-      platforms where `long double == double` (e.g. ARM, Apple Silicon).
-    - **Irrational factor** (e.g. `deg → rad`, ×π/180): long double fixed-point approximation.
-
-You only need to provide a `scaling_traits` specialization when your type doesn't satisfy
-either built-in concept — for example, when scaling must operate on multiple internal fields
-simultaneously (see the `measurement<T>` example below).
-
-To define a specialization:
-
-```cpp
-template<typename T, typename U>
-struct mp_units::scaling_traits<MyType<T>, MyType<U>> {
-  template<auto M>
-  [[nodiscard]] static constexpr MyType<U> scale(const MyType<T>& value) { ... }
-};
-```
-
-The `mp_units::scale<To>(M, value)` free function calls
-`scaling_traits<From, To>::template scale<M{}>(value)`, and is the primary way the
-library scales values during unit conversions.  A helper `mp_units::silent_cast<To>(value)`
-performs a `static_cast` with truncating conversion warnings suppressed — useful when
-you need to cast the scaled result to the target type.
-
-To control whether a particular conversion is implicit or explicit, specialize
-[`mp_units::implicitly_scalable<>`](#implicitly_scalable) separately —
-`scaling_traits::scale<M>()` is responsible for *how* to scale, not *whether* to do so
-implicitly.
-
-Once a `scaling_traits` specialization is provided, the custom type automatically
-satisfies the `MagnitudeScalable` concept and can be used as the representation type of a
-`quantity`.
-
-??? example "`measurement<T>`"
-
-    A `measurement<T>` type carries both a value and an uncertainty.  Scaling a measurement
-    must apply the same factor to both components:
-
-    ```cpp
-    template<typename T, typename U>
-    struct mp_units::scaling_traits<measurement<T>, measurement<U>> {
-      template<auto M>
-      [[nodiscard]] static constexpr measurement<U> scale(const measurement<T>& value)
-      {
-        return measurement<U>(
-          mp_units::scale<U>(M, value.value()),
-          mp_units::scale<U>(M, value.uncertainty()));
-      }
-    };
-    ```
-
-    ```cpp
-    static_assert(mp_units::RepresentationOf<measurement<int>, mp_units::quantity_character::real_scalar>);
-    static_assert(mp_units::RepresentationOf<measurement<double>, mp_units::quantity_character::real_scalar>);
-    ```
 
 
 ## Character-Specific Operations
@@ -509,6 +612,20 @@ The library also supports `std::complex` for complex-valued quantities:
 std::complex<double> impedance{50.0, 30.0};
 quantity z = impedance * si::ohm;  // Complex impedance
 ```
+
+Beyond these built-in types, **any custom type** works as a representation as long as it
+satisfies the [`RepresentationOf`](concepts.md#RepresentationOf) concept for the desired
+character. At minimum this means:
+
+- providing `value_type` (or `element_type`) so the library knows the underlying scalar type,
+- providing `operator*` and `operator/` with `value_type_t<T>` so the library can scale it
+  during unit conversions,
+- satisfying the character-specific requirements from the table above (copyable, equality
+  comparable, arithmetic operators, CPOs, etc.).
+
+See [Using Custom Representation Types](../../how_to_guides/integration/using_custom_representation_types.md)
+for a step-by-step walkthrough, including the complete set of customization points and working
+examples.
 
 
 ## See Also

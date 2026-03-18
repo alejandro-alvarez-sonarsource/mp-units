@@ -128,9 +128,9 @@ Every representation type must satisfy a common baseline:
 
 - **Weakly regular**: copyable and equality comparable (default-constructibility is not required).
 - **`MagnitudeScalable`**: the library must be able to apply a unit magnitude ratio to it
-  via `mp_units::scale<T>(M, value)`. Most standard types satisfy this
+  internally. Most standard types satisfy this
   automatically; see
-  [Representation Types](representation_types.md#scaling_traits) for details.
+  [Representation Types](representation_types.md#how-scaling-works) for details.
 - **Character-specific operations**: additional arithmetic operations required by the
   [quantity character](../../reference/glossary.md#character) (e.g. total ordering for real
   scalars, `real()`/`imag()`/`modulus()` CPOs for complex scalars, `norm()`/`magnitude()`

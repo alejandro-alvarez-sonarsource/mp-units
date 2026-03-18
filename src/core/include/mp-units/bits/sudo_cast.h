@@ -22,10 +22,10 @@
 
 #pragma once
 
+#include <mp-units/bits/scaling.h>
 #include <mp-units/ext/type_traits.h>
 #include <mp-units/framework/quantity_concepts.h>
 #include <mp-units/framework/reference_concepts.h>
-#include <mp-units/framework/scaling.h>
 #include <mp-units/framework/unit.h>
 #include <mp-units/framework/unit_magnitude.h>
 
@@ -92,13 +92,14 @@ template<Quantity To, typename FwdFrom, Quantity From = std::remove_cvref_t<FwdF
 {
   if constexpr (equivalent(From::unit, To::unit)) {
     // no scaling of the number needed
-    return {silent_cast<typename To::rep>(std::forward<FwdFrom>(q).numerical_value_is_an_implementation_detail_),
-            To::reference};
+    return {
+      detail::silent_cast<typename To::rep>(std::forward<FwdFrom>(q).numerical_value_is_an_implementation_detail_),
+      To::reference};
   } else {
     constexpr UnitMagnitude auto c_mag = get_canonical_unit(From::unit).mag / get_canonical_unit(To::unit).mag;
 
-    typename To::rep res =
-      silent_cast<typename To::rep>(scale<typename To::rep>(c_mag, q.numerical_value_is_an_implementation_detail_));
+    typename To::rep res = detail::silent_cast<typename To::rep>(
+      detail::scale<typename To::rep>(c_mag, q.numerical_value_is_an_implementation_detail_));
     return To{res, To::reference};
   }
 }

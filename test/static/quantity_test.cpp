@@ -390,6 +390,20 @@ static_assert(is_of_type<cartesian_vector{1., 2., 3.} * m, quantity<si::metre, c
 // self-referential constraint cycle when dividing cartesian_vector<Quantity> by a unit
 static_assert(requires { cartesian_vector{0, 0, -60} * km / h; });
 
+// cartesian_vector<double>: unit conversion via UsesFloatingPointScaling (FP element type)
+// Use bare SI units (no quantity spec) since isq::length is real_scalar, not vector
+static_assert(quantity<si::kilo<si::metre>, cartesian_vector<double>>(cartesian_vector{1., 2., 3.} * km)
+                .numerical_value_in(m) == cartesian_vector{1000., 2000., 3000.});
+static_assert(quantity<si::metre, cartesian_vector<double>>(cartesian_vector{2000., 4000., 6000.} * m)
+                .numerical_value_in(km) == cartesian_vector{2., 4., 6.});
+// cartesian_vector<int>: unit conversion via UsesElementWiseScaling (integer element type)
+static_assert(quantity<si::kilo<si::metre>, cartesian_vector<int>>(cartesian_vector{1, 2, 3} * km)
+                .numerical_value_in(m) == cartesian_vector{1000, 2000, 3000});
+static_assert(std::constructible_from<quantity<si::metre, cartesian_vector<int>>,
+                                      quantity<si::kilo<si::metre>, cartesian_vector<int>>>);  // km→m: ×1000, OK
+static_assert(!std::constructible_from<quantity<si::kilo<si::metre>, cartesian_vector<int>>,
+                                       quantity<si::metre, cartesian_vector<int>>>);  // m→km: ÷1000, truncating
+
 #endif
 
 

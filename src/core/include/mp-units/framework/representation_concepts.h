@@ -26,7 +26,6 @@
 #include <mp-units/bits/module_macros.h>
 #include <mp-units/framework/customization_points.h>
 #include <mp-units/framework/quantity_spec_concepts.h>
-#include <mp-units/framework/scaling.h>
 #include <mp-units/framework/unit_magnitude.h>
 
 #ifndef MP_UNITS_IN_MODULE_INTERFACE
@@ -201,21 +200,6 @@ concept ComplexScalar = requires(const T v, const T& ref) {
   requires ScalableWith<T, decltype(::mp_units::modulus(v))>;
 } && BaseScalar<T>;
 
-/**
- * @brief MagnitudeScalable
- *
- * A type is `MagnitudeScalable` if it can be scaled by a unit magnitude, i.e.
- * `mp_units::scale<T>(mp_units::mag<1>, value)` is well-formed and returns something
- * convertible to `T`.  This covers:
- * - the library's built-in floating-point scaling (treat_as_floating_point types),
- * - the library's built-in fixed-point integer scaling, and
- * - any user-provided `mp_units::scaling_traits<T, T>` specialization.
- */
-template<typename T>
-concept MagnitudeScalable = WeaklyRegular<T> && requires(T a) {
-  { ::mp_units::scale<T>(mp_units::mag<1>, a) } -> std::convertible_to<T>;
-};
-
 template<typename T>
 concept Scalar = RealScalar<T> || ComplexScalar<T>;
 
@@ -298,6 +282,54 @@ constexpr bool is_quantity_like = false;
 // TODO how can we use `(!Quantity<T>)` below?
 template<typename T>
 concept NotQuantity = (!is_quantity_like<T>);
+
+// treat_as_floating_point (not std::floating_point) is intentional: it is the library's
+// extensibility point for user-defined floating-point-like types (e.g. a fixed-size float
+// wrapper).  The body only uses get_value<long double> and standard floating-point
+// arithmetic, which work for any such type as long as it supports T * value_type_t<T>.
+// The concept also covers container types whose element type is floating-point (e.g.
+// cartesian_vector<double>): treat_as_floating_point<value_type_t<T>> is checked so that
+// the FP scaling path is taken even when T itself is not floating-point.
+template<typename T>
+concept UsesFloatingPointScaling =
+  (treat_as_floating_point<T> || treat_as_floating_point<value_type_t<T>>) && requires(T value, value_type_t<T> f) {
+    { value * f } -> WeaklyRegular;
+    { value / f } -> WeaklyRegular;
+  };
+
+// std::integral (not just treat_as_integral) is required here because the body arithmetic
+// relies on get_value<common_t>, double_width_int_for_t<common_t>, and fixed_point<common_t>,
+// which are only defined for fundamental integer types.  A user-defined integer-like type
+// whose value_type is not a standard integer is not directly supported by this path.
+template<typename T>
+concept UsesFixedPointScaling = std::integral<value_type_t<T>> && std::is_convertible_v<T, value_type_t<T>> &&
+                                std::is_convertible_v<value_type_t<T>, T>;
+
+// Container type (e.g. a vector class) whose element type is a fundamental integer and
+// which supports element-wise T * value_type_t<T> and T / value_type_t<T>.  These are
+// not covered by UsesFloatingPointScaling (FP element already handled there) or
+// UsesFixedPointScaling (which requires T to be freely convertible to/from its value_type).
+template<typename T>
+concept UsesElementWiseScaling =
+  std::integral<value_type_t<T>> && !std::convertible_to<T, value_type_t<T>> && requires(T value, value_type_t<T> f) {
+    { value * f } -> std::common_with<T>;
+    { value / f } -> std::common_with<T>;
+  };
+
+/**
+ * @brief MagnitudeScalable
+ *
+ * A type is `MagnitudeScalable` if the library's built-in `scale()` can apply a unit
+ * magnitude ratio to it.  The three sub-concepts map directly to the three built-in
+ * scaling paths — the error diagnostic will name the unsatisfied sub-concept directly:
+ *
+ *  - `UsesFloatingPointScaling<T>` — floating-point type or container thereof
+ *  - `UsesFixedPointScaling<T>`   — fundamental integer type (or freely convertible wrapper)
+ *  - `UsesElementWiseScaling<T>`  — integer container with element-wise operator* / operator/
+ */
+template<typename T>
+concept MagnitudeScalable =
+  WeaklyRegular<T> && (UsesFloatingPointScaling<T> || UsesFixedPointScaling<T> || UsesElementWiseScaling<T>);
 
 template<typename T>
 concept RealScalarRepresentation = NotQuantity<value_type_t<T>> && RealScalar<T> && MagnitudeScalable<T>;

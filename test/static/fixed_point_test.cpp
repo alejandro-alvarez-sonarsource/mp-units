@@ -48,28 +48,27 @@ using u128 = detail::double_width_int<std::uint64_t>;
 
 static_assert((((83 * 79 * 73) * (i128{97} << 64u) / 89) >> 64u) == (83 * 79 * 73 * 97) / 89);
 
-// scale<To>(M{}, value) — integer-to-integer path (exact arithmetic, no floating point)
-// scale(M{}, value)     — floating-point same-type shorthand (To = From, uses value_type_t<From>)
+// detail::scale<To>(M{}, value) — integer-to-integer path (exact arithmetic, no floating point)
 
 // integral factor: exact integer multiply
-static_assert(scale<int>(mag<1000>, 5) == 5000);
-static_assert(scale<long>(mag<60>, 2l) == 120l);
+static_assert(detail::scale<int>(mag<1000>, 5) == 5000);
+static_assert(detail::scale<long>(mag<60>, 2l) == 120l);
 
 // integral inverse: exact integer divide
-static_assert(scale<int>(mag_ratio<1, 1000>, 5000) == 5);
-static_assert(scale<int>(mag_ratio<1, 60>, 120) == 2);
+static_assert(detail::scale<int>(mag_ratio<1, 1000>, 5000) == 5);
+static_assert(detail::scale<int>(mag_ratio<1, 60>, 120) == 2);
 
 // rational M (3/2 * 4 == 6): exact double-width integer arithmetic
-static_assert(scale<int>(mag_ratio<3, 2>, 4) == 6);
+static_assert(detail::scale<int>(mag_ratio<3, 2>, 4) == 6);
 // (1/3 * 9 == 3)
-static_assert(scale<int>(mag_ratio<1, 3>, 9) == 3);
+static_assert(detail::scale<int>(mag_ratio<1, 3>, 9) == 3);
 
 // identity
-static_assert(scale<int>(mag<1>, 42) == 42);
+static_assert(detail::scale<int>(mag<1>, 42) == 42);
 
 // floating-point path
-static_assert(scale<double>(mag_ratio<1, 2>, 1.0) == 0.5);
-static_assert(scale<float>(mag<3>, 1.0f) == 3.0f);
+static_assert(detail::scale<double>(mag_ratio<1, 2>, 1.0) == 0.5);
+static_assert(detail::scale<float>(mag<3>, 1.0f) == 3.0f);
 
 // MagnitudeScalable concept
 static_assert(detail::MagnitudeScalable<int>);

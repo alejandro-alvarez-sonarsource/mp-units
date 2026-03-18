@@ -281,16 +281,6 @@ template<typename Arg, typename... Args>
   requires(sizeof...(Args) <= 2) && requires { typename std::common_type_t<Arg, Args...>; }
 cartesian_vector(Arg, Args...) -> cartesian_vector<std::common_type_t<Arg, Args...>>;
 
-template<typename From, typename To>
-struct scaling_traits<cartesian_vector<From>, cartesian_vector<To>> {
-  template<auto M>
-    requires requires(const From& f) { mp_units::scale<To>(M, f); }
-  [[nodiscard]] static constexpr cartesian_vector<To> scale(const cartesian_vector<From>& v)
-  {
-    return {mp_units::scale<To>(M, v[0]), mp_units::scale<To>(M, v[1]), mp_units::scale<To>(M, v[2])};
-  }
-};
-
 }  // namespace mp_units
 
 template<typename T, typename U>

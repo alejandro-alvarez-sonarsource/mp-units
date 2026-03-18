@@ -295,9 +295,9 @@ the value of `0 km` would work.
 ## Custom representation types
 
 For information on how to integrate a custom representation type with the quantity
-conversion machinery — including how to provide a `scaling_traits<From, To>` specialization
-and `implicitly_scalable<FromUnit, FromRep, ToUnit, ToRep>` — see
-[Using Custom Representation Types](../../how_to_guides/integration/using_custom_representation_types.md#scaling_traits).
+conversion machinery — including how to implement the correct `operator*` and
+`implicitly_scalable<FromUnit, FromRep, ToUnit, ToRep>` — see
+[Using Custom Representation Types](../../how_to_guides/integration/using_custom_representation_types.md#creating-your-own-representation-type).
 
 
 ## Value conversions summary

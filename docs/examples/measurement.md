@@ -53,23 +53,17 @@ projects:
 
 ### Integration with mp-units
 
-To use `measurement<T>` as a quantity representation, two things must be provided.
+No special customization is needed to use `measurement<T>` as a quantity representation.
+`measurement<T>` defines `operator*(measurement, T)` and `operator/(measurement, T)` that
+correctly scale the value and uncertainty linearly, satisfying
+[`UsesFloatingPointScaling`](../users_guide/framework_basics/representation_types.md#how-scaling-works)
+automatically.
 
-First, a `scaling_traits` specialization that teaches the library how to scale a
-`measurement<T>` to a `measurement<U>` by a unit magnitude:
-
-```cpp title="measurement.cpp"
---8<-- "example/measurement.cpp:46:53"
-```
-
-The `scale<U>(M, value)` call recurses into the built-in `scaling_traits` for the
-underlying scalar type `T` → `U`, so uncertainty propagation is exact and type-safe.
-
-Second, the library verifies at compile time that `measurement<T>` satisfies the
-`RepresentationOf` concept:
+The library verifies at compile time that `measurement<T>` satisfies the
+[`RepresentationOf`](../users_guide/framework_basics/concepts.md#RepresentationOf) concept:
 
 ```cpp title="measurement.cpp"
---8<-- "example/measurement.cpp:55:58"
+--8<-- "example/measurement.cpp:46:49"
 ```
 
 This allows `measurement<T>` to be used seamlessly with any **mp-units** quantity type.
@@ -81,7 +75,7 @@ This allows `measurement<T>` to be used seamlessly with any **mp-units** quantit
 The example demonstrates various uncertainty propagation scenarios:
 
 ```cpp title="measurement.cpp"
---8<-- "example/measurement.cpp:62:85"
+--8<-- "example/measurement.cpp:51:77"
 ```
 
 This showcases:

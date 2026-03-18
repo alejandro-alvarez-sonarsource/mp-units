@@ -137,34 +137,6 @@ using quantity_values [[deprecated("2.5.0: Use `representation_values` instead")
 
 
 /**
- * @brief A type trait that defines the behavior of scaling a value using a magnitude
- *
- * Whereas C++ numeric types usually represent a (fixed) subset of the real numbers
- * (or another vector-space over the field of the real numbers),
- * the magnitude concept fundamentally can represent any real number.
- * Thus, in general, the result of a scaling operation is not exactly representable,
- * and some form of approximation may be needed. That approximation is not
- * part of the semantics of a physical quantity, but of its representation
- * in C++. Therefore, the approximation semantics are dictated by the
- * representation type, which can be customised for user-types through
- * this type-trait.
- *
- * In the following, $\mathcal{V}$ shall denote the vector-space represented by all representation
- * types involved in the following discussion.
- *
- * A specialization @c scaling_traits<From, To> shall provide the following member:
- *  - `template <auto M> static constexpr To scale(const From& value)`:
- *    Given an element of $\mathcal{V}$ represented by @c value and a real number represented by @c M,
- *    return a value of type @c To representing `M * value`, another element of $\mathcal{V}$.
- *    The scaling factor @c M encodes the represented real value in its type.
- *
- * @tparam From a representation type whose value is being scaled
- * @tparam To   a representation type in which the result shall be represented
- */
-template<typename From, typename To>
-struct scaling_traits;
-
-/**
  * @brief Provides support for external quantity-like types
  *
  * The type trait should provide the @c reference object, a type alias @c rep,

@@ -195,8 +195,8 @@ template<typename Q1, typename Q2, typename Cmp>
     if constexpr (!overflows_non_zero_common_values<wide_t>(Q1::unit, Q2::unit)) {
       constexpr UnitMagnitude auto lhs_m = get_canonical_unit(Q1::unit).mag / get_canonical_unit(ct::unit).mag;
       constexpr UnitMagnitude auto rhs_m = get_canonical_unit(Q2::unit).mag / get_canonical_unit(ct::unit).mag;
-      return cmp(scale<wide_t>(lhs_m, lhs.numerical_value_is_an_implementation_detail_),
-                 scale<wide_t>(rhs_m, rhs.numerical_value_is_an_implementation_detail_));
+      return cmp(detail::scale<wide_t>(lhs_m, lhs.numerical_value_is_an_implementation_detail_),
+                 detail::scale<wide_t>(rhs_m, rhs.numerical_value_is_an_implementation_detail_));
     }
   }
   // Fallback: floating-point, already-widest integer, or unit ratio too large for wide_t.

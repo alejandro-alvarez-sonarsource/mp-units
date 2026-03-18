@@ -525,6 +525,24 @@ static_assert(!detail::Vector<quantity<isq::complex_power[si::volt * si::ampere]
 // static_assert(detail::Vector<quantity<si::metre>, cartesian_vector<double>>);
 // static_assert(detail::Vector<quantity<isq::velocity[si::metre / si::second], cartesian_vector<int>>>);
 
+// Scaling concept classification
+// double: floating-point → UsesFloatingPointScaling only
+static_assert(detail::UsesFloatingPointScaling<double>);
+static_assert(!detail::UsesFixedPointScaling<double>);
+static_assert(!detail::UsesElementWiseScaling<double>);
+// int: integral scalar → UsesFixedPointScaling only
+static_assert(!detail::UsesFloatingPointScaling<int>);
+static_assert(detail::UsesFixedPointScaling<int>);
+static_assert(!detail::UsesElementWiseScaling<int>);
+// cartesian_vector<double>: FP element type → UsesFloatingPointScaling (extended concept)
+static_assert(detail::UsesFloatingPointScaling<cartesian_vector<double>>);
+static_assert(!detail::UsesFixedPointScaling<cartesian_vector<double>>);
+static_assert(!detail::UsesElementWiseScaling<cartesian_vector<double>>);
+// cartesian_vector<int>: integral element, not scalar-convertible → UsesElementWiseScaling
+static_assert(!detail::UsesFloatingPointScaling<cartesian_vector<int>>);
+static_assert(!detail::UsesFixedPointScaling<cartesian_vector<int>>);
+static_assert(detail::UsesElementWiseScaling<cartesian_vector<int>>);
+
 #endif
 
 }  // namespace

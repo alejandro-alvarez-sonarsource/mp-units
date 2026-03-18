@@ -44,55 +44,49 @@ public:
   using value_type = T;  // Helps library determine scaling factor type
 
   constexpr explicit my_scalar_type(T v) : value_(v) {}
-  constexpr T value() const { return value_; }
+  [[nodiscard]] constexpr T value() const { return value_; }
 
   // Required: Arithmetic operations
-  constexpr my_scalar_type operator-() const { return my_scalar_type{-value_}; }
+  [[nodiscard]] constexpr my_scalar_type operator-() const { return my_scalar_type{-value_}; }
 
-  friend constexpr my_scalar_type operator+(const my_scalar_type& lhs, const my_scalar_type& rhs)
+  [[nodiscard]] friend constexpr my_scalar_type operator+(const my_scalar_type& lhs, const my_scalar_type& rhs)
   {
     return my_scalar_type{lhs.value_ + rhs.value_};
   }
 
-  friend constexpr my_scalar_type operator-(const my_scalar_type& lhs, const my_scalar_type& rhs)
+  [[nodiscard]] friend constexpr my_scalar_type operator-(const my_scalar_type& lhs, const my_scalar_type& rhs)
   {
     return my_scalar_type{lhs.value_ - rhs.value_};
   }
 
-  // Required for floating-point T: scaling operations used by the built-in conversion engine.
-  // For integer T, implicit conversions to/from value_type_t<T> are used instead (see note below).
-  // Either path satisfies MagnitudeScalable; alternatively provide a scaling_traits specialisation.
-  friend constexpr my_scalar_type operator*(const my_scalar_type& v, T factor)
+  [[nodiscard]] friend constexpr my_scalar_type operator*(const my_scalar_type& v, T factor)
   {
     return my_scalar_type{v.value_ * factor};
   }
 
-  friend constexpr my_scalar_type operator*(T factor, const my_scalar_type& v)
+  [[nodiscard]] friend constexpr my_scalar_type operator*(T factor, const my_scalar_type& v)
   {
     return my_scalar_type{factor * v.value_};
   }
 
-  friend constexpr my_scalar_type operator/(const my_scalar_type& v, T factor)
+  [[nodiscard]] friend constexpr my_scalar_type operator/(const my_scalar_type& v, T factor)
   {
     return my_scalar_type{v.value_ / factor};
   }
 
   // Required for scalar types: Self-scaling operations (multiply/divide by same type)
-  friend constexpr my_scalar_type operator*(const my_scalar_type& lhs, const my_scalar_type& rhs)
+  [[nodiscard]] friend constexpr my_scalar_type operator*(const my_scalar_type& lhs, const my_scalar_type& rhs)
   {
     return my_scalar_type{lhs.value_ * rhs.value_};
   }
 
-  friend constexpr my_scalar_type operator/(const my_scalar_type& lhs, const my_scalar_type& rhs)
+  [[nodiscard]] friend constexpr my_scalar_type operator/(const my_scalar_type& lhs, const my_scalar_type& rhs)
   {
     return my_scalar_type{lhs.value_ / rhs.value_};
   }
 
-  // Required: Equality comparison
-  constexpr bool operator==(const my_scalar_type&) const = default;
-
-  // Required for real scalar types: Total ordering
-  constexpr auto operator<=>(const my_scalar_type&) const = default;
+  // Required for real scalar types: Equality & Total ordering
+  [[nodiscard]] constexpr auto operator<=>(const my_scalar_type&) const = default;
 };
 ```
 
@@ -116,9 +110,9 @@ public:
   constexpr my_complex_type(T r, T i) : real_(r), imag_(i) {}
 
   // Required customization point functions as member functions
-  constexpr T real() const { return real_; }
-  constexpr T imag() const { return imag_; }
-  constexpr T modulus() const { return std::hypot(real_, imag_); }
+  [[nodiscard]] constexpr T real() const { return real_; }
+  [[nodiscard]] constexpr T imag() const { return imag_; }
+  [[nodiscard]] constexpr T modulus() const { return std::hypot(real_, imag_); }
 
   // ... other required operations (addition, scaling, equality)
 };
@@ -128,14 +122,13 @@ Or via free functions found through ADL:
 
 ```cpp
 template<typename T>
-constexpr T real(const my_complex_type<T>& c) { return c.get_real(); }
+[[nodiscard]] constexpr T real(const my_complex_type<T>& c) { return c.get_real(); }
 
 template<typename T>
-constexpr T imag(const my_complex_type<T>& c) { return c.get_imag(); }
+[[nodiscard]] constexpr T imag(const my_complex_type<T>& c) { return c.get_imag(); }
 
 template<typename T>
-constexpr T modulus(const my_complex_type<T>& c) { return c.get_magnitude(); }
-// Note: You can also provide abs() instead of modulus()
+[[nodiscard]] constexpr T modulus(const my_complex_type<T>& c) { return c.get_magnitude(); }
 ```
 
 For **vectors**, provide the `norm()` customization point function:
@@ -147,7 +140,7 @@ class my_vector_type {
 public:
   using value_type = T;
 
-  constexpr T norm() const { /* compute magnitude */ }
+  constexpr auto norm() const { /* compute magnitude */ }
   // ... other required operations
 };
 ```
@@ -156,7 +149,7 @@ Or via a free function:
 
 ```cpp
 template<typename T>
-constexpr T norm(const my_vector_type<T>& v) { return v.compute_norm(); }
+[[nodiscard]] constexpr auto norm(const my_vector_type<T>& v) { return v.compute_norm(); }
 ```
 
 !!! tip "Use `norm()` for vectors"
@@ -172,7 +165,8 @@ Enable formatting with `std::format`:
 template<typename T, typename Char>
 struct std::formatter<my_scalar_type<T>, Char> : std::formatter<T, Char> {
   template<typename FormatContext>
-  auto format(const my_scalar_type<T>& v, FormatContext& ctx) const {
+  auto format(const my_scalar_type<T>& v, FormatContext& ctx) const
+  {
     return std::formatter<T, Char>::format(v.value(), ctx);
   }
 };
@@ -187,50 +181,89 @@ documentation):
 ```cpp
 template<typename T>
 struct mp_units::representation_values<my_scalar_type<T>> {
-  static constexpr my_scalar_type<T> zero() noexcept {
-    return my_scalar_type<T>{T{0}};
-  }
-  static constexpr my_scalar_type<T> one() noexcept {
-    return my_scalar_type<T>{T{1}};
-  }
-  static constexpr my_scalar_type<T> min() noexcept {
+  [[nodiscard]] static constexpr my_scalar_type<T> zero() noexcept { return my_scalar_type<T>{T{0}}; }
+  [[nodiscard]] static constexpr my_scalar_type<T> one() noexcept { return my_scalar_type<T>{T{1}}; }
+  [[nodiscard]] static constexpr my_scalar_type<T> min() noexcept
+  {
     return my_scalar_type<T>{std::numeric_limits<T>::lowest()};
   }
-  static constexpr my_scalar_type<T> max() noexcept {
+  [[nodiscard]] static constexpr my_scalar_type<T> max() noexcept
+  {
     return my_scalar_type<T>{std::numeric_limits<T>::max()};
   }
 };
 ```
 
-### Step 5: Specialize `scaling_traits` (if needed) { #scaling_traits }
+### Step 5: Enable scaling { #scale }
 
-The library provides built-in scaling for two broad categories of types (see the
-[`scaling_traits`](../../users_guide/framework_basics/representation_types.md#scaling_traits)
-reference):
+The library applies a unit magnitude to a representation value internally when performing
+unit conversions. Three built-in paths handle this automatically — see
+[How Scaling Works](../../users_guide/framework_basics/representation_types.md#how-scaling-works)
+for the full concept definitions and algorithm.
 
-- **Floating-point types**: any type where `treat_as_floating_point` is `true` and
-  `value * value_type_t<T>` compiles — no specialization needed.
-- **Integer-like types**: types whose `value_type_t` is a non-floating-point integer type
-  and that are convertible to/from that type — no specialization needed. The built-in
-  implementation uses exact double-width integer arithmetic for rational factors, avoiding
-  floating-point precision loss.
+`my_scalar_type<T>` already satisfies the floating-point or element-wise scaling path
+through its existing `operator*(my_scalar_type, T)` and `operator/(my_scalar_type, T)` —
+no further customization is needed.
 
-You need to specialize `scaling_traits` **only** when scaling must operate on multiple
-internal fields simultaneously and the built-in single-value approach doesn't apply. A
-common example is a type that carries both a value and an uncertainty:
+If your type is not automatically recognized (e.g., a third-party floating-point type with
+no `value_type` member), expose `value_type` via
+[`std::indirectly_readable_traits`](../../users_guide/framework_basics/representation_types.md#value_type-or-element_type) —
+`treat_as_floating_point` will then default to `true` automatically, with no further
+specialization needed. The example below shows this typical case.
+Only specialize
+[`treat_as_floating_point`](../../users_guide/framework_basics/representation_types.md#treat_as_floating_point)
+directly when there is genuinely no meaningful `value_type` to expose.
 
-```cpp
-template<typename T, typename U>
-struct mp_units::scaling_traits<my_measurement<T>, my_measurement<U>> {
-  template<auto M>
-  [[nodiscard]] static constexpr my_measurement<U> scale(const my_measurement<T>& v)
-  {
-    return my_measurement<U>(
-      mp_units::scale<U>(M, v.value()),
-      mp_units::scale<U>(M, v.uncertainty()));
-  }
-};
-```
+??? example "`MyFloat` — integrating a third-party floating-point type"
+
+    Suppose a third-party library provides a high-precision floating-point type that you
+    cannot modify:
+
+    ```cpp
+    // Third-party type — you cannot modify the source.
+    class MyFloat {
+      long double v_;
+    public:
+      explicit(false) MyFloat(long double v) : v_(v) {}
+
+      MyFloat operator-() const { return MyFloat{-v_}; }
+      friend MyFloat operator+(MyFloat a, MyFloat b) { return MyFloat{a.v_ + b.v_}; }
+      friend MyFloat operator-(MyFloat a, MyFloat b) { return MyFloat{a.v_ - b.v_}; }
+      friend MyFloat operator*(MyFloat a, MyFloat b) { return MyFloat{a.v_ * b.v_}; }
+      friend MyFloat operator/(MyFloat a, MyFloat b) { return MyFloat{a.v_ / b.v_}; }
+      friend auto operator<=>(MyFloat, MyFloat) = default;
+    };
+    ```
+
+    `MyFloat` is floating-point in spirit but the library cannot detect this automatically:
+
+    - It has no `value_type` member, so `value_type_t<MyFloat>` falls back to `MyFloat` itself.
+    - `treat_as_floating_point<MyFloat>` defaults to `std::is_floating_point_v<MyFloat>` = `false`
+      (it is a class, not a fundamental type), so `MagnitudeScalable<MyFloat>` is not satisfied.
+
+    One specialization fixes this:
+
+    ```cpp
+    // Expose the element type so value_type_t<MyFloat> == long double.
+    // treat_as_floating_point<MyFloat> then defaults to
+    // std::is_floating_point_v<long double> == true, so no further
+    // specialization is needed.
+    template<>
+    struct std::indirectly_readable_traits<MyFloat> {
+      using value_type = long double;
+    };
+    ```
+
+    After that specialization `MyFloat` satisfies `UsesFloatingPointScaling` and
+    integrates with the library without any further changes:
+
+    ```cpp
+    static_assert(mp_units::MagnitudeScalable<MyFloat>);
+    static_assert(mp_units::RepresentationOf<MyFloat, mp_units::quantity_character::real_scalar>);
+
+    const auto q = isq::length(MyFloat{1.0L} * m);
+    const auto q_km = q.in(km);  // MyFloat * long double — handled by UsesFloatingPointScaling
+    ```
 
 ### Step 6: Specialize `implicitly_scalable` (if needed) { #implicitly_scalable }
 
@@ -289,9 +322,9 @@ class ranged_representation {
 public:
   constexpr ranged_representation(T v) : value_(std::clamp(v, T{Min}, T{Max})) {}
 
-  constexpr T value() const { return value_; }
-  constexpr operator T() const { return value_; }  // Conversion to underlying type
-  constexpr ranged_representation operator-() const { return ranged_representation(-value_); }
+  [[nodiscard]] constexpr T value() const { return value_; }
+  [[nodiscard]] constexpr operator T() const { return value_; }  // Conversion to underlying type
+  [[nodiscard]] constexpr ranged_representation operator-() const { return ranged_representation(-value_); }
   // ... other required operations
 };
 ```
@@ -406,7 +439,7 @@ namespace my_namespace {
 
   // ✅ Good: in the same namespace, found by ADL
   template<typename T>
-  constexpr T real(const my_complex<T>& c) { return c.get_real(); }
+  [[nodiscard]] constexpr T real(const my_complex<T>& c) { return c.get_real(); }
 
 }  // namespace my_namespace
 ```
@@ -438,8 +471,9 @@ To create a custom representation type:
 3. **Add formatting support** (optional) via `std::formatter`
 4. **Add `value_type`** to help the library determine the scaling factor type
 5. **Specialize `representation_values<Rep>`** (if needed) for custom special values
-6. **Specialize `scaling_traits<From, To>`** (if needed) when scaling must operate on
-   multiple internal fields simultaneously (e.g. value + uncertainty types)
+6. **Implement `operator*(T, value_type_t<T>)` and `operator/(T, value_type_t<T>)`** so
+   that scaling correctly updates all internal fields (e.g. for `with_variance<T>` scale
+   `value` by `k` and `variance` by `k²`).
 7. **Specialize `implicitly_scalable`** (if needed) to control implicit vs. explicit
    conversion semantics
 8. **Verify with concepts** using `static_assert`
@@ -461,7 +495,7 @@ custom types.
 **Implementation References:**
 
 - [`representation_concepts.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/framework/representation_concepts.h) - Concept definitions
-- [`scaling.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/framework/scaling.h) - `scaling_traits` and built-in scaling implementation
+- [`scaling.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/bits/scaling.h) - built-in scaling implementation
 - [`value_cast.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/framework/value_cast.h) - `implicitly_scalable` and `is_integral_scaling`
 - [`customization_points.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/framework/customization_points.h) - CPO implementations
 - [`cartesian_vector.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/cartesian_vector.h) - Vector implementation example
