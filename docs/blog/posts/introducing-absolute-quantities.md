@@ -31,7 +31,7 @@ reflecting how scientists express equations in practice.
 
 ---
 
-_Note: Revised on March 11, 2026 for clarity, accuracy, and completeness._
+_Note: Revised on March 19, 2026 for clarity, accuracy, and completeness._
 
 <!-- more -->
 
@@ -237,9 +237,49 @@ engineering textbooks:
   relative to an origin.
 - **Deltas** (differences) are the result of subtracting two points or two absolutes.
 
+The following table maps each abstraction to its mathematical space, physical meaning,
+and typical C++ representation:
+
+| Concept      | Mathematical Space | Physical Meaning                       | Example                                                                                                        |
+|:-------------|:-------------------|:---------------------------------------|:---------------------------------------------------------------------------------------------------------------|
+| **Point**    | **Affine Space**   | A location on a scale or in space.     | `point<mass>`, `point<time>`, `point<altitude>`, `point<position_vector>` (vector), `point<velocity>` (vector) |
+| **Delta**    | **Vector Space**   | A change, displacement, or interval.   | `delta<mass>`, `delta<duration>`, `delta<height>`, `displacement` (vector), `velocity` (vector)                |
+| **Absolute** | **Ratio Scale**    | A magnitude measured from a true zero. | `mass`, `duration`, `height`, `distance` (scalar), `speed` (scalar)                                            |
+
 This correspondence ensures that code written with **mp-units** is not only type-safe,
 but also directly maps to the equations and reasoning found in scientific literature.
 This makes code easier to review, verify, and maintain.
+
+
+### Scalar and Vector Quantities
+
+Absolute quantities are always **scalar**. Vector quantities — those with direction —
+are inherently signed and therefore always modeled as **deltas** in **mp-units**.
+There is no such thing as an "absolute vector quantity".
+
+Named vector quantities such as `displacement` and `velocity` are already deltas by
+their physical nature, so the `delta<>` wrapper is neither needed nor used for them:
+
+| Quantity     | Scalar                                            | Vector                                                     |
+|:-------------|:--------------------------------------------------|:-----------------------------------------------------------|
+| **Point**    | `point<time>`, `point<altitude>`, `point<mass>`   | `point<position_vector>`, `point<velocity>`                |
+| **Delta**    | `delta<duration>`, `delta<height>`, `delta<mass>` | `displacement`, `velocity` *(no `delta<>` wrapper needed)* |
+| **Absolute** | `duration`, `height`, `mass`                      | *(none — use `norm()` to obtain a scalar absolute)*        |
+
+To obtain a scalar absolute from a vector delta, take its norm:
+
+```cpp
+quantity<displacement[m]> v = ...;     // vector delta
+quantity<distance[m]>     d = norm(v); // scalar absolute
+```
+
+For signed scalar deltas, `abs()` (or equivalently `.absolute()`) converts a delta
+to an absolute:
+
+```cpp
+quantity d1 = delta<height[m]>(-3);  // signed scalar delta
+quantity d2 = abs(d1);               // scalar absolute — same as d1.absolute()
+```
 
 
 ### Conversions Between Abstractions
@@ -406,6 +446,27 @@ Here is a summary of all of the subtraction operations
     quantity res4 = abs - d;                   // Delta
     quantity res5 = d - abs;                   // Delta
     ```
+
+#### Magnitude and Ratio Operations
+
+Beyond addition and subtraction, the following table summarises the multiplication,
+division, and magnitude operations involving absolute quantities and deltas:
+
+| Operation             | Result   | Notes                                                          |
+|:----------------------|:---------|:---------------------------------------------------------------|
+| `Absolute / Absolute` | Absolute | A physical ratio (e.g., _efficiency_, _strain_, _density_).    |
+| `Absolute / Delta`    | Delta    | Rate of an absolute with respect to a signed step.             |
+| `Delta / Absolute`    | Delta    | A change scaled by a fixed magnitude.                          |
+| `Delta / Delta`       | Delta    | A rate of change (e.g., `velocity = displacement / duration`). |
+| `abs(delta_scalar)`   | Absolute | Magnitude of a scalar delta. Equivalent to `delta.absolute()`. |
+| `norm(delta_vector)`  | Absolute | Magnitude of a vector delta (e.g., `speed = norm(velocity)`).  |
+
+The last two rows highlight the two pathways from a **delta** to an **absolute**:
+
+- For **scalar deltas**: `abs(d)` or equivalently `d.absolute()` — both check the
+  non-negativity precondition at runtime.
+- For **vector deltas**: `norm(v)` — the Euclidean norm, which is always non-negative
+  by definition.
 
 #### Interpolation
 
