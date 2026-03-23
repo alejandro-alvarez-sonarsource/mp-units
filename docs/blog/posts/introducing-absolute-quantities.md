@@ -95,7 +95,13 @@ current model, motivating the need for a new abstraction.
    (different deltas from various origins). Should such a point have the same or
    a different textual output for each representation?
 3. **Error-prone simplifications** – Developers frequently replace points with deltas for
-   convenience, losing safety and physical clarity.
+   convenience, losing safety and physical clarity. This is the most dangerous pain point,
+   because it compiles silently. In V2, both `quantity<K>` and `quantity<deg_C>` are deltas
+   and are numerically interchangeable. A function accepting `quantity<K>` will silently
+   accept `20 * deg_C`, using the numeric value `20` instead of `293.15`. Thermodynamic
+   expressions such as Carnot efficiency will then produce results that are off by a factor
+   of roughly 15, with no compiler warning and no runtime error — the bug is invisible until
+   you check the numbers.
 
 ### Example
 
@@ -237,14 +243,14 @@ engineering textbooks:
   relative to an origin.
 - **Deltas** (differences) are the result of subtracting two points or two absolutes.
 
-The following table maps each abstraction to its mathematical space, physical meaning,
-and typical C++ representation:
+The following table maps each abstraction to its measurement scale, mathematical structure,
+physical meaning, and typical C++ representation:
 
-| Concept      | Mathematical Space | Physical Meaning                       | Example                                                                                                        |
-|:-------------|:-------------------|:---------------------------------------|:---------------------------------------------------------------------------------------------------------------|
-| **Point**    | **Affine Space**   | A location on a scale or in space.     | `point<mass>`, `point<time>`, `point<altitude>`, `point<position_vector>` (vector), `point<velocity>` (vector) |
-| **Delta**    | **Vector Space**   | A change, displacement, or interval.   | `delta<mass>`, `delta<duration>`, `delta<height>`, `displacement` (vector), `velocity` (vector)                |
-| **Absolute** | **Ratio Scale**    | A magnitude measured from a true zero. | `mass`, `duration`, `height`, `distance` (scalar), `speed` (scalar)                                            |
+| Concept      | Measurement Scale  | Mathematical Structure    | Physical Meaning                       | Example                                                                                                        |
+|:-------------|:-------------------|:--------------------------|:---------------------------------------|:---------------------------------------------------------------------------------------------------------------|
+| **Point**    | **Interval Scale** | **Affine Space**          | A location on a scale or in space.     | `point<mass>`, `point<time>`, `point<altitude>`, `point<position_vector>` (vector), `point<velocity>` (vector) |
+| **Delta**    | —                  | **Vector Space**          | A change, displacement, or interval.   | `delta<mass>`, `delta<duration>`, `delta<height>`, `displacement` (vector), `velocity` (vector)                |
+| **Absolute** | **Ratio Scale**    | **Convex Cone** ($\ge 0$) | A magnitude measured from a true zero. | `mass`, `duration`, `height`, `distance` (scalar), `speed` (scalar)                                            |
 
 This correspondence ensures that code written with **mp-units** is not only type-safe,
 but also directly maps to the equations and reasoning found in scientific literature.
@@ -574,6 +580,21 @@ As we pointed out before, it will be possible to form absolute quantities of _te
 but only when the unit is (potentially prefixed) Kelvin. For offset units like degree
 Celsius, it will not be possible.
 
+The reason runs deeper than a mere unit-system rule. Kelvin temperature encodes
+_thermodynamic energy content_: the mean molecular kinetic energy of an ideal gas is
+proportional to $k_B T$, where $T$ must be an absolute temperature. This makes Kelvin a
+**ratio scale** quantity — ratios and products involving $T$ are physically meaningful
+($T_h / T_c$ in the Carnot efficiency, $nRT$ in the ideal gas law). Degree Celsius, by
+contrast, is an **interval scale**: only _differences_ of Celsius temperatures are
+physically meaningful, not their ratios or products. A Celsius value of $20\ ^\circ\mathrm{C}$
+is not "twice as hot" as $10\ ^\circ\mathrm{C}$.
+
+This distinction is exactly what the Point/Absolute split captures:
+
+- `quantity<K>` — **Absolute**: ratio-scale magnitude, safe in multiplicative expressions.
+- `quantity<point<deg_C>>` — **Point**: interval-scale location, blocked in multiplicative
+  expressions by the type system.
+
 If the user has a temperature point in Celsius and wants to treat it as an absolute
 quantity and pass it to some quantity equation, then such point first needs to
 be converted to use Kelvin as its unit and then we need to create an absolute
@@ -583,6 +604,11 @@ quantity from it:
 quantity temp = point<deg_C>(21);
 quantity kinetic_energy = 3 / 2 * si::boltzmann_constant * temp.in(K).absolute();
 ```
+
+The explicit `.in(K).absolute()` chain is a **type-safety checkpoint**: it ensures the
+programmer consciously acknowledges the shift from an interval-scale location to a
+ratio-scale magnitude, preventing the silent `20` vs. `293.15` error described in the
+[Current Pain Points](#current-pain-points) section above.
 
 ### Which Quantity Abstraction Should I Use?
 
@@ -871,6 +897,38 @@ quantity carnot_eff_2 = (temp_hot - temp_cold) / temp_hot.quantity_from_zero();
 It worked, but was far from being physically pure and pretty.
 
 
+### Why Not Just Use `(T − T₀)` as a Workaround?
+
+A common suggestion is to work around the absence of a distinct Absolute type by
+replacing every absolute temperature $T$ with the explicit expression $(T - T_0)$, where
+$T_0$ is a `quantity_point` at absolute zero. For example:
+
+```cpp
+quantity<point<K>> temp_cold = point<K>(300.);
+quantity<point<K>> temp_hot = point<K>(500.);
+// Force deltas from zero explicitly every time:
+quantity carnot_eff = 1. - temp_cold.quantity_from_zero() / temp_hot.quantity_from_zero();
+```
+
+While this produces the correct numerical answer, it has several drawbacks:
+
+1. **Manual burden** — the user must remember to apply the `quantity_from_zero()` call
+   every time a thermodynamic formula requires ratio-scale semantics.
+2. **No call-site enforcement** — generic function interfaces cannot require an
+   Absolute at the type level; a `quantity_point<deg_C>` can slip through silently.
+3. **Lost semantic intent** — the type `quantity_point<K>` says "a location on the
+   temperature scale," not "a thermodynamic energy magnitude." The distinction between
+   an interval-scale location and a ratio-scale magnitude disappears.
+4. **Verbose code** — the workaround turns clean physics equations into manual
+   conversions, defeating the purpose of a high-level units library.
+
+The V3 Absolute Quantity abstraction internalizes this conversion. `300 * K` is an
+Absolute Quantity by default and is directly usable in multiplicative expressions.
+When an offset-unit measurement must enter a ratio-scale equation, the explicit
+`.in(K).absolute()` chain makes the conversion visible and type-safe — exactly once,
+at the boundary, rather than scattered throughout the codebase.
+
+
 ### Design Philosophy and Standardization
 
 Absolute quantities make physical semantics explicit while simplifying common use cases.
@@ -889,6 +947,33 @@ For standardization, this model brings three tangible benefits:
 1. **Closer alignment with physical reasoning** used by scientists and engineers.
 2. **Improved readability and verification** in generic C++ code.
 3. **Zero runtime overhead** — all checks are compile‑time or lightweight preconditions.
+
+#### Mathematical Grounding: Ratio Scale and Convex Sets
+
+The term **Ratio Scale** used throughout this article comes from _measurement theory_
+(Stevens, 1946) and is standard in metrology (VIM) and physics. A ratio scale has a true
+physical zero so that ratios of values are meaningful: $2\ \mathrm{kg}$ is genuinely
+twice as much as $1\ \mathrm{kg}$, whereas $40\ ^\circ\mathrm{C}$ is _not_ twice as hot
+as $20\ ^\circ\mathrm{C}$.
+
+**Convex Cone** is the corresponding _mathematical structure_: the set of all admissible
+values of a ratio-scale quantity is the non-negative half-line $[0, +\infty)$, which is a
+convex cone — it is closed under addition and under multiplication by a non-negative
+scalar. Requests for a "validator" or "convex space" abstraction in quantities libraries
+are describing exactly this property.
+
+The two terms therefore describe the same thing from two complementary angles:
+_Ratio Scale_ is the measurement-theory characterisation (what operations are physically
+meaningful), while _Convex Cone_ is the algebraic-structure characterisation (what set the
+values live in). Both appear in the literature and both are correct; the
+[Alignment with scientific practice](#alignment-with-scientific-practice) table in the
+Semantics section shows all three columns side-by-side.
+
+The `.absolute()` conversion method is the explicit, type-safe crossing from an
+Interval-Scale Affine Space (Points) or an unrestricted Vector Space (Deltas) into the
+Ratio-Scale Convex Cone (Absolutes). Rather than relying on a separate validation layer or
+runtime validators, the type system itself encodes the constraint — providing the
+mathematical rigor that metrology and physics demand.
 
 
 ## Frequently Asked Questions: The V3 Physical Model
