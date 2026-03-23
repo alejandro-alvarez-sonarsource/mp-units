@@ -31,7 +31,7 @@ reflecting how scientists express equations in practice.
 
 ---
 
-_Note: Revised on March 19, 2026 for clarity, accuracy, and completeness._
+_Note: Revised on March 23, 2026 for clarity, accuracy, and completeness._
 
 <!-- more -->
 
@@ -889,6 +889,151 @@ For standardization, this model brings three tangible benefits:
 1. **Closer alignment with physical reasoning** used by scientists and engineers.
 2. **Improved readability and verification** in generic C++ code.
 3. **Zero runtime overhead** — all checks are compile‑time or lightweight preconditions.
+
+
+## Frequently Asked Questions: The V3 Physical Model
+
+As **mp-units** moves toward a more rigorous modeling of physical spaces, several questions
+arise regarding the distinction between **Points**, **Deltas**, and **Absolute Quantities**.
+This Q&A addresses the most common technical and philosophical inquiries.
+
+---
+
+### 1. Why do we need "Absolute Quantities" if we already have "Delta Quantities"?
+
+While both can share the same underlying representation (e.g., `double`), they represent
+different **mathematical structures**.
+
+- **Delta Quantities** belong to a **Vector Space**. They represent a displacement, can be
+  negative, and lack a natural origin.
+- **Absolute Quantities** belong to a **Ratio Scale**. They represent a magnitude measured
+  from a unique, non-arbitrary physical zero (like $0\text{ K}$ or $0\text{ kg}$).
+
+Without the Absolute abstraction, the library cannot distinguish between a
+**Change in Temperature** ($\Delta 20\text{ K}$) and a **State of Temperature**
+($20\text{ K}$ absolute). This leads to the "Offset Unit Trap," where a user might
+accidentally plug $20^\circ\text{C}$ (a delta) into an ideal gas law equation, yielding
+a result off by a factor of 15.
+
+---
+
+### 2. Is Velocity a Delta or an Absolute Quantity?
+
+**Velocity is a Delta Quantity (Vector).** It represents a displacement over time and
+carries direction (or a sign in 1-D).
+
+**Speed is an Absolute Quantity (Scalar).** It is the magnitude (norm) of that velocity.
+
+In V3, we use the type hierarchy to model this: `velocity` is a child of `speed`. When
+you call `norm(velocity)`, the type "decays" from the Vector-Delta space to the
+Absolute-Scalar space.
+
+---
+
+### 3. Why does `Absolute - Delta` result in a `Delta`?
+
+One might assume that as $A - A = D$ then $A - D = A$. However, this violates the
+**Non-Negativity Guarantee** of the Absolute type.
+
+Consider a fuel tank and an engine that burns fuel on the way to destination:
+
+- `fuel_present` = $10\text{ kg}$ (Absolute)
+- `fuel_required` = $15\text{ kg}$ (Delta)
+- `result` = $-5\text{ kg}$
+
+A "Negative Absolute Mass" is a physical impossibility. However, a **Negative Delta**
+is mathematically valid—it represents a deficit. To ensure compile-time safety, any
+operation that _can_ result in a negative value must return a `Delta`. Subtraction
+is a "Type Demoter" that moves you from the restricted absolute Ratio scale back into
+the unrestricted Vector space.
+
+---
+
+### 4. If I can't burn "negative fuel," why is `BurnRate * Time` a Delta?
+
+This is a distinction between a Stock (State) and a Flow (Transaction):
+
+- **Stocks (Absolute):** Represent the "Inventory" (e.g., Fuel in the tank). These are strictly
+  non-negative.
+- **Flows (Delta):** Represent the "Transfer." Even if a specific process (like an engine)
+  only flows in one direction, the mathematical category of a flow must support directionality.
+
+Even if an engine only burns fuel (negative flow), the category of "Flow" must support
+directionality to handle both consumption and refueling. By modeling the flow as a Delta
+from the start, we maintain a consistent algebraic chain:
+
+$$State_{new} = State_{old} + Flow$$
+
+$$Absolute_{new} = Absolute_{old} + Delta_{flow}$$
+
+This allows the type system to handle both _Fuel Consumption_ (Negative Delta) and _Refueling_
+(Positive Delta) using the same logic, without forcing the user to treat "Refilling" and
+"Burning" as two different mathematical universes.
+
+---
+
+### 5. Why not just use Runtime Contracts for negative Absolute results?
+
+We could, but it weakens the type system. If $Absolute - Delta$ returns an $Absolute$,
+the compiler assumes the result is a valid non-negative magnitude. If it isn't, the
+program crashes or triggers a contract violation at runtime. By returning a Delta Quantity,
+we handle the "Negative Possibility" at compile-time. The user is forced to acknowledge
+that the result might be a deficit before treating it as a magnitude again.
+
+---
+
+### 6. Should Time Points be treated the same as Position Points?
+
+Mathematically, both are **Affine Spaces**. However, they differ in dimensionality:
+
+- **Position** exists in a 3-D space; its "Deltas" are **Vectors** ($\vec{r}$).
+- **Time** exists in a 1-D space; its "Deltas" are **Signed Scalars**.
+
+V3 respects this by allowing 1-D deltas to carry a sign bit (direction), whereas
+Absolute Quantities (like Age or Duration-amount) are strictly non-negative. Treating
+a 1-D time-delta as a pure scalar is dangerous because it allows directionality to
+propagate into equations where only magnitude is required.
+
+For example, if you calculate the _Total Energy_ ($Q = P \times \Delta t$) during
+a reverse-time simulation, a negative $\Delta t$ will result in a negative $Q$.
+If that $Q$ is then used to calculate a required _Mass_ or _Volume_, you would get
+a physically impossible negative result.
+
+By distinguishing between a Delta (the step) and an Absolute (the duration magnitude),
+V3 forces you to be explicit about whether the direction of time matters to your equation.
+
+---
+
+### 7. Why is `Quantity` the default for Absolute in V3?
+
+It aligns the library with how physics is taught. In V2, the most "natural" syntax
+(`quantity<K>`) was often used to represent deltas, forcing users to use more complex
+syntax for absolute states. In V3, we align the library with physics textbooks:
+
+- **Textbook:** $PV = nRT$ (Uses absolute temperature).
+- **V3 Code:** `(P * V) / (n * T)` (Uses `quantity<K>`, which is Absolute by default).
+
+By making **Absolute** the default, the most common physics equations become the easiest
+to write and the safest to execute. If you need a point or a delta, you wrap it; if you
+have a magnitude, you just use it.
+
+---
+
+### 8. Isn't `point.absolute()` just more boilerplate?
+
+It is a **Type-Safety Checkpoint**. When you convert a `point<deg_C>` to an `absolute<K>`,
+you are performing a non-trivial physical transformation (shifting the origin to absolute
+zero). Forcing the user to call `.absolute()` ensures that this conversion is intentional.
+It prevents the silent bug of dividing two "points" and getting a meaningless ratio.
+
+---
+
+### 9. Is the 3-category model too complex for users?
+
+It has a learning curve, but it maps more closely to how we think. We don't think of
+"The distance to the moon" as a "Delta of Position" in daily life; we think of it as
+a magnitude. By providing the Absolute category, we give users a name for the
+"buckets of stuff" they are actually measuring.
 
 
 ## Conclusion
