@@ -295,7 +295,7 @@ quantity<mm, std::int16_t> length_mm2 = length2;  // ✅ OK: 2000 fits in int16_
     The [Au library](https://aurora-opensource.github.io/au/main/discussion/concepts/overflow/#adapt)
     goes further with "magic number" overflow detection. Au computes a threshold at compile time
     and checks whether scaling would overflow, providing stronger guarantees for more scenarios.
-    This however, might be too aggressive for some cases. This is why Au library also provided 
+    This however, might be too aggressive for some cases. This is why Au library also provided
     an [opt-out mechanism](https://aurora-opensource.github.io/au/main/discussion/concepts/conversion_risks/#opting-out-of-safety-checks)
     that allows to explicitly ignore the built-in checkers.
 
@@ -359,12 +359,12 @@ quantity<mm, std::int16_t> length_mm2 = length2;  // ✅ OK: 2000 fits in int16_
     ```
 
     **Should libraries detect and prevent this?** The question remains open:
-    
+
     - Most real-world values are nowhere near floating-point limits
     - Checking would add runtime overhead or complex compile-time analysis
     - IEEE 754 provides `inf` and gradual underflow, which may be acceptable behavior
     - No consensus exists in the community on whether this is worth addressing
-    
+
     This is an area where library designers must balance safety, performance, and practical
     utility. Feedback and use cases from the community would help inform future decisions.
 
@@ -1097,7 +1097,7 @@ quantity_point outside_temp = point<deg_C>(5.);         // quantity<point<deg_C>
 quantity temp_diff = room_temp - outside_temp;          // ✅ OK: quantity<delta<K>> — 15 K
 quantity_point new_temp  = room_temp + temp_diff;       // ✅ OK: quantity<point<deg_C>>
 
-// Deltas: Differences between values                    
+// Deltas: Differences between values  
 quantity temp_change  = delta<K>(10);                   // quantity<delta<K>>
 quantity displacement = delta<m>(-5);                   // quantity<delta<m>> — can be negative
 
@@ -1348,16 +1348,16 @@ library from Aurora Innovation).
     background-color: #2d2d2d;
     color: #e0e0e0;
   }
-  
+
   .comparison-table tr:first-child th {
     background-color: #3d3d3d;
   }
-  
+
   .comparison-table th,
   .comparison-table td {
     border-color: #555;
   }
-  
+
   .tooltip {
     border-bottom-color: #999;
   }
@@ -1644,11 +1644,11 @@ languages:
     - **Zero-cost compiled** (C++, Rust, F#): Units verified at compile-time, completely erased at runtime
     - **Optimizable JIT** (Julia, C#): Type-stable code achieves zero/minimal cost; UnitsNet shows ~2.4× overhead for structs
     - **Object-wrapped dynamic** (Python, Java): Object instantiation dominates; Pint shows 38-1460× overhead, JSR-385 ~650×
-- **Memory Trade-offs**: Heap-allocated objects incur massive overhead—Pint (~700 bytes) and JSR-385 
-  (~500 bytes) vs zero overhead for compiled languages and type-erased implementations; UnitsNet's 
+- **Memory Trade-offs**: Heap-allocated objects incur massive overhead—Pint (~700 bytes) and JSR-385
+  (~500 bytes) vs zero overhead for compiled languages and type-erased implementations; UnitsNet's
   struct approach adds only 4-8 bytes
-- **The "Type Stability Tax"**: Julia and managed runtimes demonstrate that zero-cost is achievable 
-  in JIT environments only when types are known at compile-time; dynamic dispatch reintroduces 
+- **The "Type Stability Tax"**: Julia and managed runtimes demonstrate that zero-cost is achievable
+  in JIT environments only when types are known at compile-time; dynamic dispatch reintroduces
   substantial overhead (Julia: 130× when type-unstable)
 - **Compilation Cost**: Compile-time type safety comes with build-time costs—mp-units and UOM
   pay the highest price for their strong safety guarantees, while dynamic languages have
