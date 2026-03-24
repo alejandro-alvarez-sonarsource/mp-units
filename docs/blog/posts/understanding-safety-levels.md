@@ -1395,7 +1395,7 @@ The following table compares safety features across major C++ units libraries:
 
 ### Cross-Language Libraries
 
-According to [star-history.com](https://www.star-history.com/#angularsen/UnitsNet&hgrecco/pint&iliekturtles/uom&mpusz/units&Date),
+According to [star-history.com](https://www.star-history.com),
 **mp-units** directly competes with industry-leading units libraries from other languages.
 While **mp-units** operates within the C++ ecosystem, comparing it to cross-language
 competitors provides important context about its capabilities and design sophistication
