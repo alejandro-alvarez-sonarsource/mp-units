@@ -25,13 +25,13 @@ A comprehensive physical quantities and units library can provide six distinct s
 3. **Representation Safety** - Protects against overflows and precision loss
 4. **Quantity Kind Safety** - Prevents arithmetic on quantities of different kinds
 5. **Quantity Safety** - Enforces correct quantity relationships and equations
-6. **Affine Space Safety** - Distinguishes points and deltas
+6. **Mathematical Space Safety** - Distinguishes points and deltas
 
 **mp-units** provides all six levels. The following sections introduce each level
 with simple examples.
 
 
-## Dimension Safety
+## Level 1: Dimension Safety
 
 **Dimension safety** prevents mixing quantities with incompatible dimensions through
 automatic dimensional analysis.
@@ -51,7 +51,7 @@ quantity<si::metre> distance = speed * time;            // ✅ OK: length
 feature that enables dimensional analysis.
 
 
-## Unit Safety
+## Level 2: Unit Safety
 
 **Unit safety** ensures compatible units at interface boundaries—function arguments, return
 types, and component integration.
@@ -86,7 +86,7 @@ extraction. While `std::chrono::duration::count()` returns raw numbers without v
 see [Working with Legacy Interfaces](../how_to_guides/integration/working_with_legacy_interfaces.md).
 
 
-## Representation Safety
+## Level 3: Representation Safety
 
 **Representation safety** protects against numerical issues like overflow, underflow, and
 precision loss during conversions and arithmetic operations.
@@ -119,7 +119,7 @@ by `std::chrono::duration`) and compile-time scaling overflow detection.
     For such cases, use custom representation types with runtime checks.
 
 
-## Quantity Kind Safety
+## Level 4: Quantity Kind Safety
 
 **Quantity kind safety** distinguishes between quantities that share the same dimension but
 represent different physical concepts.
@@ -148,7 +148,7 @@ Examples of quantities with same dimension but different kinds:
     distinguishes all SI quantity kinds including Gy/Sv, Hz/Bq, and rad/sr.
 
 
-## Quantity Safety
+## Level 5: Quantity Safety
 
 **Quantity safety** is the highest level, providing semantic correctness through:
 
@@ -187,19 +187,11 @@ Quantity safety distinguishes:
 **mp-units** is the only C++ library providing quantity safety through ISO 80000 (ISQ)
 implementation. Full character-specific operations planned for V3.
 
-!!! tip "Gradual Adoption"
 
-    **mp-units** allows choosing your safety level. Start with
-    [simple quantities](../users_guide/framework_basics/simple_and_typed_quantities.md#simple-quantities)
-    (dimension safety only) and gradually adopt
-    [typed quantities](../users_guide/framework_basics/simple_and_typed_quantities.md#typed-quantities)
-    (full quantity safety) as needs evolve.
+## Level 6: Mathematical Space Safety
 
-
-## Affine Space Safety
-
-**Affine Space safety** distinguishes between **quantity points** (absolute positions on
-a scale) and **quantity deltas** (differences/displacements).
+**Mathematical space safety** distinguishes between **quantity points** (absolute positions
+on a scale) and **quantity deltas** (differences/displacements).
 
 ```cpp
 // Points: Positions on a scale with an origin
@@ -227,22 +219,43 @@ Key operations:
 - **Point + Point** → ❌ Error (meaningless operation)
 - **Delta - Point** → ❌ Error (meaningless operation)
 
-Examples where affine space safety prevents errors:
+Examples where mathematical space safety prevents errors:
 
 - **Temperature**: Cannot add 20 °C + 10 °C (meaningless), but can compute difference (10 K)
 - **Time**: Cannot add two _timestamps_, but can subtract them to get _duration_
 - **Position**: Cannot add two GPS coordinates, but can compute displacement between them
 - **Altitude**: Cannot add two _altitudes_ above sea level, but can compute _height_ difference
 
-**mp-units** implements affine space safety using `quantity_point` for positions and `quantity`
-for differences.
+**mp-units** implements mathematical space safety using `quantity_point` for positions and
+`quantity` for differences.
+
+
+## Choosing a Safety Level
+
+[**Simple quantities**](../users_guide/framework_basics/simple_and_typed_quantities.md#simple-quantities)
+(`quantity<unit, Rep>`) are the natural starting point and already cover Levels 1–4 with
+no extra effort. From there, two independent opt-in choices extend coverage further:
+
+- **`quantity_point`** brings Level 6 (mathematical space safety) for domains involving
+  affine spaces — _time_ instants, _temperatures_, _positions_ — at no additional code overhead.
+  If adding two quantities of the same kind makes no physical or domain sense — as with
+  two _timestamps_ or two absolute _temperatures_ — they should be modeled as points.
+- [**Typed quantities**](../users_guide/framework_basics/simple_and_typed_quantities.md#typed-quantities)
+  (`quantity<isq::quantity[unit], Rep>`) add Level 5: full ISQ quantity hierarchy
+  enforcement (e.g., `isq::height` vs `isq::width` vs `isq::distance`). The tradeoffs are:
+
+    - more verbose code at the call site, though more expressive and self-documenting,
+    - longer type names in compiler diagnostics and during debugging.
+
+  Use them where multiple distinct quantities of the same kind are in play and that
+  distinction matters.
 
 
 ## Learn More
 
 To dive deeper into **mp-units** safety features:
 
-- **[Understanding Safety Levels (Blog)](../blog/posts/understanding-safety-levels.md)** -
+- [Understanding Safety Levels (Blog)](../blog/posts/understanding-safety-levels.md) -
   In-depth analysis, library comparisons, and why safety matters for C++ standardization
 - [Simple and Typed Quantities](../users_guide/framework_basics/simple_and_typed_quantities.md) -
   Choose your level of type safety
