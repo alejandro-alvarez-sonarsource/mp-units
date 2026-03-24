@@ -59,17 +59,18 @@ The new **absolute quantity** abstraction aims to bridge that gap.
 
 Below is a summary table comparing the three main quantity abstractions:
 
-| Feature              |                        Point                        |                   Absolute                    |                Delta                |
-|----------------------|:---------------------------------------------------:|:---------------------------------------------:|:-----------------------------------:|
-| **Physical Model**   |                   Interval Scale                    |                  Ratio Scale                  |             Difference              |
-| **Example**          | $20\ \mathrm{°C}$, $100\ \mathrm{m}\ \mathrm{AMSL}$ |   $293.15\ \mathrm{K}$, $100\ \mathrm{kg}$    | $10\ \mathrm{K}$, $-5\ \mathrm{kg}$ |
-| **True Zero?**       |                 No (Arbitrary Zero)                 |                Yes (True Zero)                |                 N/A                 |
-| **Allows Negative?** |              Yes ($-10\ \mathrm{°C}$)               |                  No (Opt-in)                  |       Yes ($-10\ \mathrm{m}$)       |
-| **A + A**            |     Error ($20\ \mathrm{°C} + 10\ \mathrm{°C}$)     | Absolute ($10\ \mathrm{kg} + 5\ \mathrm{kg}$) |                Delta                |
-| **A - A**            |     Delta ($30\ \mathrm{°C} - 10\ \mathrm{°C}$)     |  Delta ($50\ \mathrm{kg} - 5\ \mathrm{kg}$)   |                Delta                |
-| **scalar * A**       |         Error ($2 \times 20\ \mathrm{°C}$)          |     Absolute ($2 \times 10\ \mathrm{kg}$)     |                Delta                |
-| **A / A**            |                        Error                        |  scalar ($10\ \mathrm{kg} / 5\ \mathrm{kg}$)  |               scalar                |
-| **API**              |               `quantity<point<...>>`                |                `quantity<...>`                |       `quantity<delta<...>>`        |
+| Feature                  |                        Point                        |                    Absolute                     |                Delta                |
+|--------------------------|:---------------------------------------------------:|:-----------------------------------------------:|:-----------------------------------:|
+| **Physical Model**       |                   Interval Scale                    |                   Ratio Scale                   |             Difference              |
+| **Example**              | $20\ \mathrm{°C}$, $100\ \mathrm{m}\ \mathrm{AMSL}$ |    $293.15\ \mathrm{K}$, $100\ \mathrm{kg}$     | $10\ \mathrm{K}$, $-5\ \mathrm{kg}$ |
+| **Has True Zero?**       |             No (arbitrary/conventional)             |                 Yes (physical)                  |                 N/A                 |
+| **Allows Negative?**     |            Yes (below arbitrary origin)             |                   No (opt-in)                   |       Yes (direction matters)       |
+| **Addition (A + A)**     |    ❌ Error ($20\ \mathrm{°C} + 10\ \mathrm{°C}$)    | ✅ Absolute ($10\ \mathrm{kg} + 5\ \mathrm{kg}$) |               ✅ Delta               |
+| **Subtraction (A − A)**  |    ✅ Delta ($30\ \mathrm{°C} - 10\ \mathrm{°C}$)    |  ✅ Delta ($50\ \mathrm{kg} - 5\ \mathrm{kg}$)   |               ✅ Delta               |
+| **Multiplication (k×A)** |        ❌ Error ($2 \times 20\ \mathrm{°C}$)         |     ✅ Absolute ($2 \times 10\ \mathrm{kg}$)     | ✅ Delta ($-2 \times 5\ \mathrm{m}$) |
+| **Division (A / A)**     |                       ❌ Error                       |  ✅ Scalar ($10\ \mathrm{kg} / 5\ \mathrm{kg}$)  |          ✅ Scalar (ratio)           |
+| **A + Delta**            |                   ✅ Point (shift)                   |                     ✅ Delta                     |               ✅ Delta               |
+| **API**                  |               `quantity<point<...>>`                |                 `quantity<...>`                 |       `quantity<delta<...>>`        |
 
 This table summarizes the key differences in semantics, API, and physical meaning for each
 abstraction. Use it as a quick reference when deciding which concept to use in your code.
@@ -625,10 +626,10 @@ flowchart TD
     ask_delta -- No --> Absolute[Absolute]
 
     %% Styling
-    classDef pointStyle fill:#ff9999,stroke:#cc0000,stroke-width:2px,color:#000
-    classDef deltaStyle fill:#99ff99,stroke:#00cc00,stroke-width:2px,color:#000
-    classDef absoluteStyle fill:#99ccff,stroke:#0066cc,stroke-width:2px,color:#000
-    classDef questionStyle fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:#000
+    classDef pointStyle fill:#c0392b,stroke:#e74c3c,stroke-width:2px,color:#fff
+    classDef deltaStyle fill:#27ae60,stroke:#2ecc71,stroke-width:2px,color:#fff
+    classDef absoluteStyle fill:#2980b9,stroke:#3498db,stroke-width:2px,color:#fff
+    classDef questionStyle fill:#d4a017,stroke:#f0b429,stroke-width:2px,color:#fff
 
     class Point pointStyle
     class Delta deltaStyle
