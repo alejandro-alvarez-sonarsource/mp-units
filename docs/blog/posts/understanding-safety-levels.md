@@ -5,7 +5,6 @@ authors:
 categories:
  - Metrology
 comments: true
-draft: true
 ---
 
 # Understanding Safety Levels in Physical Units Libraries
@@ -24,8 +23,10 @@ with different approaches, helping you understand the trade-offs between safety 
 and runtime efficiency.
 
 We'll pay particular attention to the upper safety levels—especially **quantity kind
-safety** and **quantity safety**—which are well-established concepts in metrology and
-physics, yet remain widely overlooked in the C++ ecosystem. Most units library authors
+safety** (distinguishing dimensionally equivalent concepts such as work vs. torque, or
+Hz vs. Bq) and **quantity safety** (enforcing correct quantity hierarchies and
+scalar/vector/tensor mathematical rules)—which are well-established concepts in metrology
+and physics, yet remain widely overlooked in the C++ ecosystem. Most units library authors
 and users simply do not realize these guarantees are achievable, or how much they matter
 in practice. These levels go well beyond dimensional analysis, preventing subtle semantic
 errors that unit conversions alone cannot catch, and are essential for realizing truly
@@ -237,6 +238,21 @@ quantity distance = 1500. * m;
 auto value = distance.numerical_value_in(km);  // Must specify unit explicitly
 // Forces users to think about and document the unit being used
 ```
+
+!!! warning "Unit Safety Does Not Distinguish Same-Dimension Kinds"
+
+    Unit safety catches mismatches between *different* dimensions, but it cannot distinguish
+    between quantities that share the same dimension. Even a library rated **Full** at this
+    level will silently accept:
+
+    - `rad` and `sr` (both dimensionless)
+    - `Hz` and `Bq` (both s⁻¹)
+    - `Gy` and `Sv` (both J/kg = m²·s⁻²)
+
+    Addition, subtraction, and comparison between these pairs all compile without error,
+    despite being physically meaningless. This limitation is fundamental — unit safety
+    operates on *dimensions*, not on *quantity kinds*. Addressing it requires [**Level 4:
+    Quantity Kind Safety**](#level-4-quantity-kind-safety).
 
 
 ## Level 3: Representation Safety
@@ -1266,104 +1282,6 @@ library from Aurora Innovation).
 
 [![Star History Chart - C++ Libraries](https://api.star-history.com/svg?repos=mpusz/mp-units,nholthaus/units,bernedom/SI,aurora-opensource/au,boostorg/units&type=Date&legend=top-left)](https://star-history.com/#mpusz/mp-units&nholthaus/units&bernedom/SI&aurora-opensource/au&boostorg/units&Date&legend=top-left)
 
-<style>
-.tooltip {
-  position: relative;
-  display: inline-block;
-  cursor: help;
-  border-bottom: 1px dotted #666;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 350px;
-  background-color: #333;
-  color: #fff;
-  text-align: left;
-  border-radius: 6px;
-  padding: 10px;
-  position: absolute;
-  z-index: 1000;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 10px;
-  opacity: 0;
-  transition: opacity 0.3s;
-  font-size: 0.9em;
-  line-height: 1.4;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  pointer-events: none;
-  white-space: normal;
-}
-
-.tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #333 transparent transparent transparent;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
-.comparison-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-  overflow: visible;
-}
-
-.comparison-table th,
-.comparison-table td {
-  border: 1px solid #ddd;
-  padding: 12px 8px;
-  text-align: center;
-  overflow: visible;
-}
-
-.comparison-table th {
-  background-color: #f5f5f5;
-  font-weight: bold;
-}
-
-.comparison-table tr:first-child th {
-  background-color: #e0e0e0;
-}
-
-.comparison-table td:first-child {
-  text-align: left;
-  font-weight: bold;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .comparison-table th {
-    background-color: #2d2d2d;
-    color: #e0e0e0;
-  }
-
-  .comparison-table tr:first-child th {
-    background-color: #3d3d3d;
-  }
-
-  .comparison-table th,
-  .comparison-table td {
-    border-color: #555;
-  }
-
-  .tooltip {
-    border-bottom-color: #999;
-  }
-}
-</style>
-
 The following table compares safety features across major C++ units libraries:
 
 <div style="overflow: visible;">
@@ -1469,6 +1387,11 @@ The following table compares safety features across major C++ units libraries:
   however, neither has a first-class absolute quantity type — that is unique to mp-units V3,
   which adds ratio-scale absolute quantities as a distinct third abstraction (true
   physical zero); Boost.Units offers limited support for specific cases
+- **C++ Standard Requirement**: mp-units requires C++20 — a higher entry bar than Au (C++14)
+  or nholthaus/units (C++14), which matters for industrial and embedded projects still on
+  legacy toolchains; Au demonstrates that strong safety guarantees are achievable on C++14,
+  but C++20 features — NTTPs, `concepts`, and class non-type template parameters — allow
+  mp-units to expose them through a significantly more ergonomic, user-friendly API
 
 ### Cross-Language Libraries
 
@@ -1542,12 +1465,12 @@ languages:
 <td><strong>Representation Safety</strong></td>
 <td>✅ Strong</td>
 <td>✅ Strong</td>
-<td><span class="tooltip">⚠️ Limited<span class="tooltiptext">Handles large integers gracefully through Python's arbitrary-precision <code>int</code>, but floating-point uses standard <code>float</code> with potential precision loss in dimensioned calculations</span></span></td>
-<td><span class="tooltip">⚠️ Limited<span class="tooltiptext">Defaults to <code>double</code> for most quantities; supports custom representations via <code>Quantity&lt;Q, N&gt;</code> but lacks automatic precision handling for edge cases like overflow</span></span></td>
-<td>✅ Strong</td>
+<td><span class="tooltip">⚠️ Limited<span class="tooltiptext">No compile-time representation safety: all checks are runtime-only and manifest as <code>DimensionalityError</code> or silent precision loss. Handles large integers via Python's arbitrary-precision <code>int</code>, but floating-point uses standard IEEE 754 <code>float</code> with potential precision loss; no overflow protection for dimensioned calculations</span></span></td>
+<td><span class="tooltip">⚠️ Limited<span class="tooltiptext">Defaults to <code>double</code> for most quantities; supports custom representations via <code>Quantity&lt;Q, N&gt;</code> but lacks automatic precision handling for edge cases like overflow; narrowing conversions between numeric types require explicit casts but are not systematically prevented at the API boundary</span></span></td>
+<td><span class="tooltip">✅ Strong<span class="tooltiptext">Rust's type system prohibits implicit narrowing conversions at the language level (e.g., assigning <code>f64</code> to <code>f32</code> without an explicit cast is a compile error); uom inherits this guarantee — any precision-losing conversion must be explicit and is therefore intentional. uom is also generic over any <code>Num</code>-constrained representation type, giving full control over numeric precision</span></span></td>
 <td><span class="tooltip">⚠️ Partial<span class="tooltiptext">Uses <code>QuantityValue</code> to specify numeric types (e.g., <code>double</code>, <code>decimal</code>); supports saturation arithmetic but doesn't enforce representation constraints at type level</span></span></td>
 <td><span class="tooltip">⚠️ Partial<span class="tooltiptext">Accepts any Julia numeric type (including custom types with appropriate traits) but doesn't enforce specific types for physical correctness or overflow prevention</span></span></td>
-<td><span class="tooltip">⚠️ Limited<span class="tooltiptext">Limited to numeric primitives (<code>int</code>, <code>float</code>, <code>decimal</code>); no generic constraints or custom numeric type support with units; inherits F# numeric behavior</span></span></td>
+<td><span class="tooltip">⚠️ Limited<span class="tooltiptext">Limited to numeric primitives (<code>int</code>, <code>float</code>, <code>decimal</code>); F# does not permit implicit narrowing between <em>different</em> primitive types, but provides no systematic overflow or precision-loss protection within a single type — inherits standard .NET numeric behavior</span></span></td>
 </tr>
 <tr>
 <td><strong>Quantity Kind Safety</strong></td>
@@ -1612,7 +1535,7 @@ languages:
 <td><span class="tooltip">🟢 Low<span class="tooltiptext">JVM bytecode compilation relatively fast; generic types add modest overhead</span></span></td>
 <td><span class="tooltip">🟡 Moderate<span class="tooltiptext">Rust's trait system and monomorphization add compile-time cost but less than C++ templates</span></span></td>
 <td><span class="tooltip">🟢 Low<span class="tooltiptext">JIT compilation; struct-based design adds minimal overhead</span></span></td>
-<td><span class="tooltip">� Moderate<span class="tooltiptext">Julia's type specialization over physical unit types adds non-trivial first-run JIT compilation cost; complex expressions with many unit types exacerbate this (the well-known "time-to-first-X" problem applies to Unitful.jl-heavy code)</span></span></td>
+<td><span class="tooltip">🟡 Moderate<span class="tooltiptext">Julia's type specialization over physical unit types adds non-trivial first-run JIT compilation cost; complex expressions with many unit types exacerbate this (the well-known "time-to-first-X" problem applies to Unitful.jl-heavy code)</span></span></td>
 <td><span class="tooltip">⚡ Minimal<span class="tooltiptext">Units completely erased at compile-time; minimal impact on compilation speed</span></span></td>
 </tr>
 </tbody>
@@ -1625,6 +1548,11 @@ languages:
 - **Unit Safety**: mp-units, UOM, Unitful.jl, and F# Units provide the strongest compile-time
   guarantees; F# is unique as units are a built-in language feature with zero runtime cost;
   JSR-385 enforces dimension compatibility via Java generics but tracks units at runtime only
+- **Enforcement Timing**: This is a critical distinction often overlooked: C++, Rust, and F#
+  libraries enforce all safety levels at *compile time* — violations are build errors with zero
+  runtime cost; Python (Pint) and Java (JSR-385) enforce safety at *runtime* — violations are
+  exceptions or silent errors that only appear during execution; a `DimensionalityError` in Pint
+  is a crash, not a compiler diagnostic
 - **Representation Safety**: mp-units V3 will lead with enhanced overflow/underflow
   detection; UOM benefits from Rust's explicit integer handling
 - **Quantity Kind Safety**: mp-units uniquely provides full quantity kind safety based on
@@ -1632,14 +1560,23 @@ languages:
   as separate types but without a formal ISQ basis; UOM's built-in SI quantities make
   dimensionally equivalent kinds (e.g., Energy/Torque) accidentally interchangeable unless
   the optional Kind trait is applied
-- **Quantity Safety**: mp-units V3 will be the only library with systematic quantity
-  hierarchies based on ISO 80000; no other library in this comparison provides scalar/vector/tensor character support
+- **Quantity Safety**: mp-units V3 will be the only **zero-overhead, compile-time** library
+  with systematic quantity hierarchies based on ISO 80000; JSR-385 (Java) provides some
+  runtime quantity separation but with substantial heap overhead and no ISQ-grounded hierarchy;
+  no other library in this comparison provides scalar/vector/tensor character support
 - **Mathematical Space Safety**: mp-units V3 will provide comprehensive abstraction for points,
   absolute quantities, and deltas; Pint, JSR-385, UOM, and Unitful.jl each offer partial
   temperature-specific affine support with varying levels of generality and compile-time
   enforcement; UnitsNet and F# Units provide no mathematical space abstractions
 - **Language Integration**: F# demonstrates what's possible when units are a first-class
   language feature
+- **Python's Zero-Overhead Path**: While Pint relies on runtime object wrapping,
+  [`impunity`](https://github.com/achevrot/impunity) (TU Delft) demonstrates that AST rewriting
+  at function-definition time can achieve dimension-safety with zero runtime overhead — using
+  Python's annotation syntax to check units statically rather than tracking them at runtime;
+  `impunity` is limited to dimension-level checks and does not support quantity kinds, affine
+  spaces, or character safety, but it shows that Python's "runtime tax" on unit safety is not
+  inevitable
 - **Performance Architecture**: The overhead spectrum divides into three categories:
     - **Zero-cost compiled** (C++, Rust, F#): Units verified at compile-time, completely erased at runtime
     - **Optimizable JIT** (Julia, C#): Type-stable code achieves zero/minimal cost; UnitsNet shows ~2.4× overhead for structs
@@ -1655,6 +1592,27 @@ languages:
   minimal compilation overhead but sacrifice compile-time error detection
 - **Official Standards**: JSR-385 represents Java's official units API, demonstrating that
   even standardized approaches face fundamental runtime overhead in managed environments
+
+!!! info "A Note on Performance Metrics"
+
+    The runtime and memory overhead figures cited in the table reflect the fundamental
+    architectural costs of each library's design and are based on community micro-benchmarks
+    comparing basic unit-wrapped arithmetic against equivalent raw primitive operations:
+
+    - **Compiled zero-cost languages (C++, Rust, F#)**: "None" claims are verified via
+      assembly/IL inspection (e.g., Compiler Explorer), confirming complete compile-time
+      erasure of unit metadata — the machine code is identical to raw `double` or `f64`.
+    - **Managed/JIT environments (Java, C#, Julia)**: Overhead factors (e.g., ~650× for
+      JSR-385) reflect formal micro-benchmarking (JMH, BenchmarkDotNet). These capture the
+      cost of heap allocation, GC pressure, and dynamic dispatch when type structures cannot
+      be fully flattened at compile time. Julia achieves zero cost only when type-stable.
+    - **Dynamic languages (Python)**: Multipliers for Pint are from standard profiling
+      (`timeit`) and documented community benchmarks, highlighting the object-instantiation
+      and dictionary-lookup cost of tracking dimensions at runtime.
+
+    Actual production overhead will vary with application architecture, JIT warmup, and
+    object reuse strategies, but the multipliers accurately reflect each paradigm's
+    fundamental characteristics.
 
 ## Conclusion
 
