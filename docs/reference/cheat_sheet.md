@@ -374,7 +374,7 @@ double speed_value = (100 * km / h).force_numerical_value_in(m / s); // 27 (2)
     // quantity<si::metre, int> invalid = 1.5 * m;            // ✗ Error: double → int needs explicit cast
     ```
 
-=== "Affine Space Safety"
+=== "Mathematical Space Safety"
 
     Distinguishes absolute points from relative differences (vectors):
 

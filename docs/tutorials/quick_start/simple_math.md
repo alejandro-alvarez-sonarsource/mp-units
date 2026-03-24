@@ -90,7 +90,7 @@ quantity result = 1 * km + 2000 * m;  // Result: 3000 m
 
 Try these in the editor above:
 
-1. **Calculate fuel efficiency**: `quantity fuel = 50 * l;` then `total_distance / fuel` (km/L)
+1. **Calculate fuel efficiency**: `quantity fuel = 50 * L;` then `total_distance / fuel` (km/L)
 2. **Multiple operations**: Try `(trip1 + trip2) / (time * 2)`
 3. **Acceleration**: `quantity velocity = 30 * m / s; quantity duration = 5 * s;` then
   `velocity / duration`
