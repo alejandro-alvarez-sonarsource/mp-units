@@ -286,8 +286,9 @@ quantity<km, int> distance = length;         // ❌ Compile-time error!
 // Error: 1500 m → 1.5 km truncates with int
 
 // Must be explicit about potentially lossy conversions
-quantity distance2 = length.force_in(km);    // ✅ OK: explicit truncation
-quantity distance3 = length.in<double>(km);  // ✅ OK: floating point avoids loss
+quantity distance2 = length.force_in(km);                  // ✅ OK: explicit truncation
+auto km_count = length.force_numerical_value_in(km);       // ✅ OK: returns raw int (1)
+quantity distance3 = length.in<double>(km);                // ✅ OK: floating point avoids loss
 
 // Value-preserving conversions work implicitly
 quantity<mm, int> length_mm = length;        // ✅ OK: 1'500'000 mm (no truncation)
@@ -383,6 +384,47 @@ quantity<mm, std::int16_t> length_mm2 = length2;  // ✅ OK: 2000 fits in int16_
 
     This is an area where library designers must balance safety, performance, and practical
     utility. Feedback and use cases from the community would help inform future decisions.
+
+### Unit-Qualified Construction
+
+Beyond conversions, representation safety also governs construction itself. `std::chrono::duration`
+provides an `explicit` constructor from a raw integer, which prevents implicit conversions but
+does **not** protect against in-place construction via `emplace_back`:
+
+```cpp
+std::vector<std::chrono::milliseconds> delays;
+delays.emplace_back(42);  // ✅ Compiles — stores 42ms
+
+// Refactor: switch to microseconds for higher precision
+std::vector<std::chrono::microseconds> delays;
+delays.emplace_back(42);  // ✅ Still compiles — but now stores 42µs!
+                          //    Silent 1000× regression, zero diagnostic
+```
+
+`explicit` makes the intent clear at declaration sites, but direct in-place construction
+bypasses it entirely. Changing the element type causes a silent, factor-of-1000 regression
+with no clue from the compiler.
+
+**mp-units** takes a stricter stance: quantity construction *always* requires both a number
+and a unit. A raw integer never constructs a quantity — not through direct initialization,
+assignment, or `emplace_back`:
+
+```cpp
+std::vector<quantity<si::milli<si::second>>> delays;
+// delays.emplace_back(42);    // ❌ Compile-time error — unit required!
+delays.emplace_back(42 * ms);  // ✅ Unit is explicit — intent is unambiguous
+delays.emplace_back(42, ms);   // ✅ OK
+
+// Refactor: switch to microseconds
+std::vector<quantity<si::micro<si::second>>> delays;
+// delays.emplace_back(42);    // ❌ Compile-time error — still requires a unit!
+delays.emplace_back(42 * ms);  // ✅ 42ms → 42000µs: explicit, value-preserving conversion
+delays.emplace_back(42, ms);   // ✅ OK
+delays.emplace_back(42 * us);  // ✅ Or 42µs if that was the actual intent
+delays.emplace_back(42, us);   // ✅ OK
+```
+
+There is no construction path that silently discards unit information.
 
 
 ## Level 4: Quantity Kind Safety

@@ -97,7 +97,8 @@ quantity length = 1500 * m;
 // quantity<km, int> distance = length;             // ❌ Compile-time error!
 // Error: 1500 m → 1.5 km truncates with int
 
-quantity distance2 = length.force_in(km);           // ✅ OK: explicit truncation
+quantity distance2 = length.force_in(km);           // ✅ OK: explicit truncation (returns quantity)
+auto km_count = length.force_numerical_value_in(km);// ✅ OK: explicit truncation (returns raw int: 1)
 quantity<mm, int> length_mm = length;               // ✅ OK: 1'500'000 mm (no truncation)
 
 // Scaling overflow detection
@@ -107,10 +108,18 @@ quantity length1 = std::int8_t{2} * m;
 
 quantity length2 = std::int16_t{2} * m;
 quantity<mm, std::int16_t> length_mm2 = length2;    // ✅ OK: 2000 fits in int16_t
+
+// Unit-qualified construction: raw integers cannot construct a quantity
+// std::chrono allows: delays.emplace_back(42) — silently 1000× wrong if type changes
+std::vector<quantity<si::milli<si::second>>> delays;
+// delays.emplace_back(42);    // ❌ Compile-time error — unit required!
+delays.emplace_back(42 * ms); // ✅ Explicit unit — safe regardless of container type
+delays.emplace_back(42, ms);  // ✅ OK
 ```
 
 **mp-units** provides strong representation safety through truncation prevention (inspired
-by `std::chrono::duration`) and compile-time scaling overflow detection.
+by `std::chrono::duration`), compile-time scaling overflow detection, and mandatory
+unit-qualified construction.
 
 !!! warning "Runtime Overflow Limitations"
 
