@@ -142,28 +142,28 @@ Then we took a long series of polls to make the temperature of the room crystal 
     | Strongly in Favor | In favor | Neutral | Against | Strongly Against |
     |:-----------------:|:--------:|:-------:|:-------:|:----------------:|
     |        22         |    12    |    3    |    0    |        0         |
-    
+
 <!-- markdownlint-disable-next-line MD013 -->
 !!! question "We see the value of standardizing these parts of the framework suggested by “P3045R7 Quantities and units library”: Core library: quantity, symbolic expressions, dimensions, units, references and concepts; Quantity kinds: support quantities of the same dimension; Quantities of the same kind: width, height, etc."
 
     | Strongly in Favor | In favor | Neutral | Against | Strongly Against |
     |:-----------------:|:--------:|:-------:|:-------:|:----------------:|
     |        27         |    9     |    0    |    0    |        0         |
-    
+
 <!-- markdownlint-disable-next-line MD013 -->
 !!! question "We see the value of standardizing these parts of the framework suggested by “P3045 R7 Quantities and units library”: Affine space: quantity_point, point origin, and concepts for them"
 
     | Strongly in Favor | In favor | Neutral | Against | Strongly Against |
     |:-----------------:|:--------:|:-------:|:-------:|:----------------:|
     |        24         |    8     |    1    |    0    |        0         |
-    
+
 <!-- markdownlint-disable-next-line MD013 -->
 !!! question "We see the value of standardizing these parts of the framework suggested by “P3045 R7 Quantities and units library“: Text output: for quantity, units, and dimensions"
 
     | Strongly in Favor | In favor | Neutral | Against | Strongly Against |
     |:-----------------:|:--------:|:-------:|:-------:|:----------------:|
     |        15         |    14    |    5    |    0    |        0         |
-    
+
 This is a huge milestone and I will definitely celebrate 🎉
 
 However, we should not get too excited. It is an important, but only the first step in LEWG
