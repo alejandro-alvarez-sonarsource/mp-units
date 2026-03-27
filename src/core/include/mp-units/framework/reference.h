@@ -86,56 +86,55 @@ struct reference {
   }
 
   template<typename Q2, typename U2>
-  [[nodiscard]] friend consteval detail::reference_t<MP_UNITS_EXPRESSION_WORKAROUND(Q{} * Q2{}),
-                                                     MP_UNITS_EXPRESSION_WORKAROUND(U{} * U2{})>
-  operator*(reference, reference<Q2, U2>)
+  [[nodiscard]] friend consteval detail::reference_t<
+    MP_UNITS_EXPRESSION_WORKAROUND(Q{} * Q2{}), MP_UNITS_EXPRESSION_WORKAROUND(U{} * U2{})> operator*(reference,
+                                                                                                      reference<Q2, U2>)
   {
     return {};
   }
 
   template<Unit U2>
   [[nodiscard]] friend consteval detail::reference_t<(MP_UNITS_EXPRESSION_WORKAROUND(Q{} * get_quantity_spec(U2{}))),
-                                                     MP_UNITS_EXPRESSION_WORKAROUND(U{} * U2{})>
-  operator*(reference, U2)
+                                                     MP_UNITS_EXPRESSION_WORKAROUND(U{} * U2{})> operator*(reference,
+                                                                                                           U2)
   {
     return {};
   }
 
   template<Unit U1>
   [[nodiscard]] friend consteval detail::reference_t<MP_UNITS_EXPRESSION_WORKAROUND(get_quantity_spec(U1{}) * Q{}),
-                                                     MP_UNITS_EXPRESSION_WORKAROUND(U1{} * U{})>
-  operator*(U1, reference)
+                                                     MP_UNITS_EXPRESSION_WORKAROUND(U1{} * U{})> operator*(U1,
+                                                                                                           reference)
   {
     return {};
   }
 
   template<typename Q2, typename U2>
-  [[nodiscard]] friend consteval detail::reference_t<MP_UNITS_EXPRESSION_WORKAROUND(Q{} / Q2{}),
-                                                     MP_UNITS_EXPRESSION_WORKAROUND(U{} / U2{})>
-  operator/(reference, reference<Q2, U2>)
+  [[nodiscard]] friend consteval detail::reference_t<
+    MP_UNITS_EXPRESSION_WORKAROUND(Q{} / Q2{}), MP_UNITS_EXPRESSION_WORKAROUND(U{} / U2{})> operator/(reference,
+                                                                                                      reference<Q2, U2>)
   {
     return {};
   }
 
   template<Unit U2>
   [[nodiscard]] friend consteval detail::reference_t<MP_UNITS_EXPRESSION_WORKAROUND(Q{} / get_quantity_spec(U2{})),
-                                                     MP_UNITS_EXPRESSION_WORKAROUND(U{} / U2{})>
-  operator/(reference, U2)
+                                                     MP_UNITS_EXPRESSION_WORKAROUND(U{} / U2{})> operator/(reference,
+                                                                                                           U2)
   {
     return {};
   }
 
   template<Unit U1>
   [[nodiscard]] friend consteval detail::reference_t<MP_UNITS_EXPRESSION_WORKAROUND(get_quantity_spec(U1{}) / Q{}),
-                                                     MP_UNITS_EXPRESSION_WORKAROUND(U1{} / U{})>
-  operator/(U1, reference)
+                                                     MP_UNITS_EXPRESSION_WORKAROUND(U1{} / U{})> operator/(U1,
+                                                                                                           reference)
   {
     return {};
   }
 
   [[nodiscard]] friend consteval detail::reference_t<MP_UNITS_EXPRESSION_WORKAROUND(inverse(Q{})),
-                                                     MP_UNITS_EXPRESSION_WORKAROUND(inverse(U{}))>
-  inverse(reference)
+                                                     MP_UNITS_EXPRESSION_WORKAROUND(inverse(U{}))> inverse(reference)
   {
     return {};
   }
@@ -153,7 +152,7 @@ struct reference {
     requires(Den != 0)
   [[nodiscard]] friend consteval detail::reference_t<MP_UNITS_EXPRESSION_WORKAROUND((pow<Num, Den>(Q{}))),
                                                      MP_UNITS_EXPRESSION_WORKAROUND((pow<Num, Den>(U{})))>
-  pow(reference)
+    pow(reference)
   {
     return {};
   }
@@ -166,8 +165,7 @@ struct reference {
    * @return The result of computation
    */
   [[nodiscard]] friend consteval detail::reference_t<MP_UNITS_EXPRESSION_WORKAROUND(sqrt(Q{})),
-                                                     MP_UNITS_EXPRESSION_WORKAROUND(sqrt(U{}))>
-  sqrt(reference)
+                                                     MP_UNITS_EXPRESSION_WORKAROUND(sqrt(U{}))> sqrt(reference)
   {
     return {};
   }
@@ -180,8 +178,7 @@ struct reference {
    * @return The result of computation
    */
   [[nodiscard]] friend consteval detail::reference_t<MP_UNITS_EXPRESSION_WORKAROUND(cbrt(Q{})),
-                                                     MP_UNITS_EXPRESSION_WORKAROUND(cbrt(U{}))>
-  cbrt(reference)
+                                                     MP_UNITS_EXPRESSION_WORKAROUND(cbrt(U{}))> cbrt(reference)
   {
     return {};
   }
@@ -190,14 +187,14 @@ struct reference {
 
 template<typename FwdRep, Reference R, RepresentationOf<get_quantity_spec(R{})> Rep = std::remove_cvref_t<FwdRep>>
   requires(!detail::OffsetUnit<decltype(get_unit(R{}))>)
-[[nodiscard]] constexpr quantity<R{}, Rep> operator*(FwdRep&& lhs, R r)
+[[nodiscard]] constexpr quantity<R{}, Rep> operator*(FwdRep && lhs, R r)
 {
   return quantity{std::forward<FwdRep>(lhs), r};
 }
 
 template<typename FwdRep, Reference R, RepresentationOf<get_quantity_spec(R{})> Rep = std::remove_cvref_t<FwdRep>>
   requires(!detail::OffsetUnit<decltype(get_unit(R{}))>)
-[[nodiscard]] constexpr Quantity auto operator/(FwdRep&& lhs, R)
+[[nodiscard]] constexpr Quantity auto operator/(FwdRep && lhs, R)
 {
   return quantity{std::forward<FwdRep>(lhs), inverse(R{})};
 }
@@ -206,8 +203,7 @@ template<typename FwdRep, Reference R, RepresentationOf<get_quantity_spec(R{})> 
   requires detail::OffsetUnit<decltype(get_unit(R{}))>
 [[deprecated(
   "2.3.0: References using offset units (e.g., temperatures) should be constructed with the `delta` or `point` "
-  "helpers")]] constexpr auto
-operator*(FwdRep&& lhs, R r)
+  "helpers")]] constexpr auto operator*(FwdRep && lhs, R r)
 {
   return quantity{std::forward<FwdRep>(lhs), r};
 }
@@ -216,8 +212,7 @@ template<typename FwdRep, Reference R, RepresentationOf<get_quantity_spec(R{})> 
   requires detail::OffsetUnit<decltype(get_unit(R{}))>
 [[deprecated(
   "2.3.0: References using offset units (e.g., temperatures) should be constructed with the `delta` or `point` "
-  "helpers")]] constexpr auto
-operator/(FwdRep&& lhs, R)
+  "helpers")]] constexpr auto operator/(FwdRep && lhs, R)
 {
   return quantity{std::forward<FwdRep>(lhs), inverse(R{})};
 }
@@ -227,7 +222,7 @@ template<Reference R, typename Rep>
 // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
 constexpr auto operator*(R, Rep&&)
 #if __cpp_deleted_function
-  = delete("To create a `quantity` use `Rep * R`");
+  = delete ("To create a `quantity` use `Rep * R`");
 #else
   = delete;
 #endif
@@ -237,7 +232,7 @@ template<Reference R, typename Rep>
 // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
 constexpr auto operator/(R, Rep&&)
 #if __cpp_deleted_function
-  = delete("To create a `quantity` use `Rep / R`");
+  = delete ("To create a `quantity` use `Rep / R`");
 #else
   = delete;
 #endif

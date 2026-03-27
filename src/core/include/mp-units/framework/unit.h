@@ -177,7 +177,7 @@ struct unit_interface {
 
   [[nodiscard]] friend consteval Unit auto operator*(Unit auto, UnitMagnitude auto)
 #if __cpp_deleted_function
-    = delete("To scale a unit use `mag * unit` syntax");
+    = delete ("To scale a unit use `mag * unit` syntax");
 #else
     = delete;
 #endif
@@ -406,8 +406,8 @@ struct named_unit<Symbol, U, PO> : decltype(U)::_base_type_ {
  * @tparam QuantitySpec a specification of a quantity to be measured with this unit
  */
 template<symbol_text Symbol, Unit auto U, detail::QuantityKindSpec auto QS>
-  requires(!Symbol.empty()) &&
-          (QS.dimension == detail::get_associated_quantity(U).dimension) && detail::is_positive_canonical_unit_mag<U>
+  requires(!Symbol.empty()) && (QS.dimension == detail::get_associated_quantity(U).dimension) &&
+          detail::is_positive_canonical_unit_mag<U>
 struct named_unit<Symbol, U, QS> : decltype(U)::_base_type_ {
   using _base_type_ = named_unit;           // exposition only
   static constexpr auto _symbol_ = Symbol;  ///< Unique unit identifier
@@ -415,8 +415,8 @@ struct named_unit<Symbol, U, QS> : decltype(U)::_base_type_ {
 };
 
 template<symbol_text Symbol, Unit auto U, detail::QuantityKindSpec auto QS, PointOrigin auto PO>
-  requires(!Symbol.empty()) &&
-          (QS.dimension == detail::get_associated_quantity(U).dimension) && detail::is_positive_canonical_unit_mag<U>
+  requires(!Symbol.empty()) && (QS.dimension == detail::get_associated_quantity(U).dimension) &&
+          detail::is_positive_canonical_unit_mag<U>
 struct named_unit<Symbol, U, QS, PO> : decltype(U)::_base_type_ {
   using _base_type_ = named_unit;           // exposition only
   static constexpr auto _symbol_ = Symbol;  ///< Unique unit identifier

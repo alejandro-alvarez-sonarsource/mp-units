@@ -120,16 +120,16 @@ static_assert(unit_symbol<usf{.char_set = portable}>(mag<1000> * metre) == "(10^
 static_assert(unit_symbol(mag<6000> * metre) == "(6 × 10³ m)");
 static_assert(unit_symbol(mag<6> * mag_power<10, 3> * metre) == "(6 × 10³ m)");
 static_assert(unit_symbol<usf{.char_set = portable}>(mag<6000> * metre) == "(6 x 10^3 m)");
-static_assert(unit_symbol(mag<10600> * metre) == "(10600 m)");
+static_assert(unit_symbol(mag<10'600> * metre) == "(10600 m)");
 static_assert(unit_symbol(mag<60> * second) == "(60 s)");
 static_assert(unit_symbol(mag_ratio<1, 18> * metre / second) == "(1/18 m)/s");
 static_assert(unit_symbol(mag_ratio<1, 18> * (metre / second)) == "(1/18 m/s)");
 static_assert(unit_symbol(mag_ratio<1, 1800> * metre / second) == "(1/1800 m)/s");
 static_assert(unit_symbol(mag_ratio<1, 1800> * (metre / second)) == "(1/1800 m/s)");
-static_assert(unit_symbol(mag_ratio<1, 18000> * metre / second) == "(1/18 × 10⁻³ m)/s");
-static_assert(unit_symbol(mag_ratio<1, 18000> * (metre / second)) == "(1/18 × 10⁻³ m/s)");
-static_assert(unit_symbol<usf{.char_set = portable}>(mag_ratio<1, 18000> * metre / second) == "(1/18 x 10^-3 m)/s");
-static_assert(unit_symbol<usf{.char_set = portable}>(mag_ratio<1, 18000> * (metre / second)) == "(1/18 x 10^-3 m/s)");
+static_assert(unit_symbol(mag_ratio<1, 18'000> * metre / second) == "(1/18 × 10⁻³ m)/s");
+static_assert(unit_symbol(mag_ratio<1, 18'000> * (metre / second)) == "(1/18 × 10⁻³ m/s)");
+static_assert(unit_symbol<usf{.char_set = portable}>(mag_ratio<1, 18'000> * metre / second) == "(1/18 x 10^-3 m)/s");
+static_assert(unit_symbol<usf{.char_set = portable}>(mag_ratio<1, 18'000> * (metre / second)) == "(1/18 x 10^-3 m/s)");
 
 // TODO implement all the below
 // static_assert(unit_symbol(mag_power<2, 1, 2> * one) == "(2^(1/2))");

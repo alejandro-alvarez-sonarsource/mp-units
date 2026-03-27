@@ -41,7 +41,7 @@ static_assert(isq::storage_capacity(8 * 1024 * bit) == isq::storage_capacity(1 *
 static_assert(isq::storage_capacity(8 * Kibit) == isq::storage_capacity(1 * KiB));
 
 static_assert(isq::storage_capacity(1 * kbit) == isq::storage_capacity(1000 * bit));
-static_assert(isq::storage_capacity(2000 * Mibit) == isq::storage_capacity(2097152 * kbit));
+static_assert(isq::storage_capacity(2000 * Mibit) == isq::storage_capacity(2'097'152 * kbit));
 
 static_assert(isq::storage_capacity(1 * Kibit) == isq::storage_capacity(1024 * bit));
 static_assert(isq::storage_capacity(1 * Mibit) == isq::storage_capacity(1024 * Kibit));

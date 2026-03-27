@@ -250,8 +250,8 @@ public:
   [[nodiscard]] friend constexpr measurement pow(const measurement& base, const value_type& exponent)
     requires requires { pow(base.value(), exponent); } || requires { std::pow(base.value(), exponent); }
   {
-    using std::pow;
     using std::abs;
+    using std::pow;
     const auto val = pow(base.value(), exponent);
     return measurement(val, abs(exponent * val / base.value() * base.uncertainty()));
   }
@@ -280,8 +280,8 @@ public:
   [[nodiscard]] friend constexpr measurement exp(const measurement& v)
     requires requires { exp(v.value()); } || requires { std::exp(v.value()); }
   {
-    using std::exp;
     using std::abs;
+    using std::exp;
     const auto val = exp(v.value());
     return measurement(val, abs(val * v.uncertainty()));
   }
@@ -295,8 +295,8 @@ public:
   [[nodiscard]] friend constexpr measurement log(const measurement& v)
     requires requires { log(v.value()); } || requires { std::log(v.value()); }
   {
-    using std::log;
     using std::abs;
+    using std::log;
     return measurement(log(v.value()), abs(v.uncertainty() / v.value()));
   }
 

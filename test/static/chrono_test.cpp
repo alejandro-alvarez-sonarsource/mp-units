@@ -128,8 +128,8 @@ static_assert(quantity{1min} == 1 * min);
 static_assert(quantity{1h} == 1 * h);
 static_assert(quantity{std::chrono::days{1}} == 1 * d);
 static_assert(quantity{std::chrono::weeks{1}} == 7 * d);
-static_assert(quantity{std::chrono::months{1}} == 2629746 * s);
-static_assert(quantity{std::chrono::years{1}} == 31556952 * s);
+static_assert(quantity{std::chrono::months{1}} == 2'629'746 * s);
+static_assert(quantity{std::chrono::years{1}} == 31'556'952 * s);
 
 // conversion from chrono
 static_assert(quantity<ns>{1ns} == 1 * ns);

@@ -504,7 +504,7 @@ static_assert(is_of_type<pow<2>(radian), derived_unit<power<radian_, 2>>>);
 static_assert(is_of_type<pow<2>(metre), derived_unit<power<metre_, 2>>>);
 static_assert(is_of_type<pow<1, 2>(metre), derived_unit<power<metre_, 1, 2>>>);
 static_assert(is_of_type<pow<1, 2>(metre* metre), metre_>);
-static_assert(is_of_type<pow<1, 3>(metre* metre* metre), metre_>);
+static_assert(is_of_type<pow<1, 3>(metre * metre * metre), metre_>);
 static_assert(is_of_type<pow<1, 3>(metre* metre), derived_unit<power<metre_, 2, 3>>>);
 static_assert(is_of_type<pow<1, 2>(metre / second), derived_unit<power<metre_, 1, 2>, per<power<second_, 1, 2>>>>);
 static_assert(is_of_type<pow<1, 2>(metre / (second * second)), derived_unit<power<metre_, 1, 2>, per<second_>>>);

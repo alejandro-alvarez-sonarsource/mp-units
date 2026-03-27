@@ -268,7 +268,7 @@ public:
     requires(equivalent(unit, get_unit(R2{}))) && (!detail::RepConvertibleFrom<rep, Value>)
   constexpr quantity(Value val, R2)
 #if __cpp_deleted_function
-    = delete("Conversion is truncating");
+    = delete ("Conversion is truncating");
 #else
     = delete;
 #endif
@@ -298,7 +298,7 @@ public:
   constexpr explicit(!std::convertible_to<Value, rep> ||
                      !mp_units::implicitly_convertible(quantity_spec, dimensionless)) quantity(Value val)
 #if __cpp_deleted_function
-    = delete("Conversion is truncating");
+    = delete ("Conversion is truncating");
 #else
     = delete;
 #endif
@@ -401,7 +401,7 @@ public:
     requires(equivalent(U{}, unit))
   constexpr const rep&& numerical_value_ref_in(U) const&& noexcept
 #if __cpp_deleted_function
-    = delete("Can't form a reference to a temporary");
+    = delete ("Can't form a reference to a temporary");
 #else
     = delete;
 #endif
@@ -668,16 +668,16 @@ public:
   }
 
   template<std::derived_from<quantity> Q, typename Value>
-    requires(!Quantity<Value>) &&
-            (!Reference<Value>) && detail::InvokeResultOf<quantity_spec, std::multiplies<>, rep, const Value&>
+    requires(!Quantity<Value>) && (!Reference<Value>) &&
+            detail::InvokeResultOf<quantity_spec, std::multiplies<>, rep, const Value&>
   [[nodiscard]] friend constexpr QuantityOf<quantity_spec> auto operator*(const Q& q, const Value& val)
   {
     return ::mp_units::quantity{q.numerical_value_ref_in(unit) * val, R};
   }
 
   template<typename Value, std::derived_from<quantity> Q>
-    requires(!Quantity<Value>) &&
-            (!Reference<Value>) && detail::InvokeResultOf<quantity_spec, std::multiplies<>, const Value&, rep>
+    requires(!Quantity<Value>) && (!Reference<Value>) &&
+            detail::InvokeResultOf<quantity_spec, std::multiplies<>, const Value&, rep>
   [[nodiscard]] friend constexpr QuantityOf<quantity_spec> auto operator*(const Value& val, const Q& q)
   {
     return ::mp_units::quantity{val * q.numerical_value_ref_in(unit), R};
@@ -692,8 +692,8 @@ public:
   }
 
   template<std::derived_from<quantity> Q, typename Value>
-    requires(!Quantity<Value>) &&
-            (!Reference<Value>) && detail::InvokeResultOf<quantity_spec, std::divides<>, rep, const Value&>
+    requires(!Quantity<Value>) && (!Reference<Value>) &&
+            detail::InvokeResultOf<quantity_spec, std::divides<>, rep, const Value&>
   [[nodiscard]] friend constexpr QuantityOf<quantity_spec> auto operator/(const Q& q, const Value& val)
   {
     MP_UNITS_EXPECTS_DEBUG(val != representation_values<Value>::zero());
@@ -701,8 +701,8 @@ public:
   }
 
   template<typename Value, std::derived_from<quantity> Q>
-    requires(!Quantity<Value>) &&
-            (!Reference<Value>) && detail::InvokeResultOf<quantity_spec, std::divides<>, const Value&, rep>
+    requires(!Quantity<Value>) && (!Reference<Value>) &&
+            detail::InvokeResultOf<quantity_spec, std::divides<>, const Value&, rep>
   [[nodiscard]] friend constexpr Quantity auto operator/(const Value& val, const Q& q)
   {
     MP_UNITS_EXPECTS_DEBUG(q != 0);

@@ -241,7 +241,7 @@ static_assert(is_of_type<pow<2>(dimension_one), dimension_one_>);
 static_assert(is_of_type<pow<2>(length), derived_dimension<mp_units::power<length_, 2>>>);
 static_assert(is_of_type<pow<1, 2>(length), derived_dimension<mp_units::power<length_, 1, 2>>>);
 static_assert(is_of_type<pow<1, 2>(length* length), length_>);
-static_assert(is_of_type<pow<1, 3>(length* length* length), length_>);
+static_assert(is_of_type<pow<1, 3>(length * length * length), length_>);
 static_assert(is_of_type<pow<1, 3>(length* length), derived_dimension<mp_units::power<length_, 2, 3>>>);
 static_assert(is_of_type<pow<1, 2>(length / time),
                          derived_dimension<mp_units::power<length_, 1, 2>, per<mp_units::power<time_, 1, 2>>>>);

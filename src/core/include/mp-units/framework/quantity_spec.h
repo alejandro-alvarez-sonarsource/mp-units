@@ -258,7 +258,7 @@ struct quantity_spec_interface : quantity_spec_interface_base {
   template<typename Self, typename FwdQ, Quantity Q = std::remove_cvref_t<FwdQ>>
     requires(mp_units::explicitly_convertible(Q::quantity_spec, Self{})) &&
             requires { typename quantity<make_reference(Self{}, Q::unit), typename Q::rep>; }
-  [[nodiscard]] constexpr Quantity auto operator()(this Self, FwdQ&& q)
+  [[nodiscard]] constexpr Quantity auto operator()(this Self, FwdQ && q)
   {
     return quantity{std::forward<FwdQ>(q).numerical_value_is_an_implementation_detail_,
                     detail::make_reference(Self{}, Q::unit)};
@@ -267,7 +267,7 @@ struct quantity_spec_interface : quantity_spec_interface_base {
   template<typename Self, typename FwdQP, QuantityPoint QP = std::remove_cvref_t<FwdQP>>
     requires(mp_units::explicitly_convertible(QP::quantity_spec, Self{})) &&
             requires { typename quantity_point<make_reference(Self{}, QP::unit), QP::point_origin, typename QP::rep>; }
-  [[nodiscard]] constexpr QuantityPoint auto operator()(this Self self, FwdQP&& qp)
+  [[nodiscard]] constexpr QuantityPoint auto operator()(this Self self, FwdQP && qp)
   {
     return quantity_point{self(std::forward<FwdQP>(qp).quantity_from_origin_is_an_implementation_detail_),
                           qp.point_origin};
@@ -275,7 +275,7 @@ struct quantity_spec_interface : quantity_spec_interface_base {
 
   template<typename Self, typename FwdValue, RepresentationOf<Self{}> Value = std::remove_cvref_t<FwdValue>>
     requires(detail::explicitly_convertible_to_dimensionless(Self{}))
-  [[nodiscard]] constexpr Quantity auto operator()(this Self, FwdValue&& val)
+  [[nodiscard]] constexpr Quantity auto operator()(this Self, FwdValue && val)
   {
     return make_quantity_of_one<Self{}>(std::forward<FwdValue>(val));
   }
@@ -289,7 +289,7 @@ struct quantity_spec_interface : quantity_spec_interface_base {
   template<typename FwdQ, Quantity Q = std::remove_cvref_t<FwdQ>, typename Self_ = Self>
     requires(mp_units::explicitly_convertible(Q::quantity_spec, Self_{})) &&
             requires { typename quantity<make_reference(Self{}, Q::unit), typename Q::rep>; }
-  [[nodiscard]] constexpr Quantity auto operator()(FwdQ&& q) const
+  [[nodiscard]] constexpr Quantity auto operator()(FwdQ && q) const
   {
     return quantity{std::forward<FwdQ>(q).numerical_value_is_an_implementation_detail_,
                     detail::make_reference(Self{}, Q::unit)};
@@ -298,7 +298,7 @@ struct quantity_spec_interface : quantity_spec_interface_base {
   template<typename FwdQP, QuantityPoint QP = std::remove_cvref_t<FwdQP>, typename Self_ = Self>
     requires(mp_units::explicitly_convertible(QP::quantity_spec, Self_{})) &&
             requires { typename quantity_point<make_reference(Self{}, QP::unit), QP::point_origin, typename QP::rep>; }
-  [[nodiscard]] constexpr QuantityPoint auto operator()(FwdQP&& qp) const
+  [[nodiscard]] constexpr QuantityPoint auto operator()(FwdQP && qp) const
   {
     return quantity_point{Self{}(std::forward<FwdQP>(qp).quantity_from_origin_is_an_implementation_detail_),
                           qp.point_origin};
@@ -306,7 +306,7 @@ struct quantity_spec_interface : quantity_spec_interface_base {
 
   template<typename FwdValue, typename Self_ = Self, RepresentationOf<Self_{}> Value = std::remove_cvref_t<FwdValue>>
     requires(detail::explicitly_convertible_to_dimensionless(Self_{}))
-  [[nodiscard]] constexpr Quantity auto operator()(FwdValue&& val) const
+  [[nodiscard]] constexpr Quantity auto operator()(FwdValue && val) const
   {
     return make_quantity_of_one<Self{}>(std::forward<FwdValue>(val));
   }

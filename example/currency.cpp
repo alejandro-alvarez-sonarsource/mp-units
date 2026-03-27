@@ -71,7 +71,8 @@ template<Unit auto From, Unit auto To>
 {
   (void)timestamp;  // get conversion ratios for this timestamp
   static const std::map<std::pair<std::string_view, std::string_view>, double> rates = {
-    {{"USD", "EUR"}, 0.9215}, {{"EUR", "USD"}, 1.0848},
+    {{"USD", "EUR"}, 0.9215},
+    {{"EUR", "USD"}, 1.0848},
     // ...
   };
 

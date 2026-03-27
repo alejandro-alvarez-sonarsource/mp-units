@@ -241,10 +241,9 @@ template<auto R, auto S, auto T, typename Rep1, typename Rep2, typename Rep3>
            (equivalent(get_unit(R) * get_unit(S), get_unit(T))) && requires(Rep1 v1, Rep2 v2, Rep3 v3) {
              requires requires { fma(v1, v2, v3); } || requires { std::fma(v1, v2, v3); };
            }
-[[nodiscard]] constexpr QuantityOf<get_common_quantity_spec(
-  get_quantity_spec(R) * get_quantity_spec(S), get_quantity_spec(T))> auto fma(const quantity<R, Rep1>& a,
-                                                                               const quantity<S, Rep2>& x,
-                                                                               const quantity<T, Rep3>& b) noexcept
+[[nodiscard]] constexpr QuantityOf<get_common_quantity_spec(get_quantity_spec(R) * get_quantity_spec(S),
+                                                            get_quantity_spec(T))> auto
+fma(const quantity<R, Rep1>& a, const quantity<S, Rep2>& x, const quantity<T, Rep3>& b) noexcept
 {
   using std::fma;
   return quantity{
@@ -265,10 +264,9 @@ template<auto R, auto S, auto T, auto Origin, typename Rep1, typename Rep2, type
            (equivalent(get_unit(R) * get_unit(S), get_unit(T))) && requires(Rep1 v1, Rep2 v2, Rep3 v3) {
              requires requires { fma(v1, v2, v3); } || requires { std::fma(v1, v2, v3); };
            }
-[[nodiscard]] constexpr QuantityPointOf<
-  get_common_quantity_spec(get_quantity_spec(R) * get_quantity_spec(S),
-                           get_quantity_spec(T))> auto fma(const quantity<R, Rep1>& a, const quantity<S, Rep2>& x,
-                                                           const quantity_point<T, Origin, Rep3>& b) noexcept
+[[nodiscard]] constexpr QuantityPointOf<get_common_quantity_spec(get_quantity_spec(R) * get_quantity_spec(S),
+                                                                 get_quantity_spec(T))> auto
+fma(const quantity<R, Rep1>& a, const quantity<S, Rep2>& x, const quantity_point<T, Origin, Rep3>& b) noexcept
 {
   using std::fma;
   return Origin + quantity{fma(a.numerical_value_ref_in(a.unit), x.numerical_value_ref_in(x.unit),
@@ -323,7 +321,7 @@ template<typename Rep, Reference R>
   requires RepresentationOf<Rep, get_quantity_spec(R{})> && requires { std::numeric_limits<Rep>::epsilon(); }
 [[deprecated(
   "2.5.0: Use `std::numeric_limits<Quantity>::epsilon()` instead")]] [[nodiscard]] constexpr quantity<R{}, Rep>
-epsilon(R r) noexcept
+  epsilon(R r) noexcept
 {
   return {static_cast<Rep>(std::numeric_limits<Rep>::epsilon()), r};
 }

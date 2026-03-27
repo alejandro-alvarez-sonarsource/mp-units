@@ -291,7 +291,7 @@ public:
     requires(PO2{} == point_origin)
   constexpr const quantity_type&& quantity_ref_from(PO2) const&& noexcept
 #if __cpp_deleted_function
-    = delete("Can't form a reference to a temporary");
+    = delete ("Can't form a reference to a temporary");
 #else
     = delete;
 #endif
@@ -503,7 +503,7 @@ public:
   template<std::derived_from<quantity_point> QP, PointOrigin PO2>
     requires QuantityPointOf<quantity_point, PO2{}> &&
              ReferenceOf<MP_UNITS_NONCONST_TYPE(reference), PO2::_quantity_spec_>
-  [[nodiscard]] friend constexpr Quantity auto operator-(const QP& qp, PO2 po)
+  [[nodiscard]] friend constexpr Quantity auto operator-(const QP & qp, PO2 po)
   {
     if constexpr (point_origin == po)
       return qp.quantity_ref_from(point_origin);
@@ -526,7 +526,7 @@ public:
   template<PointOrigin PO1, std::derived_from<quantity_point> QP>
     requires QuantityPointOf<quantity_point, PO1{}> &&
              ReferenceOf<MP_UNITS_NONCONST_TYPE(reference), PO1::_quantity_spec_>
-  [[nodiscard]] friend constexpr Quantity auto operator-(PO1 po, const QP& qp)
+  [[nodiscard]] friend constexpr Quantity auto operator-(PO1 po, const QP & qp)
   {
     return -(qp - po);
   }

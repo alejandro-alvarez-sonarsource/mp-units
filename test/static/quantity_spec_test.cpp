@@ -310,7 +310,7 @@ static_assert(is_of_type<pow<2>(dimensionless), dimensionless_>);
 static_assert(is_of_type<pow<2>(length), derived_quantity_spec<mp_units::power<length_, 2>>>);
 static_assert(is_of_type<pow<1, 2>(length), derived_quantity_spec<mp_units::power<length_, 1, 2>>>);
 static_assert(is_of_type<pow<1, 2>(length* length), length_>);
-static_assert(is_of_type<pow<1, 3>(length* length* length), length_>);
+static_assert(is_of_type<pow<1, 3>(length * length * length), length_>);
 static_assert(is_of_type<pow<1, 3>(length* length), derived_quantity_spec<mp_units::power<length_, 2, 3>>>);
 static_assert(is_of_type<pow<1, 2>(length / time),
                          derived_quantity_spec<mp_units::power<length_, 1, 2>, per<mp_units::power<time_, 1, 2>>>>);
@@ -605,7 +605,7 @@ static_assert(convertible(speed, length / time) == yes);
 static_assert(convertible(velocity, length / time) == yes);
 static_assert(convertible(rate_of_climb, length / time) == yes);
 static_assert(convertible(rate_of_climb, height / time) == yes);
-static_assert(convertible(gravitational_potential_energy, mass* acceleration* length) == yes);
+static_assert(convertible(gravitational_potential_energy, mass * acceleration * length) == yes);
 static_assert(convertible(angular_measure, arc_length / radius) == yes);
 static_assert(convertible(solid_angular_measure, area / pow<2>(radius)) == yes);
 
@@ -1049,12 +1049,12 @@ static_assert(get_common_quantity_spec(frequency, inverse(period_duration)) == f
 static_assert(get_common_quantity_spec(inverse(period_duration), frequency) == frequency);
 static_assert(get_common_quantity_spec(kinetic_energy, mass* pow<2>(length) / pow<2>(time)) == kinetic_energy);
 static_assert(get_common_quantity_spec(mass * pow<2>(length) / pow<2>(time), kinetic_energy) == kinetic_energy);
-static_assert(get_common_quantity_spec(gravitational_potential_energy, mass* acceleration_of_free_fall* height) ==
+static_assert(get_common_quantity_spec(gravitational_potential_energy, mass * acceleration_of_free_fall * height) ==
               gravitational_potential_energy);
 static_assert(get_common_quantity_spec(mass * acceleration_of_free_fall * height, gravitational_potential_energy) ==
               gravitational_potential_energy);
 
-static_assert(get_common_quantity_spec(gravitational_potential_energy, mass* acceleration* length) ==
+static_assert(get_common_quantity_spec(gravitational_potential_energy, mass * acceleration * length) ==
               mass * acceleration * length);
 static_assert(get_common_quantity_spec(mass * acceleration * length, gravitational_potential_energy) ==
               mass * acceleration * length);

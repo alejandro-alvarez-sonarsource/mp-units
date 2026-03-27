@@ -76,7 +76,7 @@ static_assert(isq::length(1 * survey1893::league) == isq::length(3 * survey1893:
 // TODO verify the below
 // static_assert(isq::area(1 * square(survey1893::us_survey_foot)) == isq::area(144 * square(inch)));
 static_assert(isq::area(1 * square(survey1893::chain)) == isq::area(4356 * square(survey1893::us_survey_foot)));
-static_assert(isq::area(1 * acre) == isq::area(43560 * square(survey1893::us_survey_foot)));
+static_assert(isq::area(1 * acre) == isq::area(43'560 * square(survey1893::us_survey_foot)));
 static_assert(isq::area(1 * section) == isq::area(1 * square(survey1893::us_survey_mile)));
 
 // Volume

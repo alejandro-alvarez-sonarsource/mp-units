@@ -81,11 +81,11 @@ static_assert(miller_rabin_probable_prime(2u, 18'446'744'073'709'551'557u), "Lar
 static_assert(jacobi_symbol(1, 1u) == 1, "Jacobi symbol always 1 when 'numerator' is 1");
 static_assert(jacobi_symbol(1, 3u) == 1, "Jacobi symbol always 1 when 'numerator' is 1");
 static_assert(jacobi_symbol(1, 5u) == 1, "Jacobi symbol always 1 when 'numerator' is 1");
-static_assert(jacobi_symbol(1, 987654321u) == 1, "Jacobi symbol always 1 when 'numerator' is 1");
+static_assert(jacobi_symbol(1, 987'654'321u) == 1, "Jacobi symbol always 1 when 'numerator' is 1");
 
 static_assert(jacobi_symbol(3, 1u) == 1, "Jacobi symbol always 1 when 'denominator' is 1");
 static_assert(jacobi_symbol(5, 1u) == 1, "Jacobi symbol always 1 when 'denominator' is 1");
-static_assert(jacobi_symbol(-1234567890, 1u) == 1, "Jacobi symbol always 1 when 'denominator' is 1");
+static_assert(jacobi_symbol(-1'234'567'890, 1u) == 1, "Jacobi symbol always 1 when 'denominator' is 1");
 
 static_assert(jacobi_symbol(10, 5u) == 0, "Jacobi symbol always 0 when there's a common factor");
 static_assert(jacobi_symbol(25, 15u) == 0, "Jacobi symbol always 0 when there's a common factor");
@@ -137,13 +137,13 @@ static_assert(!strong_lucas_probable_prime(9u), "Known small composite");
 // Test some Miller-Rabin pseudoprimes (https://oeis.org/A001262), which should NOT be marked prime.
 static_assert(!strong_lucas_probable_prime(2047u), "Miller-Rabin pseudoprime");
 static_assert(!strong_lucas_probable_prime(3277u), "Miller-Rabin pseudoprime");
-static_assert(!strong_lucas_probable_prime(486737u), "Miller-Rabin pseudoprime");
+static_assert(!strong_lucas_probable_prime(486'737u), "Miller-Rabin pseudoprime");
 
 // Test some Strong Lucas pseudoprimes (https://oeis.org/A217255).
 static_assert(strong_lucas_probable_prime(5459u), "Strong Lucas pseudoprime");
 static_assert(strong_lucas_probable_prime(5777u), "Strong Lucas pseudoprime");
-static_assert(strong_lucas_probable_prime(10877u), "Strong Lucas pseudoprime");
-static_assert(strong_lucas_probable_prime(324899u), "Strong Lucas pseudoprime");
+static_assert(strong_lucas_probable_prime(10'877u), "Strong Lucas pseudoprime");
+static_assert(strong_lucas_probable_prime(324'899u), "Strong Lucas pseudoprime");
 
 // Test some actual primes
 static_assert(strong_lucas_probable_prime(225'653'407'801u), "Large known prime");
@@ -161,13 +161,13 @@ static_assert(!baillie_psw_probable_prime(9u), "Known small composite");
 // Test some Miller-Rabin pseudoprimes (https://oeis.org/A001262), which should NOT be marked prime.
 static_assert(!baillie_psw_probable_prime(2047u), "Miller-Rabin pseudoprime");
 static_assert(!baillie_psw_probable_prime(3277u), "Miller-Rabin pseudoprime");
-static_assert(!baillie_psw_probable_prime(486737u), "Miller-Rabin pseudoprime");
+static_assert(!baillie_psw_probable_prime(486'737u), "Miller-Rabin pseudoprime");
 
 // Test some Strong Lucas pseudoprimes (https://oeis.org/A217255), which should NOT be marked prime.
 static_assert(!baillie_psw_probable_prime(5459u), "Strong Lucas pseudoprime");
 static_assert(!baillie_psw_probable_prime(5777u), "Strong Lucas pseudoprime");
-static_assert(!baillie_psw_probable_prime(10877u), "Strong Lucas pseudoprime");
-static_assert(!baillie_psw_probable_prime(324899u), "Strong Lucas pseudoprime");
+static_assert(!baillie_psw_probable_prime(10'877u), "Strong Lucas pseudoprime");
+static_assert(!baillie_psw_probable_prime(324'899u), "Strong Lucas pseudoprime");
 
 // Test some actual primes
 static_assert(baillie_psw_probable_prime(225'653'407'801u), "Large known prime");

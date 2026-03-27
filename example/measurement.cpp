@@ -53,7 +53,7 @@ void example()
   using namespace mp_units;
   using namespace mp_units::si::unit_symbols;
 
-  std::cout << "Mass of the Sun:        M_sun = " << measurement{19884, 2} * (mag_power<10, 26> * kg) << '\n';
+  std::cout << "Mass of the Sun:        M_sun = " << measurement{19'884, 2} * (mag_power<10, 26> * kg) << '\n';
 
   const auto acceleration = isq::acceleration(measurement{9.8, 0.1} * m / s2);
   const auto time = measurement{1.2, 0.1} * s;
