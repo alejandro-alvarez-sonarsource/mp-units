@@ -5,7 +5,6 @@ authors:
 categories:
  - WG21 Updates
 comments: true
-draft: true
 ---
 
 # Report from the Croydon 2026 ISO C++ Committee meeting
@@ -14,9 +13,8 @@ It has been 1.5 years since the last major update on the ISO C++ standardization
 progress here. It is not that I got lazy :wink:, but there was really not much
 to share.
 
-However, this meeting was a huge breakthrough. We made significant progress
-and scored a nearly unprecedented — and probably not even expected by most
-(definitely not by me) — success! 🎉
+This time, things were different. We achieved a nearly unprecedented
+success — one probably not even expected by most, definitely not by me! 🎉
 
 Keep reading to learn more...
 
@@ -164,6 +162,7 @@ Then we took a long series of polls to make the temperature of the room crystal 
     |:-----------------:|:--------:|:-------:|:-------:|:----------------:|
     |        15         |    14    |    5    |    0    |        0         |
 
+Not a single person opposed to the proposed scope of the library.
 This is a huge milestone and I will definitely celebrate 🎉
 
 However, we should not get too excited. It is an important, but only the first step in LEWG
