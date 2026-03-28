@@ -151,7 +151,9 @@ if(CMAKE_CXX_MODULE_STD)
     target_compile_definitions(mp-units-core ${MP_UNITS_TARGET_SCOPE} MP_UNITS_IMPORT_STD)
     # https://github.com/llvm/llvm-project/issues/75057
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
-        target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} -Wno-deprecated-declarations)
+        target_compile_options(
+            mp-units-core ${MP_UNITS_TARGET_SCOPE} -Wno-deprecated-declarations -Wno-error=reserved-module-identifier
+        )
     endif()
 endif()
 
