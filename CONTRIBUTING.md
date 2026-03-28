@@ -22,6 +22,67 @@ Before contributing, we strongly recommend familiarizing yourself with the
   labels highlight other important work.
 
 
+## For Maintainers: Creating Good First Issues
+
+!!! note "Guidance for Repository Maintainers"
+
+    This section is for maintainers creating curated onboarding tasks for new contributors.
+
+A "good-first-issue" label alone is insufficient. Well-crafted good first issues remove
+decision paralysis and provide explicit mentorship commitment. They are **invitations**, not
+just labels.
+
+### The Good First Issue Template
+
+Use the [Good First Issue template](https://github.com/mpusz/mp-units/issues/new?template=good_first_issue.yml)
+(maintainers only — not shown in the public issue picker) to create structured onboarding
+tasks. The template includes all required fields and automatically applies the
+`good first issue` label and assigns to `@mpusz`.
+
+**Required elements:**
+
+- **What:** Specific deliverables with file paths and clear scope
+- **Why:** Rationale for the work and its impact on the project
+- **Mentorship:** Explicit commitment to guide the contributor through the PR
+- **Skills Learned:** Concrete concepts, APIs, or techniques they'll learn
+- **Estimated Time:** Realistic time investment (1-8 hours)
+
+### Example Structure
+
+```markdown
+## Good First Issue: Add Celsius to Fahrenheit example
+
+**What:** Create a new example in `example/temperature_conversion.cpp` that demonstrates:
+- Converting between Celsius and Fahrenheit using affine space
+- Using `quantity_point` for absolute temperatures
+- Using `quantity` for temperature differences
+
+**Why:** Temperature conversion is a common use case that confuses new users.
+This example will clarify the distinction between absolute and relative temperatures.
+
+**Mentorship:** @mpusz will help you through the PR process
+
+**Skills Learned:**
+- C++20 concepts and constraints
+- mp-units API design patterns
+- Affine space modeling
+- Writing clear example code
+
+**Estimated Time:** 2 hours
+```
+
+### Philosophy
+
+Lower the barrier to entry with clear guidance. A well-written good-first-issue provides:
+
+1. **Zero ambiguity** — contributor knows exactly what to do and where
+2. **Context** — understands why the work matters
+3. **Safety net** — explicit promise that someone will guide them
+4. **Growth** — clear learning objectives make it worthwhile
+
+This is not just labeling issues. This is **curated mentorship at scale**.
+
+
 ## Preconfigured Development Environment
 
 The easiest way to start coding is to use our containerized development environment in
