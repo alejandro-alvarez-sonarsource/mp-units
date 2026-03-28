@@ -130,8 +130,7 @@ if(MP_UNITS_BUILD_CXX_MODULES)
 
         if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 18)
             target_compile_options(
-                mp-units-core PUBLIC -Wno-include-angled-in-module-purview
-                                     -Wno-error=unused-command-line-argument
+                mp-units-core PUBLIC -Wno-include-angled-in-module-purview -Wno-error=unused-command-line-argument
             )
         endif()
 
