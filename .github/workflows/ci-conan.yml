@@ -163,6 +163,14 @@ jobs:
         run: |
           conan profile detect --force
           conan profile show -pr default
+      - name: Print tool versions
+        shell: bash
+        run: |
+          ${CXX} --version 2>&1 || true
+          cmake --version 2>&1 || true
+          ninja --version 2>&1 || true
+          conan --version
+          python3 --version
       - name: Create Conan package
         if: matrix.toolchain.compiler.type != 'MSVC'
         shell: bash
