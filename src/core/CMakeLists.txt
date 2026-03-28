@@ -129,19 +129,22 @@ if(MP_UNITS_BUILD_CXX_MODULES)
         endif()
 
         if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 18)
-            target_compile_options(mp-units-core PUBLIC "-Wno-include-angled-in-module-purview")
+            target_compile_options(
+                mp-units-core PUBLIC -Wno-include-angled-in-module-purview
+                                     -Wno-error=unused-command-line-argument
+            )
         endif()
 
         # Clang-18 has a known bug where pragmas don't work correctly inside C++ modules
         # and we need to silent truncation warnings in sudo_cast
         if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
-            target_compile_options(mp-units-core PUBLIC "-Wno-error=implicit-float-conversion")
+            target_compile_options(mp-units-core PUBLIC -Wno-error=implicit-float-conversion)
         endif()
     endif()
 
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         # '#include <filename>' in the purview of module 'module-name-1' appears erroneous
-        target_compile_options(mp-units-core PUBLIC "/wd5244")
+        target_compile_options(mp-units-core PUBLIC /wd5244)
     endif()
 endif()
 
@@ -149,7 +152,7 @@ if(CMAKE_CXX_MODULE_STD)
     target_compile_definitions(mp-units-core ${MP_UNITS_TARGET_SCOPE} MP_UNITS_IMPORT_STD)
     # https://github.com/llvm/llvm-project/issues/75057
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
-        target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} "-Wno-deprecated-declarations")
+        target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} -Wno-deprecated-declarations)
     endif()
 endif()
 
@@ -178,17 +181,17 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 20
    AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 20.2
 )
-    target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} "-Wno-unused-result")
+    target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} -Wno-unused-result)
 endif()
 
 # usage of uninitialized variable in c++/12/bits/char_traits.h
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13)
-    target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} "-Wno-maybe-uninitialized")
+    target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} -Wno-maybe-uninitialized)
 endif()
 
 # time-trace
 if(MP_UNITS_DEV_TIME_TRACE STREQUAL "ALL")
-    target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} "-ftime-trace")
+    target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} -ftime-trace)
 elseif(MP_UNITS_DEV_TIME_TRACE STREQUAL "MODULES")
-    target_compile_options(mp-units-core PRIVATE "-ftime-trace")
+    target_compile_options(mp-units-core PRIVATE -ftime-trace)
 endif()
