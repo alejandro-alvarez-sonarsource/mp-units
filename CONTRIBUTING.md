@@ -26,28 +26,24 @@ Before contributing, we strongly recommend familiarizing yourself with the
 
 !!! note "Guidance for Repository Maintainers"
 
-    This section is for maintainers creating curated onboarding tasks for new contributors.
+    This section provides guidance for maintainers creating curated onboarding tasks.
 
 A "good-first-issue" label alone is insufficient. Well-crafted good first issues remove
 decision paralysis and provide explicit mentorship commitment. They are **invitations**, not
 just labels.
 
-### The Good First Issue Template
-
-Use the [Good First Issue template](https://github.com/mpusz/mp-units/issues/new?template=good_first_issue.yml)
-(maintainers only — not shown in the public issue picker) to create structured onboarding
-tasks. The template includes all required fields and automatically applies the
-`good first issue` label and assigns to `@mpusz`.
-
-**Required elements:**
+When creating a good first issue, use the **[MAINTAINERS ONLY] Good First Issue Template**
+in the issue picker. This structured template ensures you include:
 
 - **What:** Specific deliverables with file paths and clear scope
 - **Why:** Rationale for the work and its impact on the project
 - **Mentorship:** Explicit commitment to guide the contributor through the PR
 - **Skills Learned:** Concrete concepts, APIs, or techniques they'll learn
 - **Estimated Time:** Realistic time investment (1-8 hours)
+- **Getting Started:** Optional step-by-step guidance
+- **Acceptance Criteria:** Optional completion checklist
 
-### Example Structure
+### Example
 
 ```markdown
 ## Good First Issue: Add Celsius to Fahrenheit example

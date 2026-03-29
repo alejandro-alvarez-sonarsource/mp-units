@@ -1,5 +1,5 @@
-name: 🌱 Good First Issue (Maintainers Only)
-description: Create a curated onboarding task for new contributors (maintainers use direct URL)
+name: 🛠️ [MAINTAINERS ONLY] Good First Issue Template
+description: "⚠️ For project maintainers creating curated onboarding tasks. Contributors: use Bug Report or Feature Request instead."
 title: "Good First Issue: "
 labels: ["good first issue"]
 assignees: ["mpusz"]
@@ -7,17 +7,24 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 🎯 Creating a Mentored First Contribution
+        ## ⚠️ Maintainers Only
 
-        This template helps maintainers create **well-structured good-first-issues** that provide:
+        **If you are a contributor** looking to report a bug or request a feature, please go back and
+        select the appropriate template:
+        - 🐛 **Bug Report** for issues you've encountered
+        - 🚀 **Feature Request** for new functionality
+        - 📚 **Documentation Issue** for documentation problems
+
+        ---
+
+        ## 🎯 For Maintainers: Creating Mentored First Contributions
+
+        This template helps create **well-structured good-first-issues** that provide:
         - Clear scope and deliverables
         - Rationale for the work
         - Explicit mentorship commitment
         - Learning objectives
         - Time estimation
-
-        **Note:** This template is for maintainers to create curated onboarding tasks.
-        Contributors should use the standard templates for bug reports or feature requests.
 
   - type: textarea
     id: what
@@ -31,8 +38,6 @@ body:
         - Converting between Celsius and Fahrenheit using affine space
         - Using `quantity_point` for absolute temperatures
         - Using `quantity` for temperature differences
-      value: |
-
     validations:
       required: true
 
@@ -49,8 +54,6 @@ body:
         - Clarify the distinction between absolute and relative temperatures
         - Demonstrate a practical application of affine space
         - Improve discoverability of quantity_point API
-      value: |
-
     validations:
       required: true
 
@@ -78,8 +81,6 @@ body:
         - Writing clear example code
         - Documenting code and examples
         - Contributing to open source projects
-      value: |
-
     validations:
       required: true
 
@@ -109,7 +110,6 @@ body:
         2. Read the [Affine Space](https://mpusz.github.io/mp-units/latest/users_guide/framework_basics/concepts/#affine-space) documentation
         3. Look at `include/mp-units/systems/si/units.h` for reference on how `kelvin` and `degree_Celsius` are defined
         4. Start by copying `example/hello_units.cpp` as a template
-      value: |
 
   - type: textarea
     id: acceptance_criteria
@@ -125,7 +125,6 @@ body:
         - [ ] Passes pre-commit formatting checks
         - [ ] Listed in `example/CMakeLists.txt`
         - [ ] Described in the documentation under "Examples"
-      value: |
 
   - type: textarea
     id: additional_context
