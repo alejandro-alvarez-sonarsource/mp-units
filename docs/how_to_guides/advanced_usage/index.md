@@ -7,6 +7,7 @@ quantity calculations.
 
 <!-- markdownlint-disable MD013 -->
 - [Pure Dimensional Analysis](pure_dimensional_analysis.md) - Use dimensions without specific units for symbolic computation, compile-time validation, and custom arithmetic types
+- [Type-Safe Indices and Offsets](typed_indices.md) - Model container indices and offsets as quantities with point origins, covering 0-based vs 1-based indexing, SI vs IEC element prefixes, and stride arithmetic
 <!-- markdownlint-enable MD013 -->
 
 ## When to Use These Guides?
