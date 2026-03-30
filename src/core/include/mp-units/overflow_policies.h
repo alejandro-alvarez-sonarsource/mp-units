@@ -24,6 +24,7 @@
 
 #include <mp-units/bits/module_macros.h>
 #include <mp-units/ext/contracts.h>
+#include <mp-units/framework/quantity_concepts.h>
 
 #ifndef MP_UNITS_IN_MODULE_INTERFACE
 #ifdef MP_UNITS_IMPORT_STD

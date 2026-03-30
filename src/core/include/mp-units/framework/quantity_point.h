@@ -173,8 +173,8 @@ template<PointOrigin PO>
 
 namespace detail {
 
-template<PointOrigin auto PO>
-concept HasQuantityBounds = !std::is_same_v<std::remove_cvref_t<decltype(quantity_bounds<PO>)>, no_bounds_t>;
+template<auto PO>
+concept HasQuantityBounds = !std::is_same_v<std::remove_cvref_t<decltype(quantity_bounds<PO>)>, undefined_t>;
 
 template<PointOrigin auto PO, auto R, typename Rep>
 constexpr quantity<R, Rep> enforce_bounds(quantity<R, Rep> q)

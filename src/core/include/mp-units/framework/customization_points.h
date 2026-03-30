@@ -41,6 +41,21 @@ import std;
 
 namespace mp_units {
 
+namespace detail {
+
+/**
+ * @brief Sentinel type indicating no default implementation for a variable template
+ *
+ * This type is used as a placeholder for primary variable templates that should not
+ * have a default implementation, working around the language limitation that variable
+ * templates cannot be "deleted" like functions can.
+ */
+struct undefined_t {};
+
+inline constexpr undefined_t undefined{};
+
+}  // namespace detail
+
 MP_UNITS_EXPORT_BEGIN
 
 /**
@@ -136,13 +151,6 @@ template<typename Rep>
 using quantity_values [[deprecated("2.5.0: Use `representation_values` instead")]] = representation_values<Rep>;
 
 
-namespace detail {
-
-struct no_bounds_t {};
-
-}  // namespace detail
-
-
 /**
  * @brief Customization point for providing bounds on a quantity point relative to an origin.
  *
@@ -160,8 +168,8 @@ struct no_bounds_t {};
  *
  * @tparam PO a point origin for which bounds are defined
  */
-MP_UNITS_EXPORT template<auto PO>
-inline constexpr auto quantity_bounds = detail::no_bounds_t{};
+template<auto PO>
+inline constexpr auto quantity_bounds = detail::undefined;
 
 
 /**
@@ -201,19 +209,8 @@ struct quantity_like_traits;
 template<typename T>
 struct quantity_point_like_traits;
 
-/**
- * @brief Sentinel type indicating no default implementation for a variable template
- *
- * This type is used as a placeholder for primary variable templates that should not
- * have a default implementation, working around the language limitation that variable
- * templates cannot be "deleted" like functions can.
- */
-struct undefined_t {};
-
-inline constexpr undefined_t undefined{};
-
 template<typename T>
-constexpr auto unit_for = undefined;
+constexpr auto unit_for = detail::undefined;
 
 template<typename T>
   requires requires { quantity_like_traits<T>::reference; }
@@ -225,7 +222,7 @@ constexpr auto unit_for<T> =
   get_unit(quantity_point_like_traits<T>::reference);  // has to be unqualified for late binding
 
 template<typename T>
-constexpr auto reference_for = undefined;
+constexpr auto reference_for = detail::undefined;
 
 template<typename T>
   requires requires { quantity_like_traits<T>::reference; }
