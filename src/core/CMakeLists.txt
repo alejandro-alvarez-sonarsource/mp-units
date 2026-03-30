@@ -37,7 +37,6 @@ add_mp_units_module(
             include/mp-units/bits/module_macros.h
             include/mp-units/bits/quantity_spec_hierarchy.h
             include/mp-units/bits/ratio.h
-            include/mp-units/bits/scaling.h
             include/mp-units/bits/sudo_cast.h
             include/mp-units/bits/text_tools.h
             include/mp-units/bits/type_list.h
@@ -65,6 +64,7 @@ add_mp_units_module(
             include/mp-units/framework/reference.h
             include/mp-units/framework/reference_concepts.h
             include/mp-units/framework/representation_concepts.h
+            include/mp-units/framework/scaling.h
             include/mp-units/framework/symbol_text.h
             include/mp-units/framework/symbolic_expression.h
             include/mp-units/framework/unit.h
@@ -77,6 +77,7 @@ add_mp_units_module(
             include/mp-units/concepts.h
             include/mp-units/core.h
             include/mp-units/framework.h
+            include/mp-units/overflow_policies.h
     MODULE_INTERFACE_UNIT mp-units-core.cpp
 )
 

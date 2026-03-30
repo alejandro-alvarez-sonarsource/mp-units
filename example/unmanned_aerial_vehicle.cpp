@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 #include "geographic.h"
-#include "ranged_representation.h"
 #include <mp-units/compat_macros.h>
 #include <mp-units/ext/format.h>
 #include <cassert>

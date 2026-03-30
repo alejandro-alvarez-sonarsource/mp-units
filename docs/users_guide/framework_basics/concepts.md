@@ -128,8 +128,10 @@ Every representation type must satisfy a common baseline:
 
 - **Weakly regular**: copyable and equality comparable (default-constructibility is not required).
 - **`MagnitudeScalable`**: the library must be able to apply a unit magnitude ratio to it
-  internally. Most standard types satisfy this
-  automatically; see
+  internally. Most standard types satisfy this automatically via the built-in scaling paths;
+  custom types may additionally provide `operator*(T, UnitMagnitude)` for
+  [magnitude-aware scaling](representation_types.md#magnitude-aware-scaling) that can change
+  the representation type during unit conversion. See
   [Representation Types](representation_types.md#how-scaling-works) for details.
 - **Character-specific operations**: additional arithmetic operations required by the
   [quantity character](../../reference/glossary.md#character) (e.g. total ordering for real

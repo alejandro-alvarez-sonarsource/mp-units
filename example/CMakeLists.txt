@@ -31,8 +31,6 @@ target_sources(
         FILES
         include/geographic.h
         include/measurement.h
-        include/ranged_representation.h
-        include/validated_type.h
 )
 target_link_libraries(example_utils-headers INTERFACE mp-units::mp-units)
 

@@ -35,7 +35,9 @@ import std;
 #endif
 
 
-namespace mp_units::detail {
+namespace mp_units {
+
+namespace detail {
 
 /**
  * @brief Intentionally silent narrowing cast with compiler float-conversion diagnostics suppressed.
@@ -130,14 +132,27 @@ constexpr decltype(auto) as_element(const T& value)
     return value;
 }
 
+}  // namespace detail
+
 /**
  * @brief Scale @p value by the unit magnitude passed as @p m, converting to type @c To.
+ *
+ * When @p From provides a magnitude-aware @c operator*(From,M) customization point, it is
+ * used first.  The return type may differ from @c To (e.g. a representation with scaled
+ * bounds).  Otherwise, the built-in floating-point, fixed-point, or element-wise path is
+ * used and the result type is @c To.
+ *
+ * Use this in custom `operator*(T, UnitMagnitude)` implementations to reuse the
+ * library's built-in scaling logic instead of duplicating it.
  */
-template<typename To, UnitMagnitude M, typename From>
-  requires MagnitudeScalable<From>
-[[nodiscard]] constexpr To scale(M, const From& value)
+MP_UNITS_EXPORT template<typename To, UnitMagnitude M, typename From>
+  requires detail::MagnitudeScalable<From>
+[[nodiscard]] constexpr auto scale(M m, const From& value)
 {
-  if constexpr (UsesFloatingPointScaling<From> || UsesFloatingPointScaling<To>) {
+  if constexpr (requires { value * m; }) {
+    // Type provides magnitude-aware scaling via operator*(T, UnitMagnitude).
+    return value * m;
+  } else if constexpr (detail::UsesFloatingPointScaling<From> || detail::UsesFloatingPointScaling<To>) {
     // At least one side is floating-point: compute with common_type_t precision.
     using common_t = std::common_type_t<value_type_t<From>, value_type_t<To>>;
     static_assert(treat_as_floating_point<common_t>);
@@ -154,8 +169,8 @@ template<typename To, UnitMagnitude M, typename From>
   } else {
     // UsesFixedPointScaling or UsesElementWiseScaling: integer arithmetic.
     using common_t = std::common_type_t<value_type_t<From>, value_type_t<To>>;
-    static_assert(treat_as_integral<common_t>);
-    if constexpr (UsesFixedPointScaling<From>) {
+    static_assert(detail::treat_as_integral<common_t>);
+    if constexpr (detail::UsesFixedPointScaling<From>) {
       // Scalar: project to common_t and delegate to the shared integer-arithmetic helper.
       return static_cast<To>(detail::scale_int_scalar<common_t, M{}>(static_cast<common_t>(detail::as_element(value))));
     } else {
@@ -165,4 +180,4 @@ template<typename To, UnitMagnitude M, typename From>
   }
 }
 
-}  // namespace mp_units::detail
+}  // namespace mp_units

@@ -563,6 +563,89 @@ better solution, but the library does not have enough information to print it th
 by itself.
 
 
+## Range-Validated Quantity Points { #range-validated-quantity-points }
+
+In many domains, quantity points must stay within specific bounds. For example:
+
+- Geographic coordinates: latitude ∈ [-90°, 90°], longitude ∈ [-180°, 180°)
+- Temperature sensors: operating range [−40°C, 85°C]
+- Control systems: valid input range [0, 100] units
+
+The library provides four overflow policies (`assert_in_range`, `clamp_to_range`,
+`wrap_to_range`, `reflect_in_range`) that can be attached to point origins via the
+`quantity_bounds` customization point. These policies enforce bounds during construction,
+unit conversion, and arithmetic operations.
+
+```cpp
+#include <mp-units/overflow_policies.h>
+#include <mp-units/framework.h>
+
+using namespace mp_units;
+
+// Define quantity specifications and origins
+inline constexpr struct geo_latitude final : quantity_spec<isq::angular_measure> {} geo_latitude;
+inline constexpr struct geo_longitude final : quantity_spec<isq::angular_measure> {} geo_longitude;
+
+inline constexpr struct equator final : absolute_point_origin<geo_latitude> {} equator;
+inline constexpr struct prime_meridian final : absolute_point_origin<geo_longitude> {} prime_meridian;
+
+// Attach bounds to origins
+template<>
+inline constexpr auto quantity_bounds<equator> = reflect_in_range{-90 * si::degree, 90 * si::degree};
+
+template<>
+inline constexpr auto quantity_bounds<prime_meridian> = wrap_to_range{-180 * si::degree, 180 * si::degree};
+
+// Define bounded quantity point types
+template<typename T = double>
+using latitude = quantity_point<geo_latitude[si::degree], equator, T>;
+
+template<typename T = double>
+using longitude = quantity_point<geo_longitude[si::degree], prime_meridian, T>;
+
+void example()
+{
+  latitude lat{45.0 * deg};    // Valid: within [-90, 90]
+  lat = latitude{95.0 * deg};  // Reflects to 85° (reflect_in_range mirrors at boundary)
+  
+  longitude lon{270.0 * deg};  // Wraps to -90° (wrap_to_range treats range as circular)
+  lon += 200.0 * deg;          // Result wraps: -90 + 200 = 110°
+}
+```
+
+### Available Overflow Policies
+
+| Policy             | Behavior                                                | Use Case                                 |
+|--------------------|---------------------------------------------------------|------------------------------------------|
+| `assert_in_range`  | Asserts if value is out of bounds (default, fastest)    | Development/debugging, critical safety   |
+| `clamp_to_range`   | Clamps to nearest boundary: `min(max(value, min), max)` | Sensors with saturation, UI sliders      |
+| `wrap_to_range`    | Wraps circularly: `(value - min) mod range + min`       | Angles, cyclic coordinates (longitude)   |
+| `reflect_in_range` | Reflects at boundaries like a bouncing ball             | Geographic latitude, oscillating systems |
+
+### How It Works?
+
+Bounds are enforced at these points:
+
+1. **Construction** from a quantity: `quantity_point{value * unit, origin}`
+2. **Unit conversion**: `qp.in(other_unit)`, `qp.force_in(other_unit)`
+3. **Arithmetic operations**: `operator+=`, `operator-=`, `operator++`, `operator--`
+4. **Origin conversion**: `qp.point_for(new_origin)`
+
+The implementation calls `enforce_bounds<origin>()` after each mutation, which applies the
+policy specified in `quantity_bounds<origin>`.
+
+!!! info "Contract Checking"
+
+    When using `assert_in_range` (the default), bounds checking uses the library's contract
+    checking macros (`MP_UNITS_EXPECTS`). See [Contract Checking Macros]
+    (../../how_to_guides/integration/wide_compatibility.md#contract-checking-macros)
+    for configuration options.
+
+??? note "Implementation reference"
+
+    See [`geographic.h`](https://github.com/mpusz/mp-units/blob/master/example/include/geographic.h) for a complete working example, and [`overflow_policies.h`](https://github.com/mpusz/mp-units/blob/master/src/core/include/mp-units/overflow_policies.h) for policy implementations.
+
+
 ## The affine space is about type-safety
 
 The following operations are not allowed in the affine space:

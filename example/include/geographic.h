@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include "ranged_representation.h"
 #include <mp-units/compat_macros.h>
 #include <mp-units/ext/format.h>
 #ifdef MP_UNITS_IMPORT_STD
@@ -71,17 +70,32 @@ struct MP_UNITS_STD_FMT::formatter<geographic::msl_altitude, Char> :
 
 namespace geographic {
 
-inline constexpr struct equator final : mp_units::absolute_point_origin<mp_units::isq::angular_measure> {
+// quantity specifications for geographic coordinates
+QUANTITY_SPEC(geo_latitude, mp_units::isq::angular_measure);
+QUANTITY_SPEC(geo_longitude, mp_units::isq::angular_measure);
+
+inline constexpr struct equator final : mp_units::absolute_point_origin<geo_latitude> {
 } equator;
-inline constexpr struct prime_meridian final : mp_units::absolute_point_origin<mp_units::isq::angular_measure> {
+inline constexpr struct prime_meridian final : mp_units::absolute_point_origin<geo_longitude> {
 } prime_meridian;
 
+}  // namespace geographic
+
+template<>
+inline constexpr auto mp_units::quantity_bounds<geographic::equator> =
+  mp_units::reflect_in_range{-90 * mp_units::si::degree, 90 * mp_units::si::degree};
+
+template<>
+inline constexpr auto mp_units::quantity_bounds<geographic::prime_meridian> =
+  mp_units::wrap_to_range{-180 * mp_units::si::degree, 180 * mp_units::si::degree};
+
+namespace geographic {
 
 template<typename T = double>
-using latitude = mp_units::quantity_point<mp_units::si::degree, equator, ranged_representation<T, -90, 90>>;
+using latitude = mp_units::quantity_point<geo_latitude[mp_units::si::degree], equator, T>;
 
 template<typename T = double>
-using longitude = mp_units::quantity_point<mp_units::si::degree, prime_meridian, ranged_representation<T, -180, 180>>;
+using longitude = mp_units::quantity_point<geo_longitude[mp_units::si::degree], prime_meridian, T>;
 
 template<class CharT, class Traits, typename T>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const latitude<T>& lat)
@@ -101,19 +115,19 @@ inline namespace literals {
 
 constexpr latitude<double> operator""_N(long double v)
 {
-  return equator + ranged_representation<double, -90, 90>(static_cast<double>(v)) * mp_units::si::degree;
+  return equator + static_cast<double>(v) * geo_latitude[mp_units::si::degree];
 }
 constexpr latitude<double> operator""_S(long double v)
 {
-  return equator - ranged_representation<double, -90, 90>(static_cast<double>(v)) * mp_units::si::degree;
+  return equator - static_cast<double>(v) * geo_latitude[mp_units::si::degree];
 }
 constexpr longitude<double> operator""_E(long double v)
 {
-  return prime_meridian + ranged_representation<double, -180, 180>(static_cast<double>(v)) * mp_units::si::degree;
+  return prime_meridian + static_cast<double>(v) * geo_longitude[mp_units::si::degree];
 }
 constexpr longitude<double> operator""_W(long double v)
 {
-  return prime_meridian - ranged_representation<double, -180, 180>(static_cast<double>(v)) * mp_units::si::degree;
+  return prime_meridian - static_cast<double>(v) * geo_longitude[mp_units::si::degree];
 }
 
 }  // namespace literals

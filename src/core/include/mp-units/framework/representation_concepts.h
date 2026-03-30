@@ -316,20 +316,26 @@ concept UsesElementWiseScaling =
     { value / f } -> std::common_with<T>;
   };
 
+// A type that provides its own magnitude-aware operator*(T, UnitMagnitude) customization
+// point.  scale() will prefer this path when available, and the return type may differ
+// from the input (e.g. a wrapper with scaled bounds).
+template<typename T>
+concept UsesMagnitudeAwareScaling = requires(const T& v) { v * mag<1>; };
+
 /**
  * @brief MagnitudeScalable
  *
- * A type is `MagnitudeScalable` if the library's built-in `scale()` can apply a unit
- * magnitude ratio to it.  The three sub-concepts map directly to the three built-in
- * scaling paths — the error diagnostic will name the unsatisfied sub-concept directly:
+ * A type is `MagnitudeScalable` if the library's `scale()` can apply a unit
+ * magnitude ratio to it.  The four sub-concepts map to the scaling paths:
  *
- *  - `UsesFloatingPointScaling<T>` — floating-point type or container thereof
- *  - `UsesFixedPointScaling<T>`   — fundamental integer type (or freely convertible wrapper)
- *  - `UsesElementWiseScaling<T>`  — integer container with element-wise operator* / operator/
+ *  - `UsesMagnitudeAwareScaling<T>` — type provides `operator*(T, UnitMagnitude)` (preferred)
+ *  - `UsesFloatingPointScaling<T>`  — floating-point type or container thereof
+ *  - `UsesFixedPointScaling<T>`     — fundamental integer type (or freely convertible wrapper)
+ *  - `UsesElementWiseScaling<T>`    — integer container with element-wise operator* / operator/
  */
 template<typename T>
-concept MagnitudeScalable =
-  WeaklyRegular<T> && (UsesFloatingPointScaling<T> || UsesFixedPointScaling<T> || UsesElementWiseScaling<T>);
+concept MagnitudeScalable = WeaklyRegular<T> && (UsesMagnitudeAwareScaling<T> || UsesFloatingPointScaling<T> ||
+                                                 UsesFixedPointScaling<T> || UsesElementWiseScaling<T>);
 
 template<typename T>
 concept RealScalarRepresentation = NotQuantity<value_type_t<T>> && RealScalar<T> && MagnitudeScalable<T>;

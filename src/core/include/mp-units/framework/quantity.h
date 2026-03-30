@@ -195,8 +195,8 @@ template<typename Q1, typename Q2, typename Cmp>
     if constexpr (!overflows_non_zero_common_values<wide_t>(Q1::unit, Q2::unit)) {
       constexpr UnitMagnitude auto lhs_m = get_canonical_unit(Q1::unit).mag / get_canonical_unit(ct::unit).mag;
       constexpr UnitMagnitude auto rhs_m = get_canonical_unit(Q2::unit).mag / get_canonical_unit(ct::unit).mag;
-      return cmp(detail::scale<wide_t>(lhs_m, lhs.numerical_value_is_an_implementation_detail_),
-                 detail::scale<wide_t>(rhs_m, rhs.numerical_value_is_an_implementation_detail_));
+      return cmp(scale<wide_t>(lhs_m, lhs.numerical_value_is_an_implementation_detail_),
+                 scale<wide_t>(rhs_m, rhs.numerical_value_is_an_implementation_detail_));
     }
   }
   // Fallback: floating-point, already-widest integer, or unit ratio too large for wide_t.
@@ -344,7 +344,7 @@ public:
     requires detail::ImplicitScaling<unit, ToU{}, rep>
   [[nodiscard]] constexpr QuantityOf<quantity_spec> auto in(ToU) const
   {
-    return quantity<detail::make_reference(quantity_spec, ToU{}), Rep>{*this};
+    return detail::sudo_cast<quantity<detail::make_reference(quantity_spec, ToU{}), Rep>>(*this);
   }
 
   template<RepresentationOf<quantity_spec> ToRep>
@@ -358,7 +358,7 @@ public:
     requires detail::RepConvertibleFrom<ToRep, rep> && detail::ImplicitConversion<unit, rep, ToU{}, ToRep>
   [[nodiscard]] constexpr QuantityOf<quantity_spec> auto in(ToU) const
   {
-    return quantity<detail::make_reference(quantity_spec, ToU{}), ToRep>{*this};
+    return detail::sudo_cast<quantity<detail::make_reference(quantity_spec, ToU{}), ToRep>>(*this);
   }
 
   template<UnitOf<quantity_spec> ToU>
@@ -408,14 +408,14 @@ public:
 
   template<UnitOf<quantity_spec> U>
     requires detail::ImplicitScaling<unit, U{}, rep>
-  [[nodiscard]] constexpr rep numerical_value_in(U) const noexcept
+  [[nodiscard]] constexpr RepresentationOf<quantity_spec> auto numerical_value_in(U) const noexcept
   {
     return in(U{}).numerical_value_is_an_implementation_detail_;
   }
 
   template<UnitOf<quantity_spec> U>
     requires detail::ExplicitlyCastable<unit, U{}, rep>
-  [[nodiscard]] constexpr rep force_numerical_value_in(U) const noexcept
+  [[nodiscard]] constexpr RepresentationOf<quantity_spec> auto force_numerical_value_in(U) const noexcept
   {
     return force_in(U{}).numerical_value_is_an_implementation_detail_;
   }

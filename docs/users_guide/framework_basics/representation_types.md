@@ -145,12 +145,22 @@ The following table summarizes the requirements for different representation cha
 
 Every representation type must be **unit-conversion scalable** — the library must be able
 to apply a unit magnitude ratio to it internally. This is captured by the `MagnitudeScalable`
-concept, which directly names the three supported scaling paths:
+concept, which directly names the three built-in scaling paths:
 
 ```cpp
 concept MagnitudeScalable =
-  WeaklyRegular<T> && (UsesFloatingPointScaling<T> || UsesFixedPointScaling<T> || UsesElementWiseScaling<T>);
+  WeaklyRegular<T> && (UsesMagnitudeAwareScaling<T> || UsesFloatingPointScaling<T> ||
+                       UsesFixedPointScaling<T> || UsesElementWiseScaling<T>);
 ```
+
+!!! tip "Magnitude-aware scaling"
+
+    A representation type may additionally (or instead of `MagnitudeScalable`) provide an
+    `operator*(T, UnitMagnitude)` hidden friend. When present, this operator is used **first**
+    and the built-in paths act as a fallback. The return type may differ from the input type —
+    for example, a range-validated representation can return a new type with scaled bounds,
+    so that a conversion from degrees to radians adjusts the valid range from
+    [-180, 180] to [-π, π]. See [Magnitude-aware scaling](#magnitude-aware-scaling) for details.
 
 The three sub-concepts and their requirements:
 
@@ -196,7 +206,9 @@ built-in decision tree is:
 
 ```mermaid
 flowchart TD
-    A["scale(M, value)"] --> B{"treat_as_floating_point&lt;T&gt;<br>or treat_as_floating_point&lt;value_type_t&lt;T&gt;&gt;<br>?"}
+    A["scale(M, value)"] --> MA{"provides<br>op*(T, UnitMagnitude)?"}
+    MA -- "Yes" --> MAR["<b>Magnitude-aware scaling</b><br>calls value * M{}<br>return type may differ from input<br><br>e.g. custom type<br>with scaled bounds"]
+    MA -- "No (fallback)" --> B{"treat_as_floating_point&lt;T&gt;<br>or treat_as_floating_point&lt;value_type_t&lt;T&gt;&gt;<br>?"}
     B -- True --> FP["<b>UsesFloatingPointScaling</b><br>ratio at common precision<br>of source/target value_type_t<br><br>e.g. double, cartesian_vector&lt;double&gt;"]
     B -- False --> C{"value_type_t&lt;T&gt; is fundamental integer<br>AND T is convertible to/from it?"}
     C -- "Yes (e.g. int, long)" --> FIXED["<b>UsesFixedPointScaling</b>"]
@@ -214,6 +226,11 @@ intentional: the user explicitly chose an integer representation type, opting ou
 floating-point arithmetic. Their platform may lack FP hardware (embedded systems, DSPs),
 rely on software-emulated FP (slow and unpredictable), or enforce a no-FP policy. The
 library respects that choice throughout unit conversion.
+
+The magnitude-aware path (`operator*(T, UnitMagnitude)`) is checked first—before any of
+the built-in paths. If a representation type provides this operator, it has full control
+over how scaling is performed and what type is returned. The built-in paths are only used
+as a fallback when this operator is not available.
 
 ??? question "Why fixed-point arithmetic for integer representations?"
 
@@ -258,6 +275,55 @@ appropriate built-in path. For an example of integrating a third-party floating-
 type, see the
 [`MyFloat` example](../../how_to_guides/integration/using_custom_representation_types.md#scale)
 in the how-to guide.
+
+### Magnitude-aware scaling { #magnitude-aware-scaling }
+
+Some representation types need to transform not just their **value** but also their
+**type** during unit conversion. For example, a range-validated representation that
+constrains values to [-180, 180] (degrees) should produce a type constrained to
+[-π, π] when converted to radians — otherwise the bounds would be meaningless or
+overly restrictive in the target unit.
+
+To support this, provide an `operator*(T, UnitMagnitude)` hidden friend. It receives the
+exact compile-time unit magnitude and can return a **different type** (e.g. the same
+template with different bounds):
+
+```cpp
+// Example custom type (not provided by the library)
+template<std::movable T, auto Min, auto Max, typename Policy>
+class bounded_value : /* ... */ {
+public:
+  template<mp_units::UnitMagnitude M>
+    requires mp_units::treat_as_floating_point<T>
+  [[nodiscard]] friend constexpr auto operator*(const bounded_value& val, M m)
+  {
+    constexpr T new_lo = mp_units::scale<T>(M{}, T{Min});
+    constexpr T new_hi = mp_units::scale<T>(M{}, T{Max});
+
+    const T scaled = mp_units::scale<T>(m, val.value());
+
+    if constexpr (new_lo <= new_hi)
+      return bounded_value<T, new_lo, new_hi, Policy>(scaled);
+    else
+      return bounded_value<T, new_hi, new_lo, Policy>(scaled);
+  }
+};
+```
+
+The `scale` function handles precision optimization automatically — when the
+magnitude's inverse is integral (e.g. degree-to-radian with π/180), it divides by the
+inverse instead of multiplying, avoiding FP rounding errors.
+
+The library calls `value * M{}` in `scale()` before trying the built-in paths.
+Because the return type may differ from the input, `quantity::in(unit)` propagates
+the new representation type through `sudo_cast`, and the resulting `quantity` (or
+`quantity_point`) automatically uses the scaled-bounds representation.
+
+!!! note "Bounded Quantity Points"
+
+    For bounded `quantity_point` types, the library provides a different mechanism:
+    overflow policies can be attached directly to point origins via `quantity_bounds`.
+    See [Range-Validated Quantity Points](the_affine_space.md#range-validated-quantity-points).
 
 
 ## Customization Points
@@ -439,6 +505,12 @@ The library scales a representation value by calling `value * factor` and `value
 where `factor` is of type `value_type_t<T>`. These operators must be provided so that the
 built-in scaling paths can apply the unit magnitude ratio during unit conversions.
 
+Alternatively (or additionally), a type may provide `operator*(T, UnitMagnitude)` to
+receive the full compile-time unit magnitude instead of a numeric factor. When present,
+this operator is called **first** and the `value_type_t<T>`-based operators serve as a
+fallback. The magnitude-aware operator may return a **different type** — see
+[Magnitude-aware scaling](#magnitude-aware-scaling) for the full pattern.
+
 **For your own types**, provide these as hidden friends (defined inside the class
 body, found only via ADL):
 
@@ -452,6 +524,10 @@ public:
   // Hidden friends — preferred over non-member overloads
   friend constexpr my_wrapper operator*(my_wrapper v, T factor) { return my_wrapper{v.value_ * factor}; }
   friend constexpr my_wrapper operator/(my_wrapper v, T factor) { return my_wrapper{v.value_ / factor}; }
+
+  // Optional: magnitude-aware scaling (return type may differ from my_wrapper)
+  // template<mp_units::UnitMagnitude M>
+  // friend constexpr auto operator*(const my_wrapper& v, M m) { /* ... */ }
 };
 ```
 
@@ -497,7 +573,8 @@ Conversions with a fractional factor are always explicit for integer reps.
 !!! info
 
     The customization points above (`value_type`, `treat_as_floating_point`, `operator*`,
-    `operator/`) all control **how** the library scales a value during unit conversion.
+    `operator/`, and the optional magnitude-aware `operator*(T, UnitMagnitude)`) all control
+    **how** the library scales a value during unit conversion.
     `implicitly_scalable` is a separate, orthogonal control that decides **whether** a
     particular conversion is implicit or requires an explicit cast.
 
@@ -619,7 +696,8 @@ character. At minimum this means:
 
 - providing `value_type` (or `element_type`) so the library knows the underlying scalar type,
 - providing `operator*` and `operator/` with `value_type_t<T>` so the library can scale it
-  during unit conversions,
+  during unit conversions (and optionally `operator*(T, UnitMagnitude)` for
+  [magnitude-aware scaling](#magnitude-aware-scaling)),
 - satisfying the character-specific requirements from the table above (copyable, equality
   comparable, arithmetic operators, CPOs, etc.).
 

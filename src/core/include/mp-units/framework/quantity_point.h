@@ -29,6 +29,7 @@
 #include <mp-units/framework/customization_points.h>
 #include <mp-units/framework/quantity.h>
 #include <mp-units/framework/quantity_point_concepts.h>
+#include <mp-units/overflow_policies.h>
 
 #ifndef MP_UNITS_IN_MODULE_INTERFACE
 #ifdef MP_UNITS_IMPORT_STD
@@ -170,6 +171,25 @@ template<PointOrigin PO>
 
 }  // namespace detail
 
+namespace detail {
+
+template<PointOrigin auto PO>
+concept HasQuantityBounds = !std::is_same_v<std::remove_cvref_t<decltype(quantity_bounds<PO>)>, no_bounds_t>;
+
+template<PointOrigin auto PO, auto R, typename Rep>
+constexpr quantity<R, Rep> enforce_bounds(quantity<R, Rep> q)
+{
+  if constexpr (HasQuantityBounds<PO>) {
+    static_assert(decltype(PO)::_quantity_spec_.character == quantity_character::real_scalar,
+                  "quantity_bounds should only be specialized for origins of real scalar quantity specifications");
+    return quantity_bounds<PO>(q);
+  } else {
+    return q;
+  }
+}
+
+}  // namespace detail
+
 MP_UNITS_EXPORT_BEGIN
 
 /**
@@ -215,14 +235,17 @@ public:
 
   template<typename FwdQ, QuantityOf<quantity_spec> Q = std::remove_cvref_t<FwdQ>>
     requires std::constructible_from<quantity_type, FwdQ> && (point_origin == default_point_origin(R))
-  constexpr explicit quantity_point(FwdQ&& q) : quantity_from_origin_is_an_implementation_detail_(std::forward<FwdQ>(q))
+  constexpr explicit quantity_point(FwdQ&& q) :
+      quantity_from_origin_is_an_implementation_detail_(
+        detail::enforce_bounds<point_origin>(quantity_type{std::forward<FwdQ>(q)}))
   {
   }
 
   template<typename FwdQ, QuantityOf<quantity_spec> Q = std::remove_cvref_t<FwdQ>>
     requires std::constructible_from<quantity_type, FwdQ>
   constexpr quantity_point(FwdQ&& q, decltype(PO)) :
-      quantity_from_origin_is_an_implementation_detail_(std::forward<FwdQ>(q))
+      quantity_from_origin_is_an_implementation_detail_(
+        detail::enforce_bounds<point_origin>(quantity_type{std::forward<FwdQ>(q)}))
   {
   }
 
@@ -239,12 +262,12 @@ public:
     requires std::constructible_from<quantity_type, typename QP::quantity_type>
   // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
   constexpr explicit(!std::convertible_to<typename QP::quantity_type, quantity_type>) quantity_point(const QP& qp) :
-      quantity_from_origin_is_an_implementation_detail_([&] {
+      quantity_from_origin_is_an_implementation_detail_(detail::enforce_bounds<point_origin>([&] {
         if constexpr (point_origin == QP::point_origin)
-          return qp.quantity_ref_from(point_origin);
+          return quantity_type{qp.quantity_ref_from(point_origin)};
         else
-          return qp - point_origin;
-      }())
+          return quantity_type{qp - point_origin};
+      }()))
   {
   }
 
@@ -258,8 +281,8 @@ public:
       quantity<quantity_point_like_traits<QP>::reference, typename quantity_point_like_traits<QP>::rep>, quantity_type>)
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
     quantity_point(const QP& qp) :
-      quantity_from_origin_is_an_implementation_detail_(quantity_point_like_traits<QP>::to_numerical_value(qp),
-                                                        get_unit(quantity_point_like_traits<QP>::reference))
+      quantity_from_origin_is_an_implementation_detail_(detail::enforce_bounds<point_origin>(quantity_type{
+        quantity_point_like_traits<QP>::to_numerical_value(qp), get_unit(quantity_point_like_traits<QP>::reference)}))
   {
   }
 
@@ -408,26 +431,38 @@ public:
     requires requires { ++quantity_from_origin_is_an_implementation_detail_; }
   {
     ++quantity_from_origin_is_an_implementation_detail_;
+    quantity_from_origin_is_an_implementation_detail_ =
+      detail::enforce_bounds<point_origin>(quantity_from_origin_is_an_implementation_detail_);
     return *this;
   }
 
   [[nodiscard]] constexpr quantity_point operator++(int)
     requires requires { quantity_from_origin_is_an_implementation_detail_++; }
   {
-    return {quantity_from_origin_is_an_implementation_detail_++, PO};
+    auto old_quantity = quantity_from_origin_is_an_implementation_detail_;
+    [[maybe_unused]] auto _ = quantity_from_origin_is_an_implementation_detail_++;
+    quantity_from_origin_is_an_implementation_detail_ =
+      detail::enforce_bounds<point_origin>(quantity_from_origin_is_an_implementation_detail_);
+    return {old_quantity, PO};
   }
 
   constexpr quantity_point& operator--() &
     requires requires { --quantity_from_origin_is_an_implementation_detail_; }
   {
     --quantity_from_origin_is_an_implementation_detail_;
+    quantity_from_origin_is_an_implementation_detail_ =
+      detail::enforce_bounds<point_origin>(quantity_from_origin_is_an_implementation_detail_);
     return *this;
   }
 
   [[nodiscard]] constexpr quantity_point operator--(int)
     requires requires { quantity_from_origin_is_an_implementation_detail_--; }
   {
-    return {quantity_from_origin_is_an_implementation_detail_--, PO};
+    auto old_quantity = quantity_from_origin_is_an_implementation_detail_;
+    [[maybe_unused]] auto _ = quantity_from_origin_is_an_implementation_detail_--;
+    quantity_from_origin_is_an_implementation_detail_ =
+      detail::enforce_bounds<point_origin>(quantity_from_origin_is_an_implementation_detail_);
+    return {old_quantity, PO};
   }
 
   // compound assignment operators
@@ -438,6 +473,8 @@ public:
   constexpr quantity_point& operator+=(const quantity<R2, Rep2>& q) &
   {
     quantity_from_origin_is_an_implementation_detail_ += q;
+    quantity_from_origin_is_an_implementation_detail_ =
+      detail::enforce_bounds<point_origin>(quantity_from_origin_is_an_implementation_detail_);
     return *this;
   }
 
@@ -448,6 +485,8 @@ public:
   constexpr quantity_point& operator-=(const quantity<R2, Rep2>& q) &
   {
     quantity_from_origin_is_an_implementation_detail_ -= q;
+    quantity_from_origin_is_an_implementation_detail_ =
+      detail::enforce_bounds<point_origin>(quantity_from_origin_is_an_implementation_detail_);
     return *this;
   }
 

@@ -136,6 +136,34 @@ template<typename Rep>
 using quantity_values [[deprecated("2.5.0: Use `representation_values` instead")]] = representation_values<Rep>;
 
 
+namespace detail {
+
+struct no_bounds_t {};
+
+}  // namespace detail
+
+
+/**
+ * @brief Customization point for providing bounds on a quantity point relative to an origin.
+ *
+ * Users specialize this variable template for their absolute point origins.
+ * The value should be an overflow-policy object that stores the bounds
+ * (e.g. `reflect_in_range`, `clamp_to_range`, `wrap_to_range`).
+ *
+ * Example:
+ * @code{.cpp}
+ * inline constexpr struct equator final : absolute_point_origin<geo_latitude> {} equator;
+ *
+ * template<>
+ * constexpr auto quantity_bounds<equator> = reflect_in_range{-90 * deg, 90 * deg};
+ * @endcode
+ *
+ * @tparam PO a point origin for which bounds are defined
+ */
+MP_UNITS_EXPORT template<auto PO>
+inline constexpr auto quantity_bounds = detail::no_bounds_t{};
+
+
 /**
  * @brief Provides support for external quantity-like types
  *

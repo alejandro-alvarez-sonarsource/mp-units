@@ -60,8 +60,8 @@ Each serves a different purpose, and **mixing them is dangerous**. For example:
 
 The example uses MSL altitude from the `geographic` module as the base reference:
 
-```cpp title="geographic.h" linenums="46"
---8<-- "example/include/geographic.h:46:49"
+```cpp title="geographic.h" linenums="45"
+--8<-- "example/include/geographic.h:45:48"
 ```
 
 This defines the _standard barometric altitude_ reference used in aviation, with custom

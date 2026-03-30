@@ -214,6 +214,42 @@ Only specialize
 [`treat_as_floating_point`](../../users_guide/framework_basics/representation_types.md#treat_as_floating_point)
 directly when there is genuinely no meaningful `value_type` to expose.
 
+#### Magnitude-aware scaling (optional) { #magnitude-aware-scaling }
+
+If your representation type needs to transform its **type** during unit
+conversion — not just its value — provide an `operator*(T, UnitMagnitude)` hidden friend.
+This is checked **before** the built-in paths and may return a different type.
+
+A typical use case is a range-validated representation whose bounds are unit-specific:
+
+```cpp
+#include <mp-units/framework/unit_magnitude.h>
+
+// Example custom type (not provided by the library)
+template<std::movable T, auto Min, auto Max, typename Policy>
+class bounded_value {
+  // ...
+public:
+  template<mp_units::UnitMagnitude M>
+    requires mp_units::treat_as_floating_point<T>
+  [[nodiscard]] friend constexpr auto operator*(const bounded_value& val, M m)
+  {
+    constexpr T new_lo = mp_units::scale<T>(M{}, T{Min});
+    constexpr T new_hi = mp_units::scale<T>(M{}, T{Max});
+
+    const T scaled = mp_units::scale<T>(m, val.value());
+
+    if constexpr (new_lo <= new_hi)
+      return bounded_value<T, new_lo, new_hi, Policy>(scaled);  // different type!
+    else
+      return bounded_value<T, new_hi, new_lo, Policy>(scaled);
+  }
+};
+```
+
+See [Magnitude-aware scaling](../../users_guide/framework_basics/representation_types.md#magnitude-aware-scaling)
+in the User's Guide for the complete pattern and design rationale.
+
 ??? example "`MyFloat` — integrating a third-party floating-point type"
 
     Suppose a third-party library provides a high-precision floating-point type that you
@@ -310,50 +346,6 @@ auto area = length * length;  // Quantities compose naturally
 
 ## Practical Examples
 
-### Range-Validated Representation
-
-The library examples include a `ranged_representation` type that ensures values stay within
-specified bounds:
-
-```cpp
-template<std::movable T, auto Min, auto Max>
-class ranged_representation {
-  T value_;
-public:
-  constexpr ranged_representation(T v) : value_(std::clamp(v, T{Min}, T{Max})) {}
-
-  [[nodiscard]] constexpr T value() const { return value_; }
-  [[nodiscard]] constexpr operator T() const { return value_; }  // Conversion to underlying type
-  [[nodiscard]] constexpr ranged_representation operator-() const { return ranged_representation(-value_); }
-  // ... other required operations
-};
-```
-
-This is used in the [glide computer example](../../examples/glide_computer.md#geographic-integration)
-for _latitude_ and _longitude_:
-
-```cpp
-#include <mp-units/systems/si.h>
-
-using namespace mp_units;
-
-template<typename T = double>
-using latitude = quantity_point<si::degree, equator, ranged_representation<T, -90, 90>>;
-
-template<typename T = double>
-using longitude = quantity_point<si::degree, prime_meridian, ranged_representation<T, -180, 180>>;
-
-void example()
-{
-  latitude lat{45.0 * deg};    // Valid: within [-90, 90]
-  longitude lon{120.0 * deg};  // Valid: within [-180, 180]
-}
-```
-
-The range validation happens at construction time, ensuring coordinates are always valid.
-
-**Implementation reference:**
-[`ranged_representation.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/example/include/ranged_representation.h)
 
 ### Vector Representation
 
@@ -474,9 +466,12 @@ To create a custom representation type:
 6. **Implement `operator*(T, value_type_t<T>)` and `operator/(T, value_type_t<T>)`** so
    that scaling correctly updates all internal fields (e.g. for `with_variance<T>` scale
    `value` by `k` and `variance` by `k²`).
-7. **Specialize `implicitly_scalable`** (if needed) to control implicit vs. explicit
+7. **Implement `operator*(T, UnitMagnitude)`** (optional) for
+   [magnitude-aware scaling](#magnitude-aware-scaling) when bounds or other type-level
+   properties must change during unit conversion
+8. **Specialize `implicitly_scalable`** (if needed) to control implicit vs. explicit
    conversion semantics
-8. **Verify with concepts** using `static_assert`
+9. **Verify with concepts** using `static_assert`
 
 The library handles the rest, providing strong type safety and dimensional analysis for your
 custom types.
@@ -494,10 +489,9 @@ custom types.
 
 **Implementation References:**
 
-- [`representation_concepts.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/framework/representation_concepts.h) - Concept definitions
-- [`scaling.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/bits/scaling.h) - built-in scaling implementation
-- [`value_cast.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/framework/value_cast.h) - `implicitly_scalable` and `is_integral_scaling`
-- [`customization_points.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/framework/customization_points.h) - CPO implementations
-- [`cartesian_vector.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/src/core/include/mp-units/cartesian_vector.h) - Vector implementation example
-- [`ranged_representation.h`](https://github.com/mpusz/mp-units/blob/1511c73d362649cca90191cdcfd3b369058c1dc1/example/include/ranged_representation.h) - Range-validated representation example
+- [`representation_concepts.h`](https://github.com/mpusz/mp-units/blob/master/src/core/include/mp-units/framework/representation_concepts.h) - Concept definitions
+- [`scaling.h`](https://github.com/mpusz/mp-units/blob/master/src/core/include/mp-units/framework/scaling.h) - built-in scaling implementation
+- [`value_cast.h`](https://github.com/mpusz/mp-units/blob/master/src/core/include/mp-units/framework/value_cast.h) - `implicitly_scalable` and `is_integral_scaling`
+- [`customization_points.h`](https://github.com/mpusz/mp-units/blob/master/src/core/include/mp-units/framework/customization_points.h) - CPO implementations for character determination
+- [`cartesian_vector.h`](https://github.com/mpusz/mp-units/blob/master/src/core/include/mp-units/cartesian_vector.h) - Vector implementation example
 <!-- markdownlint-enable MD013 -->

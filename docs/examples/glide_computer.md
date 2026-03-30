@@ -19,14 +19,13 @@ tags:
 <!-- markdownlint-disable MD013 -->
 **Library:**
 
-- [`glide_computer_lib/glide_computer_lib.h`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/glide_computer_lib/include/glide_computer_lib.h) - Glider performance models and polar curves
-- [`glide_computer_lib/glide_computer_lib.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/glide_computer_lib/glide_computer_lib.cpp) - Implementation
-- [`include/geographic.h`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/include/geographic.h) - Geographic primitives (_position_, coordinates, _distance_)
-- [`include/ranged_representation.h`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/include/ranged_representation.h) - Ranged value types for _latitude_/_longitude_
+- [`glide_computer_lib/glide_computer_lib.h`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/glide_computer_lib/include/glide_computer_lib.h) - Glider performance models and polar curves
+- [`glide_computer_lib/glide_computer_lib.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/glide_computer_lib/glide_computer_lib.cpp) - Implementation
+- [`include/geographic.h`](https://github.com/mpusz/mp-units/blob/master/example/include/geographic.h) - Geographic primitives with bounded _latitude_/_longitude_ using overflow policies
 
 **Example:**
 
-- [`glide_computer.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/glide_computer.cpp) - Flight planning simulation
+- [`glide_computer.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/glide_computer.cpp) - Flight planning simulation
 <!-- markdownlint-enable MD013 -->
 
 This advanced example implements a simplified tactical glide computer for sailplane (glider)
@@ -91,8 +90,8 @@ The example uses a separate `geographic` module that provides type-safe geograph
 
 ### Position and Coordinates
 
-```cpp title="geographic.h" linenums="79"
---8<-- "example/include/geographic.h:79:84"
+```cpp title="geographic.h" linenums="71"
+--8<-- "example/include/geographic.h:71:90"
 ```
 
 _Latitude_ and _longitude_ are modeled as `quantity_point` with:
@@ -103,8 +102,8 @@ _Latitude_ and _longitude_ are modeled as `quantity_point` with:
 
 ### Great Circle Distance
 
-```cpp title="geographic.h" linenums="173"
---8<-- "example/include/geographic.h:173:175"
+```cpp title="geographic.h" linenums="185"
+--8<-- "example/include/geographic.h:185:187"
 ```
 
 The `spherical_distance` function calculates the shortest _distance_ between two points
