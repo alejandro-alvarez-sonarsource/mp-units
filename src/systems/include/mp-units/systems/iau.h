@@ -73,15 +73,6 @@ inline constexpr struct solar_mass final : named_unit<symbol_text{u8"M_☉", "M_
 inline constexpr struct terrestrial_mass final : named_unit<symbol_text{u8"M_⊕", "M_EARTH"}, nominal_terrestrial_mass_parameter / newtonian_constant_of_gravitation> {} terrestrial_mass;
 inline constexpr struct jovian_mass final : named_unit<symbol_text{u8"M_♃", "M_JUP"}, nominal_jovian_mass_parameter / newtonian_constant_of_gravitation> {} jovian_mass;
 
-namespace unit_symbols {
-
-inline constexpr auto G = newtonian_constant_of_gravitation;
-inline constexpr auto M_SUN = solar_mass;
-inline constexpr auto M_EARTH = terrestrial_mass;
-inline constexpr auto M_JUP = jovian_mass;
-
-}  // namespace unit_symbols
-
 }  // namespace codata2018
 
 // clang-format on
@@ -107,6 +98,12 @@ using non_si::unit_symbols::au;
 
 // Derived units
 inline constexpr auto pc = parsec;
+
+// CODATA 2018 values
+inline constexpr auto G = newtonian_constant_of_gravitation;
+inline constexpr auto M_SUN = solar_mass;
+inline constexpr auto M_EARTH = terrestrial_mass;
+inline constexpr auto M_JUP = jovian_mass;
 
 }  // namespace unit_symbols
 
