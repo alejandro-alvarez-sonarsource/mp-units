@@ -954,7 +954,7 @@ This page documents the version history and changes for the **mp-units** library
 - libfmt updated to 6.2.0
 - Added absolute functions and epsilon to math.h (thanks [@mikeford3](https://github.com/mikeford3))
 - Added a lot of prefixes to named units and introduced `alias_unit` (thanks [@yasamoka](https://github.com/yasamoka))
-- Linking with Conan targets only when they exists ([#98](https://github.com/mpusz/units/issues/98))
+- Linking with Conan targets only when they exists ([#98](https://github.com/mpusz/mp-units/issues/98))
 - All physical dimensions and units put into `physical` namespace
 - CMake improvements
 - Velocity renamed to speed

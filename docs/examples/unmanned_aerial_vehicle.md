@@ -18,11 +18,11 @@ tags:
 <!-- markdownlint-disable MD013 -->
 **Library:**
 
-- [`include/geographic.h`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/include/geographic.h) - Geographic primitives (MSL altitude, position)
+- [`include/geographic.h`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/include/geographic.h) - Geographic primitives (MSL altitude, position)
 
 **Example:**
 
-- [`unmanned_aerial_vehicle.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/unmanned_aerial_vehicle.cpp) - UAV altitude reference systems
+- [`unmanned_aerial_vehicle.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/unmanned_aerial_vehicle.cpp) - UAV altitude reference systems
 <!-- markdownlint-enable MD013 -->
 
 This advanced example demonstrates a critical challenge in aviation software: managing

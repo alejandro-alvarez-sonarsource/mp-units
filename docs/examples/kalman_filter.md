@@ -12,22 +12,22 @@ tags:
 <!-- markdownlint-disable MD013 -->
 # Kalman Filter Examples
 
-[:material-file-code: `example/kalman_filter/`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter)
+[:material-file-code: `example/kalman_filter/`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter)
 
 **Framework:**
 
-- [`kalman.h`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman.h) - Type-safe Kalman filter abstractions
+- [`kalman.h`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman.h) - Type-safe Kalman filter abstractions
 
 **Examples:**
 
-- [`kalman_filter-example_1.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_1.cpp) - Golden bar weight estimation (α filter)
-- [`kalman_filter-example_2.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_2.cpp) - Vehicle position tracking (α-β filter)
-- [`kalman_filter-example_3.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_3.cpp) - Vehicle tracking with acceleration (α-β filter)
-- [`kalman_filter-example_4.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_4.cpp) - Full α-β-γ filter
-- [`kalman_filter-example_5.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_5.cpp) - Building height (Kalman filter)
-- [`kalman_filter-example_6.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_6.cpp) - Gold bar temperature (Kalman filter)
-- [`kalman_filter-example_7.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_7.cpp) - Liquid temperature (Kalman filter)
-- [`kalman_filter-example_8.cpp`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_8.cpp) - Warming liquid (Kalman filter)
+- [`kalman_filter-example_1.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_1.cpp) - Golden bar weight estimation (α filter)
+- [`kalman_filter-example_2.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_2.cpp) - Vehicle position tracking (α-β filter)
+- [`kalman_filter-example_3.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_3.cpp) - Vehicle tracking with acceleration (α-β filter)
+- [`kalman_filter-example_4.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_4.cpp) - Full α-β-γ filter
+- [`kalman_filter-example_5.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_5.cpp) - Building height (Kalman filter)
+- [`kalman_filter-example_6.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_6.cpp) - Gold bar temperature (Kalman filter)
+- [`kalman_filter-example_7.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_7.cpp) - Liquid temperature (Kalman filter)
+- [`kalman_filter-example_8.cpp`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_8.cpp) - Warming liquid (Kalman filter)
 <!-- markdownlint-enable MD013 -->
 
 These examples demonstrate implementing Kalman filtering algorithms with **mp-units**,
@@ -58,7 +58,7 @@ Common issues in traditional implementations:
 
 ## Type-Safe Kalman Filter Framework
 
-The [`kalman.h`](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman.h#L1)
+The [`kalman.h`](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman.h#L1)
 header provides generic, type-safe abstractions for Kalman filtering:
 
 ### System State Representation
@@ -196,12 +196,12 @@ The 8 examples demonstrate increasing complexity:
 
 Simple fixed-gain filters with manually tuned gains:
 
-| Example                                                                                                                                 | Description                                     | State Variables                        | Fixed Gains               | Measurement   |
-|-----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|----------------------------------------|---------------------------|---------------|
-| [**1**](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_1.cpp) | Golden bar _weight_ estimation                  | _mass_                                 | α = 1/n (dynamic)         | 1D _mass_     |
-| [**2**](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_2.cpp) | Vehicle _position_ tracking (constant velocity) | _position_, velocity                   | α = 0.2, β = 0.1          | 1D _position_ |
-| [**3**](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_3.cpp) | Vehicle tracking with _acceleration_            | _position_, velocity                   | α = 0.2, β = 0.1          | 1D _position_ |
-| [**4**](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_4.cpp) | Full α-β-γ filter (constant _acceleration_)     | _position_, _velocity_, _acceleration_ | α = 0.5, β = 0.4, γ = 0.1 | 1D _position_ |
+| Example                                                                                                                                    | Description                                     | State Variables                        | Fixed Gains               | Measurement   |
+|--------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|----------------------------------------|---------------------------|---------------|
+| [**1**](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_1.cpp) | Golden bar _weight_ estimation                  | _mass_                                 | α = 1/n (dynamic)         | 1D _mass_     |
+| [**2**](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_2.cpp) | Vehicle _position_ tracking (constant velocity) | _position_, velocity                   | α = 0.2, β = 0.1          | 1D _position_ |
+| [**3**](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_3.cpp) | Vehicle tracking with _acceleration_            | _position_, velocity                   | α = 0.2, β = 0.1          | 1D _position_ |
+| [**4**](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_4.cpp) | Full α-β-γ filter (constant _acceleration_)     | _position_, _velocity_, _acceleration_ | α = 0.5, β = 0.4, γ = 0.1 | 1D _position_ |
 
 **Key Feature**: Examples 2-4 demonstrate multi-state tracking where:
 
@@ -285,12 +285,12 @@ Simple fixed-gain filters with manually tuned gains:
 
 Adaptive-gain filters that compute Kalman gain from measurement and process uncertainty:
 
-| Example                                                                                                                                 | Description                       | Measurement               | Process Noise | Initial Uncertainty |
-|-----------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|---------------------------|---------------|---------------------|
-| [**5**](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_5.cpp) | Building _height_ (static)        | _height_ (σ = 5 m)        | None          | 15 m                |
-| [**6**](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_6.cpp) | Liquid _temperature_ (stable)     | _temperature_ (σ = 0.1°C) | 0.0001 °C²    | 100°C               |
-| [**7**](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_7.cpp) | Liquid _temperature_ (changing)   | _temperature_ (σ = 0.1°C) | 0.0001 °C²    | 100°C               |
-| [**8**](https://github.com/mpusz/units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_8.cpp) | Liquid _temperature_ (high-noise) | _temperature_ (σ = 0.1°C) | 0.15 °C²      | 100°C               |
+| Example                                                                                                                                    | Description                       | Measurement               | Process Noise | Initial Uncertainty |
+|--------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|---------------------------|---------------|---------------------|
+| [**5**](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_5.cpp) | Building _height_ (static)        | _height_ (σ = 5 m)        | None          | 15 m                |
+| [**6**](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_6.cpp) | Liquid _temperature_ (stable)     | _temperature_ (σ = 0.1°C) | 0.0001 °C²    | 100°C               |
+| [**7**](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_7.cpp) | Liquid _temperature_ (changing)   | _temperature_ (σ = 0.1°C) | 0.0001 °C²    | 100°C               |
+| [**8**](https://github.com/mpusz/mp-units/blob/c54d18e4892d8b4c0173054750aca5507fbf8e2e/example/kalman_filter/kalman_filter-example_8.cpp) | Liquid _temperature_ (high-noise) | _temperature_ (σ = 0.1°C) | 0.15 °C²      | 100°C               |
 
 **Key Feature**: The Kalman gain is **computed dynamically** from uncertainty estimates:
 

@@ -13,7 +13,7 @@ unit conversions to **quantity kind safety** — built on the ISO 80000 Internat
 System of Quantities (ISQ).
 
 The library source code is hosted on [GitHub](https://github.com/mpusz/mp-units) with a
-permissive [MIT license](https://github.com/mpusz/units/blob/master/LICENSE.md).
+permissive [MIT license](https://github.com/mpusz/mp-units/blob/master/LICENSE.md).
 
 === "C++ modules"
 
