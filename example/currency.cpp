@@ -90,7 +90,7 @@ template<UnitOf<currency> auto To, QuantityPointOf<currency> From>
 QuantityPointOf<currency> auto exchange_to(From qp, std::chrono::sys_seconds timestamp)
 {
   const auto rate = static_cast<From::rep>(exchange_rate<From::unit, To>(timestamp) *
-                                           qp.quantity_from_zero().numerical_value_in(qp.unit));
+                                           qp.quantity_from_unit_zero().numerical_value_in(qp.unit));
   return quantity_point{rate * From::quantity_spec[To], From::point_origin};
 }
 
@@ -103,6 +103,7 @@ int main()
   const quantity_point price_usd{100 * USD};
   const quantity_point price_euro = exchange_to<euro>(price_usd, timestamp);
 
-  std::cout << price_usd.quantity_from_zero() << " -> " << price_euro.quantity_from_zero() << "\n";
-  // std::cout << price_usd.quantity_from_zero() + price_euro.quantity_from_zero() << "\n";  // does not compile
+  std::cout << price_usd.quantity_from_unit_zero() << " -> " << price_euro.quantity_from_unit_zero() << "\n";
+  // std::cout << price_usd.quantity_from_unit_zero() + price_euro.quantity_from_unit_zero() << "\n";  // does not
+  // compile
 }
