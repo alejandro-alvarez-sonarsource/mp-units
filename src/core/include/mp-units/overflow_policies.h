@@ -60,6 +60,13 @@ struct assert_in_range {
   }
 };
 
+#if MP_UNITS_COMP_CLANG && MP_UNITS_COMP_CLANG < 17
+
+template<Quantity Q>
+assert_in_range(Q, Q) -> assert_in_range<Q>;
+
+#endif
+
 /**
  * @brief Policy that clamps the value to [min, max].
  */
@@ -76,6 +83,13 @@ struct clamp_to_range {
     return v;
   }
 };
+
+#if MP_UNITS_COMP_CLANG && MP_UNITS_COMP_CLANG < 17
+
+template<Quantity Q>
+clamp_to_range(Q, Q) -> clamp_to_range<Q>;
+
+#endif
 
 /**
  * @brief Policy that wraps the value into the half-open range [min, max).
@@ -94,6 +108,13 @@ struct wrap_to_range {
     return v;
   }
 };
+
+#if MP_UNITS_COMP_CLANG && MP_UNITS_COMP_CLANG < 17
+
+template<Quantity Q>
+wrap_to_range(Q, Q) -> wrap_to_range<Q>;
+
+#endif
 
 /**
  * @brief Policy that reflects (folds) the value at both boundaries.
@@ -117,5 +138,12 @@ struct reflect_in_range {
     return v;
   }
 };
+
+#if MP_UNITS_COMP_CLANG && MP_UNITS_COMP_CLANG < 17
+
+template<Quantity Q>
+reflect_in_range(Q, Q) -> reflect_in_range<Q>;
+
+#endif
 
 }  // namespace mp_units
