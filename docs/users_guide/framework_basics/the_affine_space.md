@@ -607,7 +607,7 @@ void example()
 {
   latitude lat{45.0 * deg};    // Valid: within [-90, 90]
   lat = latitude{95.0 * deg};  // Reflects to 85° (reflect_in_range mirrors at boundary)
-  
+
   longitude lon{270.0 * deg};  // Wraps to -90° (wrap_to_range treats range as circular)
   lon += 200.0 * deg;          // Result wraps: -90 + 200 = 110°
 }

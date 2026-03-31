@@ -259,8 +259,8 @@ inline constexpr struct temp_origin final : absolute_point_origin<bounded_temper
 
 // Temperature bounds: [200K, 400K] with clamping
 template<>
-inline constexpr auto mp_units::quantity_bounds<temp_origin> =
-  mp_units::clamp_to_range{delta<bounded_temperature[si::kelvin]>(200.0), delta<bounded_temperature[si::kelvin]>(400.0)};
+inline constexpr auto mp_units::quantity_bounds<temp_origin> = mp_units::clamp_to_range{
+  delta<bounded_temperature[si::kelvin]>(200.0), delta<bounded_temperature[si::kelvin]>(400.0)};
 
 namespace {
 
