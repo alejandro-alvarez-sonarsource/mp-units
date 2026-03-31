@@ -356,4 +356,51 @@ consteval bool point_for_between_relative_origins_enforces_bounds()
 }
 static_assert(point_for_between_relative_origins_enforces_bounds());
 
+// ============================================================================
+// terminate_on_overflow policy (successful paths)
+// ============================================================================
+
+// Origin with terminate policy
+QUANTITY_SPEC(test_angle_terminate, isq::angular_measure);
+
+inline constexpr struct terminate_origin final : absolute_point_origin<test_angle_terminate> {
+} terminate_origin;
+
+}  // namespace
+
+template<>
+inline constexpr auto mp_units::quantity_bounds<terminate_origin> =
+  mp_units::terminate_on_overflow{-90 * deg, 90 * deg};
+
+namespace {
+
+using qp_terminate = quantity_point<test_angle_terminate[deg], terminate_origin, double>;
+
+// Values within bounds should work fine
+static_assert(qp_terminate(45.0 * deg, terminate_origin).quantity_from(terminate_origin) == 45.0 * deg);
+static_assert(qp_terminate(0.0 * deg, terminate_origin).quantity_from(terminate_origin) == 0.0 * deg);
+static_assert(qp_terminate(90.0 * deg, terminate_origin).quantity_from(terminate_origin) == 90.0 * deg);
+static_assert(qp_terminate(-90.0 * deg, terminate_origin).quantity_from(terminate_origin) == -90.0 * deg);
+
+// Arithmetic within bounds
+consteval bool terminate_arithmetic_within_bounds()
+{
+  auto pt = qp_terminate(45.0 * deg, terminate_origin);
+  pt += 30.0 * deg;  // Result: 75°, within bounds
+  return pt.quantity_from(terminate_origin) == 75.0 * deg;
+}
+static_assert(terminate_arithmetic_within_bounds());
+
+consteval bool terminate_increment_within_bounds()
+{
+  using qp_terminate_int = quantity_point<test_angle_terminate[deg], terminate_origin, int>;
+  auto pt = qp_terminate_int(45 * deg, terminate_origin);
+  ++pt;  // Result: 46°, within bounds
+  return pt.quantity_from(terminate_origin) == 46 * deg;
+}
+static_assert(terminate_increment_within_bounds());
+
+// Note: Out-of-bounds cases for terminate_on_overflow cannot be tested at compile time
+// since they result in std::terminate(). These are tested in runtime tests instead.
+
 }  // namespace

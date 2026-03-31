@@ -571,10 +571,31 @@ In many domains, quantity points must stay within specific bounds. For example:
 - Temperature sensors: operating range [−40°C, 85°C]
 - Control systems: valid input range [0, 100] units
 
-The library provides four overflow policies (`assert_in_range`, `clamp_to_range`,
-`wrap_to_range`, `reflect_in_range`) that can be attached to point origins via the
+The library provides six overflow policies that can be attached to point origins via the
 `quantity_bounds` customization point. These policies enforce bounds during construction,
 unit conversion, and arithmetic operations.
+
+### Available Overflow Policies
+
+| Policy                  | Availability | Behavior                                                     | Error Handling          | Use Case                                             |
+|-------------------------|--------------|--------------------------------------------------------------|-------------------------|------------------------------------------------------|
+| `assert_in_range`       | Always       | Asserts if out of bounds (may be disabled in release builds) | Contract violation      | Development/debugging, logic error detection         |
+| `throw_on_overflow`     | Hosted only  | Throws `std::overflow_error` when out of bounds              | Exception (recoverable) | Input validation, user-facing APIs                   |
+| `terminate_on_overflow` | Always       | Terminates immediately when out of bounds (always checks)    | Terminate (fatal)       | Safety-critical systems requiring immediate halt     |
+| `clamp_to_range`        | Always       | Clamps to nearest boundary: `clamp(value, min, max)`         | Silent correction       | Saturating arithmetic, sensor limits, UI controls    |
+| `wrap_to_range`         | Always       | Wraps circularly to `[min, max)`: modulo arithmetic          | Value transformation    | Periodic quantities (angles, time-of-day, longitude) |
+| `reflect_in_range`      | Always       | Reflects at boundaries (like a bouncing ball)                | Value transformation    | Geographic latitude, physical boundaries             |
+
+!!! note "Contract Checking vs. Always-On Checking"
+
+    - `assert_in_range` uses `MP_UNITS_EXPECTS` which may be disabled in release builds
+    - `terminate_on_overflow` **always** checks bounds and **always** terminates on violation (freestanding-safe)
+    - `throw_on_overflow` **always** checks bounds and **always** throws on violation (hosted only)
+
+    Use `assert_in_range` for logic errors you expect to never happen in correct code.
+    Use `terminate_on_overflow` or `throw_on_overflow` when you need guaranteed bounds checking.
+
+### Example Usage
 
 ```cpp
 #include <mp-units/overflow_policies.h>
@@ -613,15 +634,6 @@ void example()
 }
 ```
 
-### Available Overflow Policies
-
-| Policy             | Behavior                                                | Use Case                                 |
-|--------------------|---------------------------------------------------------|------------------------------------------|
-| `assert_in_range`  | Asserts if value is out of bounds (default, fastest)    | Development/debugging, critical safety   |
-| `clamp_to_range`   | Clamps to nearest boundary: `min(max(value, min), max)` | Sensors with saturation, UI sliders      |
-| `wrap_to_range`    | Wraps circularly: `(value - min) mod range + min`       | Angles, cyclic coordinates (longitude)   |
-| `reflect_in_range` | Reflects at boundaries like a bouncing ball             | Geographic latitude, oscillating systems |
-
 ### How It Works?
 
 Bounds are enforced at these points:
@@ -633,13 +645,6 @@ Bounds are enforced at these points:
 
 The implementation calls `enforce_bounds<origin>()` after each mutation, which applies the
 policy specified in `quantity_bounds<origin>`.
-
-!!! info "Contract Checking"
-
-    When using `assert_in_range` (the default), bounds checking uses the library's contract
-    checking macros (`MP_UNITS_EXPECTS`). See [Contract Checking Macros]
-    (../../how_to_guides/integration/wide_compatibility.md#contract-checking-macros)
-    for configuration options.
 
 ??? note "Implementation reference"
 

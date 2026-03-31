@@ -25,6 +25,7 @@ find_package(Catch2 3 REQUIRED)
 add_executable(
     unit_tests_runtime
     atomic_test.cpp
+    bounded_quantity_point_test.cpp
     cartesian_vector_test.cpp
     distribution_test.cpp
     fixed_point_test.cpp
