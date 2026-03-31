@@ -123,6 +123,15 @@ if(CMAKE_CXX_MODULE_STD)
     if(CMAKE_CXX_STANDARD LESS 23)
         message(FATAL_ERROR "`import std;` requires at least C++23")
     endif()
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        # Workaround for two CMake 4.3 + Clang 21 incompatibilities:
+        # 1. CMake 4.3 generates both `--precompile` and `-c` for @synth targets (CMake bug);
+        #    Clang 21 reports this as -Wunused-command-line-argument (now a default-on warning)
+        # 2. Clang 21 reports `export module std;` in libc++'s std.cppm as
+        #    -Wreserved-module-identifier (now a default-on warning), because CMake compiles
+        #    the stdlib module with the project's compiler flags
+        add_compile_options(-Wno-error=unused-command-line-argument -Wno-error=reserved-module-identifier)
+    endif()
 endif()
 
 # components/modules
