@@ -268,8 +268,8 @@ quantities. This introduces an additional type-safety.
 
       quantity_point temp = point<deg_C>(20.);
       std::println("Temperature: {} ({})",
-                   temp.quantity_from_zero(),
-                   temp.in(deg_F).quantity_from_zero());
+                   temp.quantity_from_unit_zero(),
+                   temp.in(deg_F).quantity_from_unit_zero());
     }
     ```
 
@@ -288,8 +288,8 @@ quantities. This introduces an additional type-safety.
 
       quantity_point temp = point<deg_C>(20.);
       std::println("Temperature: {} ({})",
-                   temp.quantity_from_zero(),
-                   temp.in(deg_F).quantity_from_zero());
+                   temp.quantity_from_unit_zero(),
+                   temp.in(deg_F).quantity_from_unit_zero());
     }
     ```
 

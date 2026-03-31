@@ -86,8 +86,8 @@ current model, motivating the need for a new abstraction.
 
 1. **Limited arithmetic for points** – Points can’t be multiplied, divided, or accumulated.
    This often forces the users to convert the quantity point to a delta with either
-   `qp.quantity_from_zero()` or `qp.quantity_from(some_origin)` member functions, which is
-   at least cumbersome.
+   `qp.quantity_from_unit_zero()` or `qp.quantity_from(some_origin)` member functions,
+   which is at least cumbersome.
 2. **No text output for points** – A point's textual representation depends on its origin,
    which is often implicit or user-defined. As of today, we do not have the means to
    provide a text symbol for the point origin. Moreover, points may contain both an
@@ -139,18 +139,18 @@ current model, motivating the need for a new abstraction.
                                                   quantity_point<kg> total)
         {
           gsl_Expects(is_gt_zero(total));
-          return water_lost / total.quantity_from_zero();
+          return water_lost / total.quantity_from_unit_zero();
         }
 
         quantity_point<kg> initial[] = { point<kg>(2.34), point<kg>(1.93), point<kg>(2.43) };
         quantity_point<kg> dried[] = { point<kg>(1.89), point<kg>(1.52), point<kg>(1.92) };
 
-        auto point_plus = [](QuantityPoint auto a, QuantityPoint auto b){ return a + b.quantity_from_zero(); };
+        auto point_plus = [](QuantityPoint auto a, QuantityPoint auto b){ return a + b.quantity_from_unit_zero(); };
         quantity_point total_initial = std::reduce(std::cbegin(initial), std::cend(initial), point<kg>(0.), point_plus);
         quantity_point total_dried = std::reduce(std::cbegin(dried), std::cend(dried), point<kg>(0.), point_plus);
 
-        std::cout << "Initial product mass: " << total_initial.quantity_from_zero() << "\n";
-        std::cout << "Dried product mass: " << total_dried.quantity_from_zero() << "\n";
+        std::cout << "Initial product mass: " << total_initial.quantity_from_unit_zero() << "\n";
+        std::cout << "Dried product mass: " << total_dried.quantity_from_unit_zero() << "\n";
         std::cout << "Moisture content change: " << moisture_content_change(total_initial - total_dried, total_initial) << "\n";
         ```
 
@@ -891,43 +891,77 @@ with:
 ```cpp
 quantity temp_cold = point<K>(300.);
 quantity temp_hot = point<K>(500.);
-quantity carnot_eff_1 = 1. - temp_cold.quantity_from_zero() / temp_hot.quantity_from_zero();
-quantity carnot_eff_2 = (temp_hot - temp_cold) / temp_hot.quantity_from_zero();
+quantity carnot_eff_1 = 1. - temp_cold.quantity_from_unit_zero() / temp_hot.quantity_from_unit_zero();
+quantity carnot_eff_2 = (temp_hot - temp_cold) / temp_hot.quantity_from_unit_zero();
 ```
 
 It worked, but was far from being physically pure and pretty.
 
 
-### Why Not Just Use `(T − T₀)` as a Workaround?
+### Why Obvious Workarounds Fall Short?
 
-A common suggestion is to work around the absence of a distinct Absolute type by
-replacing every absolute temperature $T$ with the explicit expression $(T - T_0)$, where
-$T_0$ is a `quantity_point` at absolute zero. For example:
+Two workaround approaches exist, each with its own caveat.
+
+#### Approach 1: `quantity_from_unit_zero()`
+
+`quantity_from_unit_zero()` returns the displacement of a quantity point from its unit's
+origin. For Kelvin this is `si::absolute_zero`, so the result is exactly the
+thermodynamic temperature:
 
 ```cpp
-quantity<point<K>> temp_cold = point<K>(300.);
-quantity<point<K>> temp_hot = point<K>(500.);
-// Force deltas from zero explicitly every time:
-quantity carnot_eff = 1. - temp_cold.quantity_from_zero() / temp_hot.quantity_from_zero();
+point<K>(294.15).quantity_from_unit_zero();  // 294.15 K ✓
 ```
 
-While this produces the correct numerical answer, it has several drawbacks:
+For Celsius, however, the unit's origin is `si::ice_point` — the _ice point_.
+The function therefore returns the displacement from the ice point, not from absolute
+zero:
 
-1. **Manual burden** — the user must remember to apply the `quantity_from_zero()` call
-   every time a thermodynamic formula requires ratio-scale semantics.
-2. **No call-site enforcement** — generic function interfaces cannot require an
-   Absolute at the type level; a `quantity_point<deg_C>` can slip through silently.
-3. **Lost semantic intent** — the type `quantity_point<K>` says "a location on the
-   temperature scale," not "a thermodynamic energy magnitude." The distinction between
-   an interval-scale location and a ratio-scale magnitude disappears.
-4. **Verbose code** — the workaround turns clean physics equations into manual
-   conversions, defeating the purpose of a high-level units library.
+```cpp
+point<deg_C>(21).quantity_from_unit_zero();  // 21 ℃ — displacement from ice point, not 294.15 K!
+```
 
-The V3 Absolute Quantity abstraction internalizes this conversion. `300 * K` is an
-Absolute Quantity by default and is directly usable in multiplicative expressions.
-When an offset-unit measurement must enter a ratio-scale equation, the explicit
-`.in(K).absolute()` chain makes the conversion visible and type-safe — exactly once,
-at the boundary, rather than scattered throughout the codebase.
+This is a silent pitfall: the call compiles and returns a plausible-looking value for any
+temperature unit, but is only thermodynamically meaningful when the point is already in
+Kelvin. Explicit conversion before the call fixes it:
+
+```cpp
+point<deg_C>(21).in(K).quantity_from_unit_zero();  // 294.15 K ✓
+```
+
+#### Approach 2: Subtract `si::absolute_zero`
+
+Subtracting the absolute-zero origin always gives the correct thermodynamic temperature
+regardless of the unit the point was stored in:
+
+```cpp
+quantity_point temp = point<deg_C>(21);
+quantity T = temp - si::absolute_zero;  // always correct
+```
+
+The only thing to be aware of is the resulting unit. Because `si::ice_point` (the origin
+of the Celsius scale) is defined internally in `milli<kelvin>`, the subtraction yields
+`mK` rather than `K`:
+
+```text
+T == 294150 mK   // correct value, can be rescaled with .in(K)
+```
+
+The value is correct and rescales cleanly to any unit. In a physical equation like the
+ideal gas law, `p` will come out in `mPa` instead of `Pa`, but it will convert
+automatically on the first assignment to a typed quantity such as `quantity<Pa>`.
+
+#### The bottom line
+
+Both approaches work correctly when used with care. `quantity_from_unit_zero()` is concise but
+requires the point to already be in Kelvin; subtraction from `si::absolute_zero` is
+always safe but carries an `mK` unit until rescaled. In either case, the right idiom —
+`.in(K).quantity_from_unit_zero()` — must be remembered and applied at every call site, and
+there is no way to enforce it through the type system.
+
+V3 Absolute Quantities address this: `300 * K` is already an Absolute Quantity, directly
+usable in any multiplicative expression. When an offset-unit point must enter a
+thermodynamic equation, the explicit `.in(K).absolute()` chain makes the conversion
+visible and type-safe — exactly once, at the boundary.
 
 
 ### Design Philosophy and Standardization

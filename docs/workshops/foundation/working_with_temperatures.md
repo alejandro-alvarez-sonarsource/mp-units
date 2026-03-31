@@ -85,7 +85,7 @@ int main()
 
     void print_temp(std::string_view title, QuantityPoint auto t)
     {
-      std::cout << title << ": " << t.quantity_from_zero() << " (" << t.in(deg_F).quantity_from_zero() << ")\n";
+      std::cout << title << ": " << t.quantity_from_unit_zero() << " (" << t.in(deg_F).quantity_from_unit_zero() << ")\n";
     }
 
     int main()
@@ -146,11 +146,11 @@ int main()
 
     ### Extracting deltas from the origin
 
-    The `.quantity_from_zero()` method gives you the delta from the unit's point origin:
+    The `.quantity_from_unit_zero()` method gives you the delta from the unit's point origin:
 
     ```cpp
     quantity_point temp = point<deg_C>(20.);
-    quantity delta_from_origin = temp.quantity_from_zero();  // 20 °C from 0 °C
+    quantity delta_from_origin = temp.quantity_from_unit_zero();  // 20 °C from 0 °C
     ```
 
     - For units with defined point origins (like °C, °F, K), returns the delta from that
@@ -174,7 +174,7 @@ int main()
 - **Type safety**: **mp-units** prevents common temperature conversion errors at
   compile time
 - **Automatic conversions**: The `.in()` method handles proper unit conversions automatically
-- **Getting deltas from points**: `.quantity_from_zero()` allows us to get a delta for a
+- **Getting deltas from points**: `.quantity_from_unit_zero()` allows us to get a delta for a
   temperature point from 0 degrees in the current temperature system
 - **Overloaded functions**: Use function overloading to handle different quantity types
   elegantly

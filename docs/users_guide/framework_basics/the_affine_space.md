@@ -113,12 +113,12 @@ a `quantity_point` can be considered as a model of a vector space from such an o
 Forcing the user to manually predefine an origin for every domain may be cumbersome and
 discourage users from using such abstractions at all. This is why, by default, the `PO`
 template parameter is initialized with the `default_point_origin(R)` that provides the
-quantity points' scale zeroth point using the following rules:
+quantity points' scale origin using the following rules:
 
 - if the measurement unit of a quantity specifies its point origin in its definition
   (e.g., degree Celsius), then this origin is being used,
-- otherwise, an instantiation of `zeroth_point_origin<QuantitySpec>` is being used which
-  provides a well-established zeroth point for a specific quantity type.
+- otherwise, an instantiation of `natural_point_origin<QuantitySpec>` is being used which
+  provides a well-established natural origin for a specific quantity type.
 
 Quantity points with default point origins may be constructed with the `point` construction
 helper or forcing an explicit conversion from the `quantity`:
@@ -140,10 +140,10 @@ quantity_point qp9 = point<deg_C>(42);
     The `quantity_point` definition can be found in the `mp-units/quantity_point.h` header file.
 
 
-#### `zeroth_point_origin<QuantitySpec>`
+#### `natural_point_origin<QuantitySpec>`
 
-`zeroth_point_origin<QuantitySpec>` is meant to be used in cases where the specific domain
-has a well-established, non-controversial, and unique zeroth point on the measurement scale.
+`natural_point_origin<QuantitySpec>` is meant to be used in cases where the specific domain
+has a well-established, non-controversial, and unique natural origin on the measurement scale.
 This saves the user from the need to write a boilerplate code that would predefine such a type
 for this domain.
 
@@ -153,8 +153,8 @@ for this domain.
 quantity_point<isq::distance[si::metre]> qp1(100 * m);
 quantity_point<isq::distance[si::metre]> qp2 = point<m>(120);
 
-assert(qp1.quantity_from_zero() == 100 * m);
-assert(qp2.quantity_from_zero() == 120 * m);
+assert(qp1.quantity_from_unit_zero() == 100 * m);
+assert(qp2.quantity_from_unit_zero() == 120 * m);
 assert(qp2.quantity_from(qp1) == 20 * m);
 assert(qp1.quantity_from(qp2) == -20 * m);
 
@@ -166,15 +166,15 @@ assert(qp1 - qp2 == -20 * m);
 
 In the above code `100 * m` and `120 * m` still create two quantities that serve as
 _displacement vectors_ here. Quantity point objects can be explicitly constructed from
-such quantities only when their origin is an instantiation of the `zeroth_point_origin<QuantitySpec>`.
+such quantities only when their origin is an instantiation of the `natural_point_origin<QuantitySpec>`.
 
-It is really important to understand that even though we can use `.quantity_from_zero()`
+It is really important to understand that even though we can use `.quantity_from_unit_zero()`
 to obtain the _displacement vector_ of a point from the origin, the point by itself does
 not represent or have any associated physical value. It is just a point in some space.
 The same point can be expressed with different _displacement vectors_ from different origins.
 
 It is also worth mentioning that simplicity comes with a safety cost here. For some users,
-it might be surprising that the usage of `zeroth_point_origin<QuantitySpec>` makes various
+it might be surprising that the usage of `natural_point_origin<QuantitySpec>` makes various
 quantity point objects compatible as long as quantity types used in the origin and reference
 are compatible:
 
@@ -205,8 +205,8 @@ inline constexpr struct origin final : absolute_point_origin<isq::distance> {} o
 quantity_point<si::metre, origin> qp1 = origin + 100 * m;
 quantity_point<si::metre, origin> qp2 = 120 * m + origin;
 
-// assert(qp1.quantity_from_zero() == 100 * m);   // Compile-time error
-// assert(qp2.quantity_from_zero() == 120 * m);   // Compile-time error
+// assert(qp1.quantity_from_unit_zero() == 100 * m);   // Compile-time error
+// assert(qp2.quantity_from_unit_zero() == 120 * m);   // Compile-time error
 assert(qp1.quantity_from(origin) == 100 * m);
 assert(qp2.quantity_from(origin) == 120 * m);
 assert(qp2.quantity_from(qp1) == 20 * m);
@@ -248,10 +248,10 @@ quantity_point qp1{100 * m, origin};
 Again, CTAD always helps to use precisely the type we need in a current case.
 
 Additionally, if a quantity point is defined in terms of a custom, named origin, then we
-can't use a `quantity_from_zero()` member function anymore. This is to prevent surprises,
+can't use a `quantity_from_unit_zero()` member function anymore. This is to prevent surprises,
 as our origin may not necessarily be perceived as an absolute zero in the domain we model.
 Also, as we will learn soon, we can define several related origins in one space, and then
-it gets harder to understand which one is the "zero" one. This is why, to be specific and
+it gets harder to understand which one is the zero one. This is why, to be specific and
 always correct about the points we use, a `quantity_from(QP)` member function can be used
 (where `QP` can either be an origin or another quantity point).
 
@@ -411,25 +411,23 @@ predefined point origins for this purpose:
 namespace si {
 
 inline constexpr struct absolute_zero final : absolute_point_origin<isq::thermodynamic_temperature> {} absolute_zero;
-inline constexpr auto zeroth_kelvin = absolute_zero;
 
 inline constexpr struct ice_point final : relative_point_origin<point<milli<kelvin>>(273'150)}> {} ice_point;
-inline constexpr auto zeroth_degree_Celsius = ice_point;
 
 }
 
 namespace usc {
 
-inline constexpr struct zeroth_degree_Fahrenheit final :
-  relative_point_origin<point<mag_ratio<5, 9> * si::degree_Celsius>(-32)> {} zeroth_degree_Fahrenheit;
+inline constexpr struct fahrenheit_zero final :
+  relative_point_origin<point<mag_ratio<5, 9> * si::degree_Celsius>(-32)> {} fahrenheit_zero;
 
 }
 ```
 
 The above is a great example of how point origins can be stacked on top of each other:
 
-- `usc::zeroth_degree_Fahrenheit` is defined relative to `si::zeroth_degree_Celsius`
-- `si::zeroth_degree_Celsius` is defined relative to `si::zeroth_kelvin`.
+- `usc::fahrenheit_zero` is defined relative to `si::ice_point`
+- `si::ice_point` is defined relative to `si::absolute_zero`.
 
 !!! note
 
@@ -445,9 +443,9 @@ definitions:
 namespace si {
 
 inline constexpr struct kelvin final :
-    named_unit<"K", kind_of<isq::thermodynamic_temperature>, zeroth_kelvin> {} kelvin;
+    named_unit<"K", kind_of<isq::thermodynamic_temperature>, absolute_zero> {} kelvin;
 inline constexpr struct degree_Celsius final :
-    named_unit<{u8"℃", "`C"}, kelvin, zeroth_degree_Celsius> {} degree_Celsius;
+    named_unit<{u8"℃", "`C"}, kelvin, ice_point> {} degree_Celsius;
 
 }
 
@@ -455,12 +453,12 @@ namespace usc {
 
 inline constexpr struct degree_Fahrenheit final :
     named_unit<{u8"℉", "`F"}, mag_ratio<5, 9> * si::degree_Celsius,
-               zeroth_degree_Fahrenheit> {} degree_Fahrenheit;
+               fahrenheit_zero> {} degree_Fahrenheit;
 
 }
 ```
 
-As it was described above, `default_point_origin(R)` returns a `zeroth_point_origin<QuantitySpec>`
+As it was described above, `default_point_origin(R)` returns a `natural_point_origin<QuantitySpec>`
 when a unit does not provide any origin in its definition. As of today, the units of temperature
 are the only ones in the entire **mp-units** library that provide such origins.
 
@@ -470,17 +468,17 @@ to choose from here. Depending on our needs or tastes, we can:
 - be explicit about the unit and origin:
 
     ```cpp
-    quantity_point<si::degree_Celsius, si::zeroth_degree_Celsius> q1 = si::zeroth_degree_Celsius + delta<deg_C>(20.5);
-    quantity_point<si::degree_Celsius, si::zeroth_degree_Celsius> q2{delta<deg_C>(20.5), si::zeroth_degree_Celsius};
-    quantity_point<si::degree_Celsius, si::zeroth_degree_Celsius> q3{delta<deg_C>(20.5)};
-    quantity_point<si::degree_Celsius, si::zeroth_degree_Celsius> q4 = point<deg_C>(20.5);
+    quantity_point<si::degree_Celsius, si::ice_point> q1 = si::ice_point + delta<deg_C>(20.5);
+    quantity_point<si::degree_Celsius, si::ice_point> q2{delta<deg_C>(20.5), si::ice_point};
+    quantity_point<si::degree_Celsius, si::ice_point> q3{delta<deg_C>(20.5)};
+    quantity_point<si::degree_Celsius, si::ice_point> q4 = point<deg_C>(20.5);
     ```
 
-- specify a unit and use its zeroth point origin implicitly:
+- specify a unit and use its point origin implicitly:
 
     ```cpp
-    quantity_point<si::degree_Celsius> q5 = si::zeroth_degree_Celsius + delta<deg_C>(20.5);
-    quantity_point<si::degree_Celsius> q6{delta<deg_C>(20.5), si::zeroth_degree_Celsius};
+    quantity_point<si::degree_Celsius> q5 = si::ice_point + delta<deg_C>(20.5);
+    quantity_point<si::degree_Celsius> q6{delta<deg_C>(20.5), si::ice_point};
     quantity_point<si::degree_Celsius> q7{delta<deg_C>(20.5)};
     quantity_point<si::degree_Celsius> q8 = point<deg_C>(20.5);
     ```
@@ -488,8 +486,8 @@ to choose from here. Depending on our needs or tastes, we can:
 - benefit from CTAD:
 
     ```cpp
-    quantity_point q9 = si::zeroth_degree_Celsius + delta<deg_C>(20.5);
-    quantity_point q10{delta<deg_C>(20.5), si::zeroth_degree_Celsius};
+    quantity_point q9 = si::ice_point + delta<deg_C>(20.5);
+    quantity_point q10{delta<deg_C>(20.5), si::ice_point};
     quantity_point q11{delta<deg_C>(20.5)};
     quantity_point q12 = point<deg_C>(20.5);
     ```
@@ -513,9 +511,9 @@ room_temp room_low = room_ref - number_of_steps * step_delta;
 room_temp room_high = room_ref + number_of_steps * step_delta;
 
 std::println("Room reference temperature: {} ({}, {::N[.2f]})\n",
-             room_ref.quantity_from_zero(),
-             room_ref.in(usc::degree_Fahrenheit).quantity_from_zero(),
-             room_ref.in(si::kelvin).quantity_from_zero());
+             room_ref.quantity_from_unit_zero(),
+             room_ref.in(usc::degree_Fahrenheit).quantity_from_unit_zero(),
+             room_ref.in(si::kelvin).quantity_from_unit_zero());
 
 std::println("| {:<18} | {:^18} | {:^18} | {:^18} |",
              "Temperature delta", "Room reference", "Ice point", "Absolute zero");

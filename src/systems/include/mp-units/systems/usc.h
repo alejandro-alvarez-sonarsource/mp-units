@@ -124,11 +124,14 @@ inline constexpr struct inch_of_mercury final : named_unit<"inHg", mag_ratio<3'3
 #endif
 
 // https://en.wikipedia.org/wiki/Fahrenheit
-inline constexpr auto zeroth_rankine = si::zeroth_kelvin;
-inline constexpr struct rankine final : named_unit<symbol_text{u8"°R", "`R"}, mag_ratio<5, 9> * si::kelvin, zeroth_rankine> {} rankine;
+[[deprecated("2.6.0: Use `si::absolute_zero` instead")]]
+inline constexpr auto zeroth_rankine = si::absolute_zero;
+inline constexpr struct rankine final : named_unit<symbol_text{u8"°R", "`R"}, mag_ratio<5, 9> * si::kelvin, si::absolute_zero> {} rankine;
 
-inline constexpr struct zeroth_degree_Fahrenheit final : relative_point_origin<::mp_units::point<si::milli<rankine>>(459'670)> {} zeroth_degree_Fahrenheit;
-inline constexpr struct degree_Fahrenheit final : named_unit<symbol_text{u8"℉", "`F"}, rankine, zeroth_degree_Fahrenheit> {} degree_Fahrenheit;
+inline constexpr struct fahrenheit_zero final : relative_point_origin<::mp_units::point<si::milli<rankine>>(459'670)> {} fahrenheit_zero;
+[[deprecated("2.6.0: Use `fahrenheit_zero` instead")]]
+inline constexpr auto zeroth_degree_Fahrenheit = fahrenheit_zero;
+inline constexpr struct degree_Fahrenheit final : named_unit<symbol_text{u8"℉", "`F"}, rankine, fahrenheit_zero> {} degree_Fahrenheit;
 // clang-format on
 
 namespace unit_symbols {

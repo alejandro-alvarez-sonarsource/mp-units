@@ -16,6 +16,10 @@ This page documents the version history and changes for the **mp-units** library
 - feat: `hep` system extended with new constants and specialized quantities
 - feat: `unit_for`, `reference_for`, and `rep_for` added
 - feat: type conversions improved to raise compile-time warnings on truncation
+- feat: `natural_point_origin<QuantitySpec>` added (replaces `zeroth_point_origin<QuantitySpec>`)
+- feat: `is_natural_point_origin<T>` added (replaces `is_zeroth_point_origin<T>`)
+- feat: `quantity_from_unit_zero()` member function added (replaces `quantity_from_zero()`)
+- feat: `fahrenheit_zero` point origin added (replaces `zeroth_degree_Fahrenheit`)
 - feat: dimensionless quantities with unit one can now be created with `quantity_spec::op(Val)`
         explicit conversions
 - feat: explicit construction from number enabled for `dimensionless` subkinds
@@ -29,6 +33,13 @@ This page documents the version history and changes for the **mp-units** library
 - feat: explicit `quantity_spec` conversions added for `quantity_point`
 - (!) refactor: `pi` magnitude constant renamed to `pi_c`
 - (!) refactor: `international` system renamed to `yard_pound`
+- (!) refactor: `zeroth_point_origin<QuantitySpec>` deprecated (use `natural_point_origin<QuantitySpec>`)
+- (!) refactor: `is_zeroth_point_origin<T>` deprecated (use `is_natural_point_origin<T>`)
+- (!) refactor: `quantity_from_zero()` deprecated (use `quantity_from_unit_zero()`)
+- (!) refactor: `zeroth_kelvin` deprecated (use `absolute_zero`)
+- (!) refactor: `zeroth_degree_Celsius` deprecated (use `ice_point`)
+- (!) refactor: `zeroth_degree_Fahrenheit` deprecated (use `fahrenheit_zero`)
+- (!) refactor: `zeroth_rankine` deprecated (use `si::absolute_zero`)
 - refactor: CGS <-> SI interop improved with using declarations
 - refactor: `isq::time` swapped with `isq::duration`
 - refactor: deprecation warnings now include the release version

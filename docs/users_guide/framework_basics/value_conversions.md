@@ -116,7 +116,7 @@ result:
     }  // namespace unit_symbols
 
     using Price = quantity_point<currency[us_dollar]>;
-    using Scaled = quantity_point<currency[scaled_us_dollar], zeroth_point_origin<currency>, std::int64_t>;
+    using Scaled = quantity_point<currency[scaled_us_dollar], natural_point_origin<currency>, std::int64_t>;
     ```
 
 === "C++20"
@@ -136,7 +136,7 @@ result:
     }  // namespace unit_symbols
 
     using Price = quantity_point<currency[us_dollar]>;
-    using Scaled = quantity_point<currency[scaled_us_dollar], zeroth_point_origin<currency>, std::int64_t>;
+    using Scaled = quantity_point<currency[scaled_us_dollar], natural_point_origin<currency>, std::int64_t>;
     ```
 
 === "Portable"
@@ -156,7 +156,7 @@ result:
     }  // namespace unit_symbols
 
     using Price = quantity_point<currency[us_dollar]>;
-    using Scaled = quantity_point<currency[scaled_us_dollar], zeroth_point_origin<currency>, std::int64_t>;
+    using Scaled = quantity_point<currency[scaled_us_dollar], natural_point_origin<currency>, std::int64_t>;
     ```
 
 ```cpp

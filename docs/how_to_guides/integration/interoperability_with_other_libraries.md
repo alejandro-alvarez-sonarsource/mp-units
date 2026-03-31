@@ -296,7 +296,7 @@ int main()
   // ✅ Implicit conversion (import)
   quantity_point qp = ts;
 
-  std::cout << qp.quantity_from_zero() << "\n";
+  std::cout << qp.quantity_from_unit_zero() << "\n";
 
   // ✅ Explicit conversion (export)
   print(Timestamp(qp));
@@ -360,7 +360,7 @@ auto tp3 = to_chrono_time_point(qp3);
 quantity_point qp4 = my_origin + 1 * s;
 auto tp4 = to_chrono_time_point(qp4);
 
-// ❌ Compile error: zeroth_point_origin not related to chrono_point_origin
+// ❌ Compile error: natural_point_origin not related to chrono_point_origin
 quantity_point qp5{1 * s};
 auto tp5 = to_chrono_time_point(qp5);
 ```

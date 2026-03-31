@@ -45,18 +45,25 @@ namespace mp_units {
 namespace detail {
 
 template<PointOrigin PO>
-constexpr bool is_specialization_of_zeroth_point_origin = false;
+constexpr bool is_specialization_of_natural_point_origin = false;
 
 template<PointOrigin PO>
-[[nodiscard]] consteval bool is_zeroth_point_origin(PO)
+[[nodiscard]] consteval bool is_natural_point_origin(PO)
 {
-  return is_specialization_of_zeroth_point_origin<PO>;
+  return is_specialization_of_natural_point_origin<PO>;
+}
+
+template<PointOrigin PO>
+[[deprecated("2.6.0: Use `is_natural_point_origin` instead")]] [[nodiscard]] consteval bool is_zeroth_point_origin(
+  PO po)
+{
+  return is_natural_point_origin(po);
 }
 
 template<typename FwdQ, PointOrigin PO, QuantityOf<PO::_quantity_spec_> Q = std::remove_cvref_t<FwdQ>>
 [[nodiscard]] constexpr QuantityPoint auto make_quantity_point(FwdQ&& q, PO po)
 {
-  if constexpr (detail::is_zeroth_point_origin(PO{}))
+  if constexpr (detail::is_natural_point_origin(PO{}))
     return quantity_point{std::forward<FwdQ>(q)};
   else
     return quantity_point{std::forward<FwdQ>(q), po};
@@ -103,15 +110,15 @@ struct point_origin_interface {
   {
     if constexpr (is_derived_from_specialization_of_v<PO1, absolute_point_origin> &&
                   is_derived_from_specialization_of_v<PO2, absolute_point_origin>)
-      return is_same_v<PO1, PO2> || (detail::is_zeroth_point_origin(po1) && detail::is_zeroth_point_origin(po2) &&
+      return is_same_v<PO1, PO2> || (detail::is_natural_point_origin(po1) && detail::is_natural_point_origin(po2) &&
                                      mp_units::interconvertible(po1._quantity_spec_, po2._quantity_spec_));
     else if constexpr (is_derived_from_specialization_of_v<PO1, relative_point_origin> &&
                        is_derived_from_specialization_of_v<PO2, relative_point_origin>)
       return PO1::_quantity_point_ == PO2::_quantity_point_;
     else if constexpr (is_derived_from_specialization_of_v<PO1, relative_point_origin>)
-      return detail::same_absolute_point_origins(po1, po2) && PO1::_quantity_point_.quantity_from_zero() == 0;
+      return detail::same_absolute_point_origins(po1, po2) && PO1::_quantity_point_.quantity_from_unit_zero() == 0;
     else if constexpr (is_derived_from_specialization_of_v<PO2, relative_point_origin>)
-      return detail::same_absolute_point_origins(po1, po2) && PO2::_quantity_point_.quantity_from_zero() == 0;
+      return detail::same_absolute_point_origins(po1, po2) && PO2::_quantity_point_.quantity_from_unit_zero() == 0;
   }
 };
 
@@ -136,15 +143,23 @@ struct relative_point_origin : detail::point_origin_interface {
 };
 
 template<QuantitySpec auto QS>
-struct zeroth_point_origin_ final : absolute_point_origin<QS> {};
+struct natural_point_origin_ final : absolute_point_origin<QS> {};
 
 MP_UNITS_EXPORT template<QuantitySpec auto QS>
-constexpr zeroth_point_origin_<QS> zeroth_point_origin;
+constexpr natural_point_origin_<QS> natural_point_origin;
+
+template<QuantitySpec auto QS>
+using zeroth_point_origin_ [[deprecated("2.6.0: Use `natural_point_origin_` instead")]] = natural_point_origin_<QS>;
+
+MP_UNITS_EXPORT template<QuantitySpec auto QS>
+[[deprecated("2.6.0: Use `natural_point_origin` instead")]]
+constexpr natural_point_origin_<QS>
+  zeroth_point_origin = natural_point_origin<QS>;
 
 namespace detail {
 
 template<auto QS>
-constexpr bool is_specialization_of_zeroth_point_origin<zeroth_point_origin_<QS>> = true;
+constexpr bool is_specialization_of_natural_point_origin<natural_point_origin_<QS>> = true;
 
 }  // namespace detail
 
@@ -155,7 +170,7 @@ MP_UNITS_EXPORT template<Reference R>
   if constexpr (requires { get_unit(R{})._point_origin_; })
     return get_unit(R{})._point_origin_;
   else
-    return zeroth_point_origin<get_quantity_spec(R{})>;
+    return natural_point_origin<get_quantity_spec(R{})>;
 }
 
 namespace detail {
@@ -332,7 +347,7 @@ public:
     return *this - qp;
   }
 
-  [[nodiscard]] constexpr Quantity auto quantity_from_zero() const
+  [[nodiscard]] constexpr Quantity auto quantity_from_unit_zero() const
   {
     if constexpr (requires { unit._point_origin_; }) {
       // original quantity point unit can be lost in the below operation
@@ -344,6 +359,12 @@ public:
         return q;
     } else
       return quantity_from(absolute_point_origin);
+  }
+
+  [[deprecated("2.6.0: Use `quantity_from_unit_zero` instead")]] [[nodiscard]] constexpr Quantity auto
+  quantity_from_zero() const
+  {
+    return quantity_from_unit_zero();
   }
 
   // unit conversions

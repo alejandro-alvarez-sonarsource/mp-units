@@ -125,7 +125,7 @@ int main()
 
   // You CAN add a difference to an absolute temperature
   quantity_point fever_temp = body_temp + delta<deg_C>(2);
-  std::cout << "Fever temperature: " << fever_temp - si::zeroth_degree_Celsius << "\n";
+  std::cout << "Fever temperature: " << fever_temp - si::ice_point << "\n";
 }
 ```
 
@@ -134,9 +134,9 @@ on the temperature scale. You can only subtract them (to get a difference) or ad
 quantity (temperature change) to them. Adding two absolute temperatures is prevented by
 the type system because it's physically meaningless.
 
-## Understanding `quantity_from_zero()` with Temperatures
+## Understanding `quantity_from_unit_zero()` with Temperatures
 
-For temperatures (and other offset units), `.quantity_from_zero()` has special
+For temperatures (and other offset units), `.quantity_from_unit_zero()` has special
 behavior - it returns the quantity from the **unit's zero**, not absolute zero:
 
 ```cpp
@@ -154,21 +154,21 @@ int main()
   // Temperature point: 20°C
   quantity_point temp = point<deg_C>(20.);
 
-  // quantity_from_zero() returns quantity from the UNIT'S zero
-  std::cout << "From Celsius zero (0 °C): " << temp.in(deg_C).quantity_from_zero() << "\n";
-  std::cout << "From Fahrenheit zero (0 °F): " << temp.in(deg_F).quantity_from_zero() << "\n";
-  std::cout << "From Kelvin zero (0 K): " << temp.in(K).quantity_from_zero() << "\n";
+  // quantity_from_unit_zero() returns quantity from the UNIT'S zero
+  std::cout << "From Celsius zero (0 °C): " << temp.in(deg_C).quantity_from_unit_zero() << "\n";
+  std::cout << "From Fahrenheit zero (0 °F): " << temp.in(deg_F).quantity_from_unit_zero() << "\n";
+  std::cout << "From Kelvin zero (0 K): " << temp.in(K).quantity_from_unit_zero() << "\n";
 
   // For Celsius: unit's zero is 0°C (= 273.15 K)
   // For Kelvin: unit's zero is 0 K (absolute zero)
   std::cout << "Are they equal? " << (temp.in(K) == temp.in(deg_C) ? "Yes" : "No") << "\n";
   std::cout << "Difference: " << (temp.in(K) - temp.in(deg_C)) << "\n";
 
-  std::cout << "\n✅ quantity_from_zero() depends on the unit's reference point!\n";
+  std::cout << "\n✅ quantity_from_unit_zero() depends on the unit's reference point!\n";
 }
 ```
 
-**Key insight**: `.quantity_from_zero()` for offset units returns the quantity from
+**Key insight**: `.quantity_from_unit_zero()` for offset units returns the quantity from
 the **unit's zero**, which for Celsius is 0 °C (273.15 K), not absolute zero!
 
 
@@ -185,4 +185,4 @@ the **unit's zero**, which for Celsius is 0 °C (273.15 K), not absolute zero!
 ✅ You cannot add two absolute temperatures  
 ✅ For differences: 1 K = 1°C (same magnitude)  
 ✅ Celsius zero is not the same as absolute zero (Kelvin)  
-✅ `.quantity_from_zero()` depends on the unit's reference point  
+✅ `.quantity_from_unit_zero()` depends on the unit's reference point  
