@@ -233,7 +233,8 @@ static_assert(quantity_point<si::metre>::quantity_spec == kind_of<isq::length>);
 static_assert(quantity_point<si::metre>::dimension == isq::dim_length);
 static_assert(quantity_point<si::metre>::unit == si::metre);
 static_assert(is_of_type<quantity_point<si::metre>::point_origin, natural_point_origin_<kind_of<isq::length>>>);
-static_assert(is_of_type<quantity_point<si::metre>::absolute_point_origin, natural_point_origin_<kind_of<isq::length>>>);
+static_assert(
+  is_of_type<quantity_point<si::metre>::absolute_point_origin, natural_point_origin_<kind_of<isq::length>>>);
 static_assert(unit_for<quantity_point<si::metre>> == si::metre);
 static_assert(reference_for<quantity_point<si::metre>> == si::metre);
 
@@ -1035,23 +1036,25 @@ static_assert([](auto v) {
 
 // same type
 static_assert(
-  [qp = mean_sea_level + 1 * m]() mutable { return qp += 1 * m; }().quantity_from_unit_zero().numerical_value_in(m) == 2);
+  [qp = mean_sea_level + 1 * m]() mutable { return qp += 1 * m; }().quantity_from_unit_zero().numerical_value_in(m) ==
+  2);
 static_assert(
-  [qp = mean_sea_level + 2 * m]() mutable { return qp -= 1 * m; }().quantity_from_unit_zero().numerical_value_in(m) == 1);
+  [qp = mean_sea_level + 2 * m]() mutable { return qp -= 1 * m; }().quantity_from_unit_zero().numerical_value_in(m) ==
+  1);
 
 // different types
 static_assert(
   [qp = mean_sea_level + 2.5 * m]() mutable { return qp += 3 * m; }().quantity_from_unit_zero().numerical_value_in(m) ==
   5.5);
-static_assert(
-  [qp = mean_sea_level + 123 * m]() mutable { return qp += 1 * km; }().quantity_from_unit_zero().numerical_value_in(m) ==
-  1123);
+static_assert([qp = mean_sea_level + 123 * m]() mutable { return qp += 1 * km; }()
+                .quantity_from_unit_zero()
+                .numerical_value_in(m) == 1123);
 static_assert(
   [qp = mean_sea_level + 5.5 * m]() mutable { return qp -= 3 * m; }().quantity_from_unit_zero().numerical_value_in(m) ==
   2.5);
-static_assert(
-  [qp = mean_sea_level + 1123 * m]() mutable { return qp -= 1 * km; }().quantity_from_unit_zero().numerical_value_in(m) ==
-  123);
+static_assert([qp = mean_sea_level + 1123 * m]() mutable { return qp -= 1 * km; }()
+                .quantity_from_unit_zero()
+                .numerical_value_in(m) == 123);
 
 
 template<template<auto, auto, typename> typename QP>
@@ -1762,7 +1765,8 @@ static_assert(value_cast<m>(quantity_point{2 * km}).quantity_from_unit_zero().nu
 static_assert(value_cast<km>(quantity_point{2000 * m}).quantity_from_unit_zero().numerical_value_in(km) == 2);
 static_assert(value_cast<int>(quantity_point{1.23 * m}).quantity_from_unit_zero().numerical_value_in(m) == 1);
 static_assert(
-  value_cast<km / h>(quantity_point{2000.0 * m / (3600.0 * s)}).quantity_from_unit_zero().numerical_value_in(km / h) == 2);
+  value_cast<km / h>(quantity_point{2000.0 * m / (3600.0 * s)}).quantity_from_unit_zero().numerical_value_in(km / h) ==
+  2);
 // lvalue references in value_cast
 namespace lvalue_tests {
 constexpr quantity_point lvalue_qp{2 * km};
@@ -1772,9 +1776,10 @@ static_assert(value_cast<m, float>(lvalue_qp).quantity_from_unit_zero().numerica
 static_assert(value_cast<float, m>(lvalue_qp).quantity_from_unit_zero().numerical_value_in(m) == 2000.f);
 }  // namespace lvalue_tests
 
-static_assert(value_cast<quantity<km, int>>(quantity_point{2000 * m}).quantity_from_unit_zero().numerical_value_in(km) == 2);
-static_assert(value_cast<quantity_point<km>>(quantity_point{2000 * m}).quantity_from_unit_zero().numerical_value_in(km) ==
-              2);
+static_assert(
+  value_cast<quantity<km, int>>(quantity_point{2000 * m}).quantity_from_unit_zero().numerical_value_in(km) == 2);
+static_assert(
+  value_cast<quantity_point<km>>(quantity_point{2000 * m}).quantity_from_unit_zero().numerical_value_in(km) == 2);
 
 template<typename ToQ, typename FromQ>
 constexpr bool value_cast_is_forbidden()
