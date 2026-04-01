@@ -35,7 +35,7 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=4.2.1 <5]")
+        self.tool_requires("cmake/[>=4.3.0 <5]")
 
     def layout(self):
         cmake_layout(self)
@@ -50,7 +50,7 @@ class TestPackageConan(ConanFile):
             tc.cache_variables["CMAKE_CXX_MODULE_STD"] = True
             # Current experimental support according to `Help/dev/experimental.rst`
             tc.cache_variables["CMAKE_EXPERIMENTAL_CXX_IMPORT_STD"] = (
-                "d0edc3af-4c50-42ea-a356-e2862fe7a444"
+                "451f2fe2-a8a2-47c3-bc32-94786d8fc91b"
             )
         tc.generate()
 
