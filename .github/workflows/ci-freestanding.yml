@@ -83,7 +83,7 @@ jobs:
       - uses: actions/checkout@v5
       - run: echo "cache_id=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_ENV
       - name: Cache Conan data
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         if: always()
         env:
           cache-name: cache-conan-data
@@ -99,7 +99,7 @@ jobs:
             freestanding-${{ matrix.toolchain.os }}-${{ matrix.formatting }}-${{ matrix.contracts }}-
             freestanding-${{ matrix.toolchain.os }}-${{ matrix.formatting }}-
             freestanding-${{ matrix.toolchain.os }}-
-      - uses: hendrikmuhs/ccache-action@v1.2
+      - uses: hendrikmuhs/ccache-action@v1.2.14
         if: runner.os == 'Linux'
         with:
           key: ${{ matrix.toolchain.os }}-${{ matrix.formatting }}-${{ matrix.contracts }}-${{ matrix.toolchain.compiler.type }}-${{ matrix.toolchain.lib }}-${{ matrix.build_type }}-${{ matrix.toolchain.compiler.version }}-${{ matrix.std }}
