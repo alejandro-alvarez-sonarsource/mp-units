@@ -129,7 +129,8 @@ jobs:
         if: matrix.toolchain.compiler.type == 'CLANG' && matrix.toolchain.os == 'macos-14'
         shell: bash
         run: |
-          brew install llvm@18
+          brew install llvm@${{ matrix.toolchain.compiler.version }}
+          brew link --force --overwrite llvm@${{ matrix.toolchain.compiler.version }}
       - name: Install Libc++
         if: matrix.toolchain.compiler.type == 'CLANG' && matrix.toolchain.lib == 'libc++' && matrix.toolchain.os != 'macos-14'
         shell: bash
