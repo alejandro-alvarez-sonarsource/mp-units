@@ -194,5 +194,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Local repro** (in the provided '.devcontainer' or GitHub CodeSpaces environment):" >> $GITHUB_STEP_SUMMARY
           echo '```sh' >> $GITHUB_STEP_SUMMARY
-          printf 'conan build . -b missing %s -c user.mp-units.build:all=True %s\n' '${{ matrix.conan-settings }}' '${{ matrix.conan-args }}' >> $GITHUB_STEP_SUMMARY
+          cat >> $GITHUB_STEP_SUMMARY << CMDEOF
+conan build . -b missing ${{ matrix.conan-settings }} -c user.mp-units.build:all=True ${{ matrix.conan-args }}
+CMDEOF
           echo '```' >> $GITHUB_STEP_SUMMARY
