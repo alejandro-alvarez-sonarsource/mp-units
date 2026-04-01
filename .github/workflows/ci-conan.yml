@@ -163,9 +163,35 @@ jobs:
         run: |
           conan profile detect --force
           conan profile show -pr default
-      - name: Print tool versions
+      - name: Install Conan dependencies
+        if: matrix.toolchain.compiler.type != 'MSVC'
         shell: bash
         run: |
+          conan install . -b missing ${{ matrix.conan-settings }} \
+                          -c tools.cmake.cmaketoolchain:generator="Ninja Multi-Config" -c user.mp-units.build:all=True \
+                          ${{ matrix.conan-args }}
+      - name: Install Conan dependencies
+        if: matrix.toolchain.compiler.type == 'MSVC'
+        shell: bash
+        run: |
+          conan install . -b missing ${{ matrix.conan-settings }} \
+                          -c tools.cmake.cmaketoolchain:generator="Ninja Multi-Config" -c user.mp-units.build:all=False \
+                          ${{ matrix.conan-args }}
+      - name: Print tool versions
+        if: matrix.toolchain.compiler.type == 'MSVC'
+        shell: cmd
+        run: |
+          call build\generators\conanbuild.bat
+          %CXX% 2>&1 || ver > nul
+          cmake --version 2>&1 || ver > nul
+          ninja --version 2>&1 || ver > nul
+          conan --version
+          python3 --version
+      - name: Print tool versions
+        if: matrix.toolchain.compiler.type != 'MSVC'
+        shell: bash
+        run: |
+          source build/generators/conanbuild.sh
           ${CXX} --version 2>&1 || true
           cmake --version 2>&1 || true
           ninja --version 2>&1 || true

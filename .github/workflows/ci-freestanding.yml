@@ -156,9 +156,17 @@ jobs:
         run: |
           conan profile detect --force
           conan profile show -pr default
+      - name: Install Conan dependencies
+        shell: bash
+        run: |
+          conan install . -b missing ${{ matrix.conan-settings }} \
+                          -c tools.cmake.cmaketoolchain:generator="Ninja Multi-Config" \
+                          -c user.mp-units.build:all=True \
+                          ${{ matrix.conan-args }}
       - name: Print tool versions
         shell: bash
         run: |
+          source build/generators/conanbuild.sh
           ${CXX} --version
           cmake --version 2>&1 || true
           ninja --version 2>&1 || true
