@@ -180,11 +180,11 @@ jobs:
         shell: cmd
         run: |
           call build\${{ matrix.conan-build-folder }}\generators\conanbuild.bat
-          %CXX% 2>&1 || ver > nul
-          cmake --version 2>&1 || ver > nul
-          ninja --version 2>&1 || ver > nul
+          cl 2>&1
+          cmake --version 2>&1
+          ninja --version 2>&1
           conan --version
-          python3 --version
+          python --version
       - name: Print tool versions
         if: matrix.toolchain.compiler.type != 'MSVC'
         shell: bash
