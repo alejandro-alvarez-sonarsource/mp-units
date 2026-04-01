@@ -242,7 +242,12 @@ jobs:
           echo "**Local repro** (in the provided '.devcontainer' or GitHub CodeSpaces environment):" >> $GITHUB_STEP_SUMMARY
           echo '```sh' >> $GITHUB_STEP_SUMMARY
           [ "${{ matrix.toolchain.compiler.type }}" != "MSVC" ] && ALL="True" || ALL="False"
-          printf '%s\n' "conan create . -b 'mp-units/*' -b missing ${{ matrix.conan-settings }} -c user.mp-units.build:all=${ALL} ${{ matrix.conan-args }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo -n "conan create . -b 'mp-units/*' -b missing "
+            echo -n '${{ matrix.conan-settings }}'
+            echo -n " -c user.mp-units.build:all=${ALL} "
+            echo '${{ matrix.conan-args }}'
+          } >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
     outputs:
