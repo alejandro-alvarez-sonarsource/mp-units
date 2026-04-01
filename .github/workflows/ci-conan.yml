@@ -55,9 +55,9 @@ jobs:
       seed: ${{ steps.set-matrix.outputs.seed }}
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.x
       - id: set-matrix
@@ -81,7 +81,7 @@ jobs:
       CC: ${{ matrix.toolchain.compiler.cc }}
       CXX: ${{ matrix.toolchain.compiler.cxx }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Generate unique cache id
         shell: bash
         run: echo "cache_id=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_ENV
@@ -147,7 +147,7 @@ jobs:
         run: |
           sudo xcode-select -s /Applications/Xcode_${{ matrix.toolchain.compiler.xcode_version }}.app && /usr/bin/xcodebuild -version
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.x
       - name: Install Ninja
@@ -254,9 +254,9 @@ jobs:
     name: Promote Conan package
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.x
       - name: Install Conan

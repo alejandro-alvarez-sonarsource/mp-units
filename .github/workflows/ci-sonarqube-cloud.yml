@@ -63,7 +63,7 @@ jobs:
       CXX: ${{ matrix.config.compiler.cxx }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - run: echo "cache_id=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_ENV
@@ -104,7 +104,7 @@ jobs:
         run: |
           sudo apt install -y libc++-${{ matrix.config.compiler.version }}-dev libc++abi-${{ matrix.config.compiler.version }}-dev libunwind-${{ matrix.config.compiler.version }}-dev
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.x
       - name: Install Ninja
