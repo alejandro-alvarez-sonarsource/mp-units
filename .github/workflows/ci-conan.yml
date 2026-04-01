@@ -102,7 +102,7 @@ jobs:
             conan-${{ matrix.toolchain.os }}-${{ matrix.formatting }}-${{ matrix.contracts }}-
             conan-${{ matrix.toolchain.os }}-${{ matrix.formatting }}-
             conan-${{ matrix.toolchain.os }}-
-      - uses: hendrikmuhs/ccache-action@v1.2.14
+      - uses: hendrikmuhs/ccache-action@v1.2.22
         if: runner.os == 'Linux'
         with:
           key: ${{ matrix.toolchain.os }}-${{ matrix.formatting }}-${{ matrix.contracts }}-${{ matrix.toolchain.compiler.type }}-${{ matrix.toolchain.lib }}-${{ matrix.build_type }}-${{ matrix.toolchain.compiler.version }}-${{ matrix.std }}
@@ -236,18 +236,17 @@ jobs:
       - name: Generate job summary
         if: failure()
         shell: bash
+        env:
+          CONAN_SETTINGS: ${{ matrix.conan-settings }}
+          CONAN_ARGS: ${{ matrix.conan-args }}
+          COMPILER_TYPE: ${{ matrix.toolchain.compiler.type }}
         run: |
           echo "## ❌ Build Failed: ${{ matrix.config-summary-str }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Local repro** (in the provided '.devcontainer' or GitHub CodeSpaces environment):" >> $GITHUB_STEP_SUMMARY
           echo '```sh' >> $GITHUB_STEP_SUMMARY
-          [ "${{ matrix.toolchain.compiler.type }}" != "MSVC" ] && ALL="True" || ALL="False"
-          {
-            echo -n "conan create . -b 'mp-units/*' -b missing "
-            echo -n '${{ matrix.conan-settings }}'
-            echo -n " -c user.mp-units.build:all=${ALL} "
-            echo '${{ matrix.conan-args }}'
-          } >> $GITHUB_STEP_SUMMARY
+          [ "${COMPILER_TYPE}" != "MSVC" ] && ALL="True" || ALL="False"
+          echo "conan create . -b 'mp-units/*' -b missing ${CONAN_SETTINGS} -c user.mp-units.build:all=${ALL} ${CONAN_ARGS}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
     outputs:

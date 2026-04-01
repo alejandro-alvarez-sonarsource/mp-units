@@ -84,7 +84,7 @@ jobs:
             sonarqube-${{ matrix.config.os }}-${{ matrix.formatting }}-${{ matrix.contracts }}-
             sonarqube-${{ matrix.config.os }}-${{ matrix.formatting }}-
             sonarqube-${{ matrix.config.os }}-
-      - uses: hendrikmuhs/ccache-action@v1.2.14
+      - uses: hendrikmuhs/ccache-action@v1.2.22
         if: runner.os == 'Linux'
         with:
           key: ${{ matrix.config.os }}-${{ matrix.formatting }}-${{ matrix.contracts }}-${{ matrix.config.compiler.type }}-${{ matrix.config.lib }}-${{ matrix.build_type }}-${{ matrix.config.compiler.version }}-${{ matrix.std }}

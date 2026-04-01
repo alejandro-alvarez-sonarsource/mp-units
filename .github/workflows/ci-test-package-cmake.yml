@@ -300,6 +300,9 @@ jobs:
       - name: Generate test package summary
         if: failure()
         shell: bash
+        env:
+          CONAN_SETTINGS: ${{ matrix.conan-settings }}
+          CONAN_ARGS: ${{ matrix.conan-args }}
         run: |
           echo "## ❌ CMake Test Package Failed: ${{ matrix.config-summary-str }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -308,12 +311,7 @@ jobs:
             BUILD_TYPE_LOWER=$(echo "${{ matrix.build_type }}" | tr '[:upper:]' '[:lower:]')
             echo '```sh' >> $GITHUB_STEP_SUMMARY
             echo "echo 'tools.cmake.cmake_layout:build_folder_vars=[\"settings.compiler\", \"settings.compiler.version\", \"settings.compiler.cppstd\"]' >> ~/.conan2/global.conf" >> $GITHUB_STEP_SUMMARY
-            {
-              echo -n "conan install . -b missing "
-              echo -n '${{ matrix.conan-settings }}'
-              echo -n " -c user.mp-units.build:all=False "
-              echo '${{ matrix.conan-args }}'
-            } >> $GITHUB_STEP_SUMMARY
+            echo "conan install . -b missing ${CONAN_SETTINGS} -c user.mp-units.build:all=False ${CONAN_ARGS}" >> $GITHUB_STEP_SUMMARY
             echo "echo '{\"version\":4,\"include\":[\"../CMakeUserPresets.json\"]}' > src/CMakeUserPresets.json" >> $GITHUB_STEP_SUMMARY
             echo "echo '{\"version\":4,\"include\":[\"../CMakeUserPresets.json\"]}' > test_package/CMakeUserPresets.json" >> $GITHUB_STEP_SUMMARY
             echo "(cd src && source ../build/${{ matrix.conan-build-folder }}/generators/conanbuild.sh && cmake --preset conan-${{ matrix.conan-build-folder }} -DCMAKE_INSTALL_PREFIX=../out && cmake --build --preset conan-${{ matrix.conan-build-folder }}-${BUILD_TYPE_LOWER} --target install)" >> $GITHUB_STEP_SUMMARY

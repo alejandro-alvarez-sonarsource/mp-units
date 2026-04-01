@@ -99,7 +99,7 @@ jobs:
             clang-tidy-${{ matrix.toolchain.os }}-${{ matrix.formatting }}-${{ matrix.contracts }}-
             clang-tidy-${{ matrix.toolchain.os }}-${{ matrix.formatting }}-
             clang-tidy-${{ matrix.toolchain.os }}-
-      - uses: hendrikmuhs/ccache-action@v1.2.14
+      - uses: hendrikmuhs/ccache-action@v1.2.22
         if: runner.os == 'Linux'
         with:
           key: ${{ matrix.toolchain.os }}-${{ matrix.formatting }}-${{ matrix.contracts }}-${{ matrix.toolchain.compiler.type }}-${{ matrix.toolchain.lib }}-${{ matrix.build_type }}-${{ matrix.toolchain.compiler.version }}-${{ matrix.std }}
@@ -197,15 +197,13 @@ jobs:
       - name: Generate clang-tidy summary
         if: failure()
         shell: bash
+        env:
+          CONAN_SETTINGS: ${{ matrix.conan-settings }}
+          CONAN_ARGS: ${{ matrix.conan-args }}
         run: |
           echo "## ⚠️ Clang-Tidy Issues: ${{ matrix.config-summary-str }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Local repro** (in the provided '.devcontainer' or GitHub CodeSpaces environment):" >> $GITHUB_STEP_SUMMARY
           echo '```sh' >> $GITHUB_STEP_SUMMARY
-          {
-            echo -n "conan build . -b missing "
-            echo -n '${{ matrix.conan-settings }}'
-            echo -n " -c user.mp-units.build:all=True -c user.mp-units.analyze:clang-tidy=True -c tools.build:skip_test=True "
-            echo '${{ matrix.conan-args }}'
-          } >> $GITHUB_STEP_SUMMARY
+          echo "conan build . -b missing ${CONAN_SETTINGS} -c user.mp-units.build:all=True -c user.mp-units.analyze:clang-tidy=True -c tools.build:skip_test=True ${CONAN_ARGS}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
