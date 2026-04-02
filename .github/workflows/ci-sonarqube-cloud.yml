@@ -178,8 +178,8 @@ jobs:
           args: >
             --define sonar.scanner.skipJreProvisioning=true
             --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
-            --define sonar.organization="${{ github.repository_owner }}"
-            --define sonar.projectKey="${{ github.repository_owner }}_mp-units"
+            --define sonar.organization="alejandro-alvarez-sonarsource"
+            --define sonar.projectKey="alejandro-alvarez-sonarsource_mp-units"
             --define sonar.projectVersion="${{ env.mp_units_version }}"
             --define sonar.cfamily.enableModules=true
             --define sonar.coverageReportPaths=coverage.xml
