@@ -121,9 +121,7 @@ jobs:
         run: |
           pip install -U gcovr
       - name: Install Build Wrapper
-        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v4
-        env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
       - name: Configure Conan
         shell: bash
         run: |
@@ -173,10 +171,9 @@ jobs:
           echo "mp_units_version=$(sed -nr 's/project\([^\)]*VERSION ([0-9]+(\.[0-9]+)+) [^\)]*\)/\1/p' src/CMakeLists.txt)" >> $GITHUB_ENV
           echo "python_version=$(python3 -c 'import platform; print(platform.python_version())')" >> $GITHUB_ENV
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
             --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
