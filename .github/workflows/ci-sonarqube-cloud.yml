@@ -176,6 +176,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
+            --define sonar.scanner.skipJreProvisioning=true
             --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
             --define sonar.organization="${{ github.repository_owner }}"
             --define sonar.projectKey="${{ github.repository_owner }}_mp-units"
