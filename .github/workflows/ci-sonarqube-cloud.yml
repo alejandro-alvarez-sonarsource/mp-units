@@ -171,7 +171,7 @@ jobs:
           echo "mp_units_version=$(sed -nr 's/project\([^\)]*VERSION ([0-9]+(\.[0-9]+)+) [^\)]*\)/\1/p' src/CMakeLists.txt)" >> $GITHUB_ENV
           echo "python_version=$(python3 -c 'import platform; print(platform.python_version())')" >> $GITHUB_ENV
       - name: Debug SONAR_TOKEN
-        run: echo "token_len=${#SONAR_TOKEN}"
+        run: echo -n "$SONAR_TOKEN" | md5sum
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: SonarQube Scan
