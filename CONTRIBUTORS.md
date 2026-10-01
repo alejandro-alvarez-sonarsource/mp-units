@@ -32,13 +32,13 @@ wouldn't be possible without the dedication and hard work of our amazing communi
 
 ## Statistics
 
-- **Total Contributors**: 36
-- **Total Contributions**: 327
+- **Total Contributors**: 40
+- **Total Contributions**: 335
 - **Major Contributors** (50+ contributions): 0
 - **Regular Contributors** (10-49 contributions): 10
-- **Occasional Contributors** (1-9 contributions): 26
+- **Occasional Contributors** (1-9 contributions): 30
 
-_Last updated: 2026-04-01_
+_Last updated: 2026-10-01_
 
 
 ### Major Contributors
@@ -68,24 +68,28 @@ _10-49 contributions_
 
 _Everyone who has contributed to mp-units_
 
+- **[HazardyKnusperkeks](https://github.com/HazardyKnusperkeks)**
 - **[fdischner](https://github.com/fdischner)**
 - **[NAThompson](https://github.com/NAThompson)**
-- **[HazardyKnusperkeks](https://github.com/HazardyKnusperkeks)**
 - **[nebkat](https://github.com/nebkat)**
 - **[jansende](https://github.com/jansende)**
 - **[kammce](https://github.com/kammce)**
 - **[jvocht](https://github.com/jvocht)**
-- **[uilianries](https://github.com/uilianries)**
 - **[sohamroy19](https://github.com/sohamroy19)**
-- **[alejandro-alvarez-sonarsource](https://github.com/alejandro-alvarez-sonarsource)**
-- **[alex-tee](https://github.com/alex-tee)**
-- **[go2sh](https://github.com/go2sh)**
+- **[uilianries](https://github.com/uilianries)**
+- **[soheilnasr625](https://github.com/soheilnasr625)**
 - **[dkavolis](https://github.com/dkavolis)**
+- **[go2sh](https://github.com/go2sh)**
+- **[alex-tee](https://github.com/alex-tee)**
+- **[alejandro-alvarez-sonarsource](https://github.com/alejandro-alvarez-sonarsource)**
+- **[A-Samee](https://github.com/A-Samee)**
 - **[dbraeckelmann](https://github.com/dbraeckelmann)**
 - **[tobylorenz](https://github.com/tobylorenz)**
 - **[TheCoconutChef](https://github.com/TheCoconutChef)**
+- **[reneparis](https://github.com/reneparis)**
 - **[mkrupcale](https://github.com/mkrupcale)**
 - **[komputerwiz](https://github.com/komputerwiz)**
+- **[bhargavikvmpl-2001](https://github.com/bhargavikvmpl-2001)**
 - **[KangarooKoala](https://github.com/KangarooKoala)**
 - **[jharwell](https://github.com/jharwell)**
 - **[FrancoisCarouge](https://github.com/FrancoisCarouge)**
